@@ -53,8 +53,8 @@ typedef struct object_d {
     int weight;
     int inc1;
     int position;
-    boolean flag1;
-    boolean flag2;
+    boolean isnotmovable;
+    boolean iswereable;
 } object;
 
 #endif
