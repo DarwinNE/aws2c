@@ -1,3 +1,5 @@
+# AWS2C
+
 The Adventure Writing System (AWS) is a tool put together by Aristide Torrelli 
 to easily write interactive fiction games.
 

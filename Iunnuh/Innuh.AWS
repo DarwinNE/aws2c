@@ -1,0 +1,1199 @@
+AWS
+VERSIONE
+3.0
+0
+7
+7
+0
+La Piramide di Iunnuh
+Aristide Torrelli
+1984
+E' la riscrittura in AWS del mio "famoso" oroginale.
+1
+Bookman Old Style
+14
+0
+25
+FALSE
+8
+0
+CONDIZIONIHI
+IF at 25 THEN presskey goto 1 ENDIF stampa introduzione aspetta un tasto e inizia
+IF RES? 24 THEN SET 24 CSET 1 30 CSET 99 5 SET 7 set 123 ENDIF imposta CobraPresente (marker 7) e contatore caricabatterie a 30 (contatore 1) imposta il contatore 99 a 5 cinque mosse al buio
+IF ROOMGT 5 THEN RESE 121 ENDIF
+IF ROOMLT 6 THEN SET 121 ENDIF
+IF set? 5 THEN decr 1 ENDIF  se la torcia è accesa (marker 5 on) allora decrementa la carica delle batterie
+IF CARR 1 AND SET? 5 THEN SET 122 ENDIF
+if set? 121 or set? 122 then rese 1 endif se è giorno oppure ho una sorgente di luce allora non è pitch black
+IF RES? 121 AND RES? 122 THEN DECR 99 MESS 138 ENDIF
+If at 8 and SET? 3 then mess 120 endif
+IF set? 4 THEN brin 21 mess 135 ENDIF  la mummia mi segue
+IF at 6 OR at 18 AND set? 4 THEN mess 136 quit ENDIF  la mummia mi attacca
+if at 5 and res? 6 then mess 137 endif la porta è chiusa
+if at 5 and set? 6 then mess 114 endif la porta è aperta
+If at 17 and res? 1  and NOTIN 21 0  then set 4 ENDIF ci si vede mummia bende sporche non nel limbo mummia segue)
+IF EQU? 1 0 THEN RESE 5 ENDIF
+IF ctreq 99 0 THEN mess 109 exit ENDIF  
+if at 10 and set? 2 then mess 144 endif
+IF AT 20 AND SET? 30 THEN MESS 145 ENDIF
+IF at 4 AND ctreq 123 100 THEN mess 161 QUIT ENDIF
+CONDIZIONILOW
+if verb 40 then mess 500 quit endif
+if verb 74 and noun 72 then inve wait endif
+if verb 0 and noun 72 then inve wait endif
+if verb 987 then restart endif
+if verb 988 then save wait endif salva la partita
+if verb 989 then load wait endif carica la partita
+if verb  80 then nord wait endif
+if verb 81 then sud wait endif
+if verb 82 then est wait endif
+if verb 83 then ovest wait endif
+if verb 84 then alto wait endif
+if verb 85 then basso wait endif
+if verb 110 then look wait endif
+IF verb 200 THEN mess 100 wait ENDIF  BEVI
+IF verb 201 THEN mess 101wait ENDIF  CHIUDI
+IF verb 202 THEN mess 102 wait ENDIF  CHIUDI
+IF verb 70 AND noun 16 AND avai 16 THEN mess 501 wait ENDIF  ESAMINA  ZAFFIRO  
+IF verb 70 AND noun 1 AND avai 1 THEN mess 502 ENDIF  ESAMINA  TORCIA  
+IF verb 70 AND noun 1 AND avai 1 AND SET? 5 THEN mess 163 WAIT ENDIF  ESAMINA  TORCIA  torcia accesa
+IF verb 70 AND noun 1 AND avai 1 AND RES? 5 THEN mess 164 WAIT ENDIF  ESAMINA  TORCIA  torcia spenta
+IF verb 70 AND no1lt 22 THEN mess 1036 WAIT ENDIF  ESAMINA
+IF verb 208 AND noun 4 THEN mess 104 WAIT ENDIF  LEGGI  SCRITTA
+IF verb 100 AND noun 0 THEN mess 106 WAIT ENDIF  VAI
+IF no1lt 5 OR no1gt 5 AND verb 100 THEN mess 108 WAIT ENDIF  VAI non alla PORTA
+IF no1lt 5 OR no1gt 5 AND verb 206 THEN mess 106 WAIT ENDIF  APRI non la PORTA
+IF verb 206 AND noun 5 THEN mess 112 WAIT ENDIF  APRI  PORTA
+IF verb 50 AND no1lt 22 THEN get no1 OKAY ENDIF  PRENDI  
+IF VERB 55 AND NO1LT 22 THEN DROP NO1 OKAY ENDIF     LASCIA
+IF verb 207 AND noun 6 AND notcarr 6 THEN mess 106 WAIT ENDIF  SUONA  FLAUTO  e non ho il flauto
+IF  no1gt 6 OR no1lt 6 and verb 207 THEN mess 1009 WAIT ENDIF  SUONA  un oggetto diverso dal flauto
+IF verb 207 AND noun 6 AND carr 6 THEN mess 117 HOLD 2 mess 118 WAIT ENDIF  SUONA  FLAUTO  e ho il flauto ma non sono nella loc 15
+IF verb 208 AND noun 16 AND carr 16 THEN mess 119 WAIT ENDIF  LEGGI  ZAFFIRO  
+IF no1gt 4 OR no1lt 4 AND verb 208 THEN mess 108 WAIT ENDIF  LEGGI  oggetto diverso dal 4 la scritta
+IF no1gt 16 OR no1lt 16 and verb 209 then mess 108 wait endif ONDEGGIA  
+IF verb 209 and carr 16 then mess 118 wait endif ONDEGGIA  zaffiro è sottinteso se siamo arrivati qui
+IF no1gt 22 OR no1lt 22 AND roomgt 5 AND verb 210 THEN mess 106 WAIT ENDIF  SCAVA
+IF NO1GT 22 OR NO1LT 22 AND notat 2 AND VERB 210 THEN MESS 123 hold 2 mess 124 WAIT ENDIF  SCAVA   SCAVA
+IF NOUN 22 AND ROOMLT 6 AND VERB 210 THEN MESS 123 HOLD 2 MESS 124 WAIT ENDIF  SCAVA   SCAVA SABBIA
+IF verb 210 THEN mess 162 WAIT ENDIF  SCAVA
+IF verb 211 AND noun 2 AND carr 2 THEN mess 125 to 2 0 WAIT ENDIF  MANGIA  CHIAVE  
+IF verb 211 AND noun 16 AND carr 16 THEN mess 125 to 16 0 WAIT ENDIF  MANGIA  ZAFFIRO  
+IF verb 211 AND noun 14 AND carr 14 THEN mess 1000 hold 2 mess 126 quit ENDIF  MANGIA  DROGHE  
+IF verb 211 AND no1lt 21 THEN mess 127 WAIT ENDIF  MANGIA
+IF verb 216 AND roomlt 6 THEN mess 128 WAIT ENDIF  VAFFANCULO  
+IF verb 216 AND roomgt 6 and roomlt 11 THEN mess 129 WAIT ENDIF  VAFFANCULO  
+IF verb 216 AND roomgt 20 and carr 3 THEN mess 130 WAIT ENDIF  VAFFANCULO  
+IF verb 216 THEN mess 131 WAIT ENDIF  VAFFANCULO
+IF verb 215 THEN mess 134 WAIT ENDIF  SALTA
+IF verb 205 AND noun 11 AND no2eq 21 AND res? 4 THEN mess 140  WAIT ENDIF  DAI  BENDE  MUMMIA
+IF verb 205 AND noun 11 AND no2eq 0 THEN mess 141  WAIT ENDIF  DAI  BENDE senza scrivere  MUMMIA
+IF verb 205 AND noun 11 AND no2eq 21 AND set? 4 AND CARR 11 THEN mess 139 rese 4 DROP 11 TO 11 0 TO 21 0 WAIT ENDIF  DAI  BENDE  MUMMIA
+IF verb 205 AND noun 11 AND no2eq 21 AND set? 4 AND NOTCARR 11 THEN mess 142 WAIT ENDIF  DAI  BENDE  MUMMIA
+IF noun 4 OR noun 5 OR noun 9 OR noun 10 OR noun 15 OR noun 19 AND verb 50 THEN mess 148 WAIT ENDIF  PRENDI
+IF verb 50 AND no1gt 20 THEN mess 150 WAIT ENDIF  PRENDI
+IF no1gt 1 AND verb 214 THEN mess 150 WAIT ENDIF  SPEGNI  oggetti non torcia
+IF verb 214 AND noun 1 AND notcarr 1 THEN mess 1010 WAIT ENDIF  SPEGNI  TORCIA  e non l'ho
+IF verb 214 AND noun 1 AND carr 1 AND res? 5 THEN mess 151 WAIT ENDIF  SPEGNI  TORCIA  è già spenta
+IF verb 214 AND noun 1 AND carr 1 and SET? 5 THEN RESE 5 rese 122 OKAY ENDIF  SPEGNI  TORCIA  è
+IF verb 213 AND no1gt 1 THEN mess 152 WAIT ENDIF  ACCENDI  TORCIA  
+IF verb 213 AND noun 1 AND notcarr 1 THEN mess 1007 WAIT ENDIF  ACCENDI  TORCIA  non l'ho con me
+IF verb 213 AND noun 1 AND carr 1 AND set? 5 AND ctrgt 1 0 THEN mess 153 WAIT ENDIF  ACCENDI  TORCIA  TORCIA  
+IF verb 213 AND noun 1 AND carr 1 AND ctreq 1 0 THEN mess 154 WAIT ENDIF  ACCENDI  TORCIA  
+IF verb 213 AND noun 1 AND carr 1 AND ctrgt 1 0 THEN set 5 set 122 OKAY ENDIF  ACCENDI  TORCIA
+IF verb 203 THEN cset 123 0 ENDIF  PUNTEGGIO  
+If IN 8 4 or carr 8 and verb 203 then addc 123 20 endif
+If IN 12  4 or carr 12 and verb 203 then addc 123 20 endif
+If IN 18  4 or carr 18 and verb 203 then addc 123 20 endif
+If IN 20  4 or carr 20 and verb 203 then addc 123 20 endif
+If IN 16  4 or carr 16 and verb 203 then addc 123 20 endif
+if verb 203 then mess 155 prin ctr 123 messnolf 156 prinnolf 100 messnolf 157 wait endif
+IF no1lt 13 OR no1gt 13 AND verb 217 THEN mess 160 WAIT ENDIF  BATTERIE  BATTERIE  CAMBIA  
+IF verb 217 AND noun 13 AND notcarr 13 THEN mess 158 WAIT ENDIF  CAMBIA  BATTERIE  non ho BATTERIE  
+IF verb 217 AND noun 13 AND carr 1 AND ctrgt 1 0 THEN mess 159 WAIT ENDIF  CAMBIA  BATTERIE  
+IF verb 217 AND noun 13 AND carr 1 THEN RESE 1 TO 13 0 SET 5 CSET 1 100 OKAY ENDIF  CAMBIA  BATTERIE
+IF verb 1100 THEN prin room WAIT ENDIF  ROOM
+IF verb 1200 THEN prin ctr 120 WAIT ENDIF  PESO
+IF verb 1300 THEN RAMSAVE WAIT ENDIF RAMSAVE  
+IF verb 1301 THEN RAMLOAD WAIT ENDIF RAMLOAD
+CONDIZIONILOCALI
+2
+IF verb 210 AND noun 22 AND RES? 49 THEN SET 49 mess 122 brin 2 HOLD 2 LOOK WAIT ENDIF  SCAVA  SABBIA
+4
+IF verb 70 AND noun 4 THEN mess 501 wait ENDIF  ESAMINA  SCRITTA
+4
+IF verb 208 AND noun 4 THEN mess 103 WAIT ENDIF  LEGGI  SCRITTA
+5
+IF verb 206 AND noun 5 AND set? 6 THEN mess 113 WAIT ENDIF  APRI  PORTA
+5
+IF verb 206 AND noun 5 AND notcarr 2 THEN mess 115 WAIT ENDIF  APRI  PORTA non ho la  CHIAVE
+5
+IF verb 206 AND noun 5 AND carr 2 THEN set 6 OKAY ENDIF  APRI  PORTA ho la  CHIAVE
+5
+IF verb 31 AND NOUN 5 AND set? 6 THEN rese 121 goto 6 WAIT ENDIF  ENTRA   porta aperta
+5
+IF verb 31 AND set? 6 THEN rese 121 goto 6 WAIT ENDIF  ENTRA   porta aperta
+6
+IF verb 80 THEN set 121 goto 5 WAIT ENDIF  N
+8
+IF verb 209 AND noun 16 AND carr 16 THEN mess 121 set 3 setconn 8 6 16 WAIT ENDIF  ONDEGGIA  ZAFFIRO
+10
+IF verb 55 AND noun 7 AND carr 7 THEN mess 143 SETCONN 10 5 12 SWAP 9 22 DROP 7 TO 7 0 SET 2 WAIT ENDIF  POSA  TESCHIO  TESCHIO
+10
+IF verb 100 AND noun 28 AND set? 2 THEN goto 12 WAIT ENDIF  VAI  SCALA
+10
+IF verb 100 AND noun 28 THEN mess 1008 WAIT ENDIF  VAI  SCALA ma non c'è la scala
+10
+IF verb 84 AND noun 28 AND set? 2 THEN goto 12 WAIT ENDIF  VAI  SCALA
+10
+IF verb 84 AND noun 28 THEN mess 1008 WAIT ENDIF  VAI  SCALA ma non c'è la scala
+10
+IF verb 84 AND set? 2 THEN goto 12 WAIT ENDIF  sali
+10
+IF verb 84 THEN mess 1008 WAIT ENDIF  sali ma non c'è la scala
+15
+IF VERB 50  AND SET? 7 THEN MESS 147 QUIT ENDIF il cobra mi morde
+15
+IF verb 207 AND noun 6 AND carr 6 THEN mess 116 TO 15 0 rese 7 WAIT ENDIF  SUONA  FLAUTO  e ho il flauto
+20
+IF verb 215 AND set? 30 THEN mess 133 WAIT ENDIF  SALTA
+20
+IF verb 215 AND res? 30 THEN mess 132 QUIT ENDIF  SALTA
+20
+if VERB 55 and NOUN 3 and CARR 3 and res? 30 then set 30  mess 146 DROP 3 TO 3 0 SETCONN 20 2 23 WAIT ENDIF  posa  trave
+24
+IF verb 70 AND noun 19 AND res? 25 THEN set 25 mess 105 brin 20 WAIT ENDIF  ESAMINA  SARCOFAGO
+24
+IF verb 70 AND noun 19 AND set? 25 THEN mess 1036 WAIT ENDIF  ESAMINA  SARCOFAGO
+DIZIONARIO
+A
+150
+AVVERBIO
+ACCENDI
+213
+VERBO
+ALTARE
+10
+NOME
+ALTO
+84
+VERBO
+APRI
+206
+VERBO
+ARRENDITI
+40
+VERBO
+BASSO
+85
+VERBO
+BASTA
+40
+VERBO
+BATTERIA
+13
+NOME
+BATTERIE
+13
+NOME
+BENDE
+11
+NOME
+BEVI
+200
+VERBO
+BEVI
+212
+VERBO
+CAMBIA
+217
+VERBO
+CAMMINA
+100
+VERBO
+CARICA
+989
+VERBO
+CHIAVE
+2
+NOME
+CHIUDI
+201
+VERBO
+COBRA
+15
+NOME
+COLLANA
+8
+NOME
+CORRI
+100
+VERBO
+CORRIDOIO
+26
+NOME
+CREPA
+216
+VERBO
+CUNICOLO
+27
+NOME
+DAI
+205
+VERBO
+DROGHE
+14
+NOME
+E
+82
+VERBO
+ENTRA
+31
+VERBO
+ESAMINA
+70
+VERBO
+EST
+82
+VERBO
+FLAUTO
+6
+NOME
+G
+110
+VERBO
+GEROGLIFICI
+402
+NOME
+GEROGLIFICO
+24
+NOME
+GIU
+85
+VERBO
+GUARDA
+110
+VERBO
+I
+72
+NOME
+IN
+218
+AVVERBIO
+INVENTARIO
+72
+NOME
+LASCIA
+55
+VERBO
+LEGGI
+208
+VERBO
+MANGIA
+211
+VERBO
+MASCHERA
+20
+NOME
+MERDA
+216
+VERBO
+MOSTRA
+74
+VERBO
+MUMMIA
+21
+NOME
+N
+80
+VERBO
+NELLA
+218
+AVVERBIO
+NELLO
+218
+AVVERBIO
+NORD
+80
+VERBO
+O
+83
+VERBO
+ONDEGGIA
+209
+VERBO
+OOPS
+950
+VERBO
+OVEST
+83
+VERBO
+PESO
+1200
+VERBO
+PIGLIA
+50
+VERBO
+PIRAMIDE
+5
+NOME
+POI
+9999
+SEPARATORE
+PORTA
+5
+NOME
+POSA
+55
+VERBO
+PRENDI
+50
+VERBO
+PUNTEGGIO
+203
+VERBO
+QUINDI
+9999
+SEPARATORE
+RAMLOAD
+1301
+VERBO
+RAMSAVE
+1300
+VERBO
+RICOMINCIA
+987
+VERBO
+ROMPI
+202
+VERBO
+ROOM
+1100
+VERBO
+S
+81
+VERBO
+SABBIA
+22
+NOME
+SALA
+25
+NOME
+SALI
+84
+VERBO
+SALTA
+215
+VERBO
+SALVA
+988
+VERBO
+SARCOFAGO
+19
+NOME
+SCALA
+28
+NOME
+SCAVA
+210
+VERBO
+SCHELETRO
+9
+NOME
+SCRITTA
+4
+NOME
+SCURE
+12
+NOME
+SFASCIA
+202
+VERBO
+SFONDA
+202
+VERBO
+SOPRA
+84
+VERBO
+SOTTO
+85
+VERBO
+SPADA
+17
+NOME
+SPEGNI
+214
+VERBO
+STANZA
+23
+NOME
+STRONZO
+216
+VERBO
+SU
+84
+VERBO
+SUD
+81
+VERBO
+SUONA
+207
+VERBO
+TESCHIO
+7
+NOME
+TORCIA
+1
+NOME
+TRAVE
+3
+NOME
+VAFFA
+216
+VERBO
+VAFFANCULO
+216
+VERBO
+VAI
+100
+VERBO
+VASO
+18
+NOME
+ZAFFIRO
+16
+NOME
+LOCAZIONI
+1
+Sei nel deserto.
+
+DESERTO
+2
+4
+2
+1
+0
+0
+0
+0
+0
+0
+2
+Sei nel deserto.
+
+DESERTO
+2
+3
+3
+1
+0
+0
+0
+0
+0
+0
+3
+Sei nel deserto.
+
+DESERTO
+2
+5
+2
+4
+0
+0
+0
+0
+0
+0
+4
+Sei nel deserto.
+
+DESERTO
+1
+5
+3
+4
+0
+0
+0
+0
+0
+0
+5
+Sei nel deserto� di fronte c'e` una piramide.
+
+DESERTO
+4
+0
+3
+0
+0
+0
+0
+0
+0
+0
+6
+Sei nell'anticamera della piramide di Innuh.
+
+ANTICAMERA
+0
+10
+7
+8
+0
+0
+0
+0
+0
+0
+7
+Sei in una stanza triangolare.
+
+STANZA TRIANGOLARE
+0
+10
+0
+6
+0
+0
+0
+0
+0
+0
+8
+Sei in una sala bianca e sul muro c'e` incastonato uno zaffiro.
+
+SALA BIANCA
+0
+9
+6
+0
+0
+0
+0
+0
+0
+0
+9
+Sei in una nicchia.
+
+NICCHIA
+8
+0
+10
+0
+0
+0
+0
+0
+0
+0
+10
+Sei in un corridoio.
+
+CORRIDOIO
+6
+0
+7
+9
+0
+0
+0
+0
+0
+0
+11
+Sei in una sala rossa.
+
+SALA ROSSA
+0
+13
+14
+0
+0
+0
+0
+0
+0
+0
+12
+Sei in una saletta.
+
+SALETTA
+0
+15
+13
+0
+0
+10
+0
+0
+0
+0
+13
+Sei nella sala dell'alchimista.
+
+ALCHIMISTA
+11
+15
+14
+12
+0
+0
+0
+0
+0
+0
+14
+Sei nella sala dell'imbalsamatore.
+
+IMBALSAMATORE
+11
+0
+0
+13
+0
+0
+0
+0
+0
+0
+15
+Sei nella sala di Iankho.
+
+IANKHO
+13
+0
+0
+12
+0
+0
+0
+0
+0
+0
+16
+Sei in un tunnel.
+
+TUNNEL
+0
+0
+17
+0
+8
+0
+0
+0
+0
+0
+17
+Sei in un tunnel. Una scritta dice: non passare o MORIRAI.
+
+TUNNEL
+0
+0
+18
+16
+0
+0
+0
+0
+0
+0
+18
+Sei in un tunnel. Una scritta dice: non passare o MORIRAI.
+
+TUNNEL
+0
+21
+19
+17
+0
+0
+0
+0
+0
+0
+19
+Sei in una stanza verde.
+
+STANZA VERDE
+0
+0
+21
+18
+0
+0
+0
+0
+0
+0
+20
+Sei in un cunicolo stretto con un fosso troppo largo da saltare.
+
+CUNICOLO
+0
+0
+21
+0
+0
+0
+0
+0
+0
+0
+21
+Sei nella vecchia armeria.
+
+ARMERIA
+18
+0
+22
+20
+0
+0
+0
+0
+0
+0
+22
+Sei nella sala dei geroglifici.
+
+GEROGLIFICI
+0
+0
+0
+21
+0
+0
+0
+0
+0
+0
+23
+Sei nella sala di Hanyke.
+
+HANYKE
+20
+24
+0
+0
+0
+0
+0
+0
+0
+0
+24
+Sei nella cappella funeraria.
+
+CAPPELLA FUNERARIA
+23
+0
+0
+0
+0
+0
+0
+0
+0
+0
+25
+Da qualche parte nel deserto giace la piramide di Innuh. Le antiche leggende dicono che sia piena di tesori� ma nessun uomo che abbia cercato di svelarne il segreto è mai tornato indietro per raccontarlo. Sarò per te occhi e orecchie. Il tuo scopo è di portar via tutti i tesori che la piramide nasconde. Buona fortuna� ne avrai bisogno!
+
+INTRODUZIONE
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+MESSAGGI
+100
+Questa non me la bevo!
+101
+Meglio lasciare tutto aperto� non si sa mai.
+102
+Se ti piace sfasciare le cose� perche' non giochi ad uno sparatutto?
+103
+Dice: portare qui i tesori.
+104
+Quale scritta?
+105
+Vedo qualcosa... 
+106
+Uh?
+107
+Non conosco questa parola.
+108
+Non ti capisco.
+109
+Sono caduto e mi sono rotto la testa! 
+110
+Non posso andare di là!
+111
+Non conosco la parola 
+112
+Qui non c'è nulla da aprire.
+113
+Ma è aperta!
+114
+La porta è aperta.
+115
+Non ho nulla per farlo.
+116
+Funziona! Il cobra si allontana. 
+117
+Proviamo...
+118
+Non accade nulla.
+119
+Dice: ondeggiami.
+120
+C'è un passaggio che porta di sotto.
+121
+Incredibile! Il muro si illumina e appare un passaggio che porta di sotto.
+122
+Trovo qualcosa!
+123
+Ho solo le mani per scavare; posso scavare solo la sabbia. Scavo con le mani e …
+124
+… non trovo nulla.
+125
+Non ha un buon sapore.
+126
+AAGHHH!
+127
+Non mi piace!
+128
+Guarda che l'avventura è lunga e difficile se cominci in questo modo!
+129
+Per me e` oltremodo difficile� dovresti provare tu.
+130
+Smettila di imprecare ed usa il cervello!
+131
+Beh� facciamo finta di non aver capito...
+132
+Sono caduto e mi sono rotto la testa!
+133
+Forse è meglio se mi dici una direzione!
+134
+Whee!
+135
+La mummia mi segue!
+136
+Aiuto! La mummia mi attacca!
+137
+La porta è chiusa.
+138
+Ora è buio pesto! E' pericoloso muoversi alla cieca.
+139
+La mummia dice: Grazie� straniero� era proprio ora che qualcuno passasse� ora potrò passare altri duemila anni in pace. Prende le bende e se ne va.
+140
+Non vedo nessuna mummia.
+141
+Prova a scrivere DAI LE BENDE ALLA ...
+142
+Ti conviene averle� le bende...
+143
+Lo scheletro se lo mette sulle spalle� poi tira una leva e una scala scende dal soffitto.
+144
+C'è una scala che scende dal soffitto.
+145
+C'è una trave che fa da passaggio verso sud.
+146
+Wow! Ora posso andare a sud passando sulla trave.
+147
+Il cobra mi ha morso! Muoio tra atroci dolori.
+148
+Non essere sciocco!
+149
+Non fare lo scemo!
+150
+Spiegati meglio.
+151
+E' già spenta.
+152
+Non scherzare.
+153
+E' già accesa.
+154
+Non posso� le batterie si sono scaricate!
+155
+Hai raggiunto 
+156
+ punti su 
+157
+.
+158
+Non ho batterie cariche con me.
+159
+Quelle che ci sono vanno ancora bene.
+160
+Spiegati meglio.
+161
+Complimenti! Hai risolto l'avventura.
+162
+Che cosa devo scavare?
+163
+La torcia è accesa.
+164
+La torcia è spenta.
+500
+Abbandoni la ricerca dei tesori come un qualsiasi principiante. Lord Carnarvon si sta rivoltando nella tomba!
+501
+C'è scritto qualcosa!
+502
+E' un bel modello di torcia elettrica professionale: 1000 candele e lente di Fresnel.
+1000
+Okay.
+1001
+Fatto.
+1002
+Fatto.
+1003
+Sono troppo carico!
+1004
+E' troppo grande da maneggiare!
+1005
+Non si muove!
+1006
+Non lo vedo da nessuna parte!
+1007
+Non ce l'ho con me!
+1008
+Non posso andare da quella parte!
+1009
+Prego?
+1010
+Non posso.
+1011
+Già ce l'ho con me!
+1012
+Cosa devo fare? 
+1013
+E' buio� non si vede nulla.
+1014
+Hai impiegato 
+1015
+ turni per raggiungere 
+1016
+ punti.
+1018
+Indosso 
+1019
+Lo indosso già
+1020
+Posso andare verso: 
+1021
+nord
+1022
+sud
+1023
+est
+1024
+ovest
+1025
+alto
+1026
+basso
+1027
+nordest
+1028
+nordovest
+1029
+sudest
+1030
+sudovest
+1031
+Posso vedere: 
+1032
+Con me ho: 
+1033
+Non ho nulla con me.
+1035
+basta
+OGGETTI
+1
+
+una torcia
+1
+0
+1
+FALSE
+FALSE
+2
+
+una chiave
+1
+0
+0
+FALSE
+FALSE
+3
+
+una trave di legno
+2
+0
+3
+FALSE
+FALSE
+4
+
+una scritta
+0
+0
+4
+TRUE
+FALSE
+5
+
+una porta
+0
+0
+5
+TRUE
+FALSE
+6
+
+un flauto
+1
+0
+6
+FALSE
+FALSE
+7
+
+un teschio
+1
+0
+8
+FALSE
+FALSE
+8
+
+una *collana d'oro*
+1
+0
+9
+FALSE
+FALSE
+9
+
+uno scheletro senza testa
+0
+0
+10
+TRUE
+FALSE
+10
+
+un altare insanguinato
+0
+0
+11
+TRUE
+FALSE
+11
+
+bende pulite
+1
+0
+11
+FALSE
+FALSE
+12
+
+una *scure d'oro*
+1
+0
+11
+FALSE
+FALSE
+13
+
+batterie cariche
+1
+0
+12
+FALSE
+FALSE
+14
+
+droghe
+1
+0
+13
+FALSE
+FALSE
+15
+
+un cobra velenoso
+1
+0
+15
+FALSE
+FALSE
+16
+
+uno *zaffiro*
+1
+0
+15
+FALSE
+FALSE
+17
+
+una spada rotta
+1
+0
+16
+FALSE
+FALSE
+18
+
+un *antico vaso*
+2
+0
+22
+FALSE
+FALSE
+19
+
+un sarcofago aperto
+0
+0
+24
+TRUE
+FALSE
+20
+
+una *maschera d'oro*
+1
+0
+0
+FALSE
+FALSE
+21
+
+una mummia con le bende sporche
+0
+0
+17
+TRUE
+FALSE
+22
+
+uno scheletro contento
+0
+0
+0
+TRUE
+FALSE
+FINEDATI
