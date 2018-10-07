@@ -20,6 +20,7 @@ typedef struct localc_t {
 
 int no_of_errors;
 
+
 /** Read the dictionary contained in the file. The number of words to be read
     should have been already found.
     @return a pointer to the allocated dictionary, or NULL if something bad
@@ -352,10 +353,12 @@ info *read_header(FILE *f)
 char *encodechar(char *input)
 {
     int i,k;
-    char c;
+    unsigned char c;
     for(i=0; (c=input[i])!='\0' && i<BUFFERSIZE-1;++i) {
         if(c=='\"') {
             buffer[k++]='\\';
+        } else if(c==0xE7) {
+           c=','; // Comma is translated in AWS files!
         }
         buffer[k++]=c;
     }
@@ -539,20 +542,6 @@ void output_utility_func(FILE *of)
     fprintf(of,TAB TAB TAB "return i;\n");
     fprintf(of,TAB "return -2;\n}\n\n");
 
-    fprintf(of,"boolean carry_object(int o)\n{\n");
-    fprintf(of,TAB "int i;\n");
-    fprintf(of,TAB "for(i=0; i<OSIZE;++i)\n");
-    fprintf(of,TAB TAB "if(obj[i].code==o && obj[i].position==-1)\n");
-    fprintf(of,TAB TAB TAB "return true;\n");
-    fprintf(of,TAB "return false;\n}\n\n");
-
-    fprintf(of,"void show_message(int m)\n{\n");
-    fprintf(of,TAB "int i;\n");
-    fprintf(of,TAB "for(i=0; i<MSIZE;++i)\n");
-    fprintf(of,TAB TAB "if(msg[i].code==m)\n");
-    fprintf(of,TAB TAB TAB "writeln(msg[i].txt);\n");
-    fprintf(of, "}\n\n");
-
     fprintf(of,"void show_messagenlf(int m)\n{\n");
     fprintf(of,TAB "int i;\n");
     fprintf(of,TAB "for(i=0; i<MSIZE;++i)\n");
@@ -560,6 +549,10 @@ void output_utility_func(FILE *of)
     fprintf(of,TAB TAB TAB "writesameln(msg[i].txt);\n");
     fprintf(of, "}\n\n");
 
+    fprintf(of,"void show_message(int m)\n{\n");
+    fprintf(of,TAB "show_messagenlf(m);\n");
+    fprintf(of,TAB "writeln(\"\");\n");
+    fprintf(of, "}\n\n");
 
     fprintf(of,"void inventory(void)\n{\n");
     fprintf(of,TAB "int i, gs=0;\n");
@@ -598,11 +591,18 @@ void output_dictionary(FILE *of, word* dictionary, int dsize)
 void output_rooms(FILE *of, room* world, int rsize)
 {
     int i,j;
+    char *long_d;
+    char *p;
     fprintf(of, "#define RSIZE %d\n",rsize);
     fprintf(of, "room world[RSIZE]={\n");
     for(i=0; i<rsize;++i) {
+        p=encodechar(world[i].long_d);
+        long_d = (char*) calloc(strlen(p)+1, sizeof(char));
+        strcpy(long_d,p);
         fprintf(of, TAB "{%d,\"%s\",\"%s\",\"%s\",",
-            world[i].code, world[i].long_d, world[i].s, world[i].short_d);
+            world[i].code, long_d, world[i].s,
+            encodechar(world[i].short_d));
+        free(long_d);
         fprintf(of, "{");
         for(j=0; j<9;++j) {
             fprintf(of, "%d,", world[i].directions[j]);
@@ -625,7 +625,7 @@ void output_messages(FILE *of, message* msg, int msize)
     fprintf(of, "#define MSIZE %d\n",msize);
     fprintf(of, "message msg[MSIZE]={\n");
     for(i=0; i<msize;++i) {
-        fprintf(of, TAB "{%d,\"%s\"}", msg[i].code, msg[i].txt);
+        fprintf(of, TAB "{%d,\"%s\"}", msg[i].code, encodechar(msg[i].txt));
         if(i<msize-1) {
             fprintf(of,",");
         }
@@ -642,7 +642,8 @@ void output_objects(FILE *of, object* obj, int osize)
     fprintf(of, "#define OSIZE %d\n",osize);
     fprintf(of, "object obj[OSIZE]={\n");
     for(i=0; i<osize;++i) {
-        fprintf(of, TAB "{%d,\"%s\",\"%s\",",obj[i].code,obj[i].s,obj[i].desc);
+        fprintf(of, TAB "{%d,\"%s\",\"%s\",",obj[i].code,obj[i].s,
+            encodechar(obj[i].desc));
         fprintf(of, "%d,%d,%d,",obj[i].weight,obj[i].inc1,obj[i].position);
         if(obj[i].isnotmovable==true)
             fprintf(of, "true,");
@@ -724,7 +725,7 @@ int process_functions(char *line, int scanpos)
     } else if(strcmp(token,"OBJLOC")==0) {
         strcon(function_res,"obj[search_object(");
         scanpos=process_functions(line,scanpos);
-        strcon(function_res,")]");
+        strcon(function_res,")].position");
     } else {
         if(sscanf(token, "%d",&value)==1) {
             sprintf(token, "%d", value);
@@ -795,7 +796,7 @@ int decision_carr(FILE *f, char *line, int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, "carry_object(%s)==true", function_res);
+    fprintf(f, "obj[search_object(%s)].position==-1", function_res);
     return scanpos;
 }
 /** NOTIN */
@@ -1324,7 +1325,7 @@ int action_wait(FILE *f, char *line, int scanpos)
 /** LF */
 int action_lf(FILE *f, char *line, int scanpos)
 {
-    fprintf(f, TAB TAB "writeln("");\n");
+    fprintf(f, TAB TAB "writeln(\"\");\n");
     return scanpos;
 }
 /** OBJ */
@@ -1340,13 +1341,12 @@ int action_wear(FILE *f, char *line, int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, TAB TAB "dummy=search_object(%s)\n",function_res);
+    fprintf(f, TAB TAB "dummy=search_object(%s);\n",function_res);
     fprintf(f, TAB TAB
-        "if(obj[dummy].iswereable==true&&"
-        "obj[dummy].position==-1)){");
+        "if(obj[dummy].iswereable==true&&obj[dummy].position==-1){\n");
     fprintf(f, TAB TAB TAB
-        "obj[search_object(%s)].position=-2;\n", function_res);
-    fprintf(f, TAB TAB "} else if(obj[dummy].position==-2)\n");
+        "obj[search_object(dummy)].position=-2;\n");
+    fprintf(f, TAB TAB "} else if(obj[dummy].position==-2) {\n");
     fprintf(f, TAB TAB TAB "show_message(1019);\n");
     fprintf(f, TAB TAB "} else {\n");
     fprintf(f, TAB TAB TAB "show_message(1010);\n");
@@ -1358,11 +1358,11 @@ int action_unwear(FILE *f, char *line, int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, TAB TAB "dummy=search_object(%s)\n",function_res);
+    fprintf(f, TAB TAB "dummy=search_object(%s);\n",function_res);
     fprintf(f, TAB TAB
-        "if(obj[dummy].position==-2)){");
+        "if(obj[dummy].position==-2){\n");
     fprintf(f, TAB TAB TAB
-        "obj[search_object(%s)].position=-1;\n", function_res);
+        "obj[search_object(dummy)].position=-1;\n");
     fprintf(f, TAB TAB "} else\n");
     fprintf(f, TAB TAB TAB "show_message(1010);\n");
     return scanpos;
@@ -1374,6 +1374,7 @@ int action_unwear(FILE *f, char *line, int scanpos)
 void process_aws(FILE *f, char *line)
 {
     int scanpos=0;
+    boolean atleastone=false;
     scanpos=get_token(line, scanpos);
     //printf("line [%s], token %s\n", line, token);
 
@@ -1385,7 +1386,6 @@ void process_aws(FILE *f, char *line)
     }
     fprintf(f,TAB "// %s\n",line);
     fprintf(f,TAB "if(");
-
     while(1) {
         scanpos=get_token(line, scanpos);
         if(strcmp(token,"AT")==0) {
@@ -1452,12 +1452,16 @@ void process_aws(FILE *f, char *line)
             // this is a trick to have the behaviour of AND as it is in AWS.
             fprintf(f,") if("); // There, AND has the same priority of OR :-(
         } else if(strcmp(token,"THEN")==0) {
+            // One needs to avoid if() C code for "IF THEN" conditions
+            if(atleastone==false)
+                fprintf(f,"1");
             break;
         } else {
             printf("Unrecognised decision %s in [%s].\n", token, line);
             ++no_of_errors;
             return;
         }
+        atleastone=true;
     }
 
     fprintf(f,") {\n");  // ACTIONS
@@ -1600,12 +1604,21 @@ void output_lowcond(FILE *f, char **cond, int size)
 void output_local(FILE *f, localc* cond, int size)
 {
     int i;
+    int oldroom=-1;
+    boolean first=true;
     fprintf(f,"int local_cond(void)\n{\n");
     for(i=0; i<size; ++i) {
-        fprintf(f, TAB "if(current_position==%d) {\n", cond[i].room);
+        if(oldroom!=cond[i].room) {
+            if(first==false)
+                fprintf(f, TAB "}\n");
+
+            fprintf(f, TAB "if(current_position==%d) {\n", cond[i].room);
+            first=false;
+            oldroom=cond[i].room;
+        }
         process_aws(f,cond[i].condition);
-        fprintf(f, TAB "}\n");
     }
+    fprintf(f, TAB "}\n");
 
     fprintf(f, TAB "return 0;\n");
     fprintf(f,"}\n");
@@ -1661,6 +1674,7 @@ void create_main(FILE *f, info *header)
     fprintf(f, TAB "greetings();\n");
     fprintf(f, TAB "current_position=%d;\n",header->startroom);
     fprintf(f, TAB "marker[124]=true;\n");
+    fprintf(f, TAB "marker[121]=true;\n");
     fprintf(f, TAB "game_cycle();\n");
     fprintf(f, TAB "return 0;\n");
     fprintf(f, "}\n");
