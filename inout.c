@@ -100,22 +100,27 @@ int readln(void)
 }
 
 
+// Having this buffer as a static variable allows to avoid running into
+// troubles with Cc65 that needs to have very few local variables to
+// compile to targets such as the 6502 processor.
+char s[BUFFERSIZE];
+
 void interrogationAndAnalysis(int num_of_words)
 {
     boolean search=true;
-    char s[BUFFERSIZE];
-    int ls=0, lc, i, x, ols, app,k;
+    int ls=0, lc, i, k;
     boolean found = false;
+    char c;
+
     lc=readln();
     verb=0;
     noun1=0;
     noun2=0;
     adve=0;
-    char c;
 
     while(ls<lc) {
         k=0;
-        for(; ls<lc; ++ls) {
+        for(; ls<lc && k<BUFFERSIZE; ++ls) {
             c=playerInput[ls];
             if(c==' ') {
                 ls++;
@@ -131,8 +136,8 @@ void interrogationAndAnalysis(int num_of_words)
         // if it is recognized or not.
         for(i=0;i<num_of_words; ++i) {
             if(strcmp(s,dictionary[i].w)==0) {
-        /*        printf("type %d, word %s, code %d\n",
-                    dictionary[i].t, dictionary[i].w, dictionary[i].code); */
+                printf("type %d, word %s, code %d\n",
+                    dictionary[i].t, dictionary[i].w, dictionary[i].code);
                 switch (dictionary[i].t) {
                     case VERB:
                         verb=dictionary[i].code;

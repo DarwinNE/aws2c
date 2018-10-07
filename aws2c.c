@@ -275,7 +275,7 @@ info *read_header(FILE *f)
     info *in = (info*)malloc(sizeof(info));
     getlinep(f);
     if(strcmp(buffer,"AWS")!=0) {
-        printf("This is not an AWS file!");
+        printf("This is not an AWS file!\n");
         return NULL;
     }
     getlinep(f);
@@ -558,8 +558,8 @@ void output_utility_func(FILE *of)
 
 
     fprintf(of,"void inventory(void)\n{\n");
-    fprintf(of,TAB "show_message(1032);\n");
     fprintf(of,TAB "int i, gs=0;\n");
+    fprintf(of,TAB "show_message(1032);\n");
     fprintf(of,TAB "for(i = 0; i<OSIZE; ++i) {\n");
     fprintf(of,TAB TAB "if(obj[i].position==-1) {\n");
     fprintf(of,TAB TAB TAB "++gs;\n");
@@ -1432,7 +1432,7 @@ int main(int argc, char **argv)
     }
     printf("Reading %s\n",argv[1]);
     FILE *f=fopen(argv[1],"r");
-    FILE *of=fopen(argv[2],"w");
+    FILE *of;
     int dsize;
     int rsize;
     int osize;
@@ -1451,65 +1451,80 @@ int main(int argc, char **argv)
     int localcondsize;
     
 
-    if(f==NULL || of==NULL) {
-        printf("Could not open input or output file.\n");
+    if(f==NULL) {
+        printf("Could not open input file.\n");
         return 1;
     }
     printf("Read header: ");
-    header=read_header(f);
+    if ((header=read_header(f))==NULL)
+        exit(1);
+
     printf("done\n");
     
     printf("Read number of CONDIZIONIHI: ");
     hicondsize=get_hi_cond_size(f);
     printf("%d\n",hicondsize);
     printf("Read CONDIZIONIHI: ");
-    hicond=read_cond(f, hicondsize);
+    if((hicond=read_cond(f, hicondsize))==NULL)
+        exit(1);
+    
     printf("done\n");
 
     printf("Read number of CONDIZIONILOW: ");
     lowcondsize=get_low_cond_size(f);
     printf("%d\n",lowcondsize);
     printf("Read CONDIZIONILOW: ");
-    lowcond=read_cond(f, lowcondsize);
+    if((lowcond=read_cond(f, lowcondsize))==NULL)
+        exit(1);
     printf("done\n");
 
     printf("Read number of CONDIZIONILOCALI: ");
     localcondsize=get_local_cond_size(f);
     printf("%d\n",localcondsize);
     printf("Read CONDIZIONILOCALI: ");
-    localcond=read_local(f, localcondsize);
+    if((localcond=read_local(f, localcondsize))==NULL)
+        exit(1);
     printf("done\n");
 
     printf("Get dictionary size: ");
     dsize=get_dict_size(f);
     printf("%d\n",dsize);
     printf("Read dictionary: ");
-    dictionary=read_dictionary(f,dsize);
+    if((dictionary=read_dictionary(f,dsize))==NULL)
+        exit(1);
     printf("done\n");
 
     printf("Get the number of rooms in use: ");
     rsize=get_room_number(f);
     printf("%d\n",rsize);
     printf("Read world: ");
-    world=read_rooms(f,rsize);
+    if((world=read_rooms(f,rsize))==NULL)
+        exit(1);
     printf("done\n");
 
     printf("Get the number of messages in use: ");
     msize=get_messages_number(f);
     printf("%d\n",msize);
     printf("Read messages: ");
-    msg=read_messages(f,msize);
+    if((msg=read_messages(f,msize))==NULL)
+        exit(1);
     printf("done\n");
 
     printf("Get the number of objects recognised by the game: ");
     osize=get_objects_number(f);
     printf("%d\n",osize);
     printf("Read objects: ");
-    objects=read_objects(f, osize);
+    if((objects=read_objects(f, osize))==NULL)
+        exit(1);
+    fclose(f);
     printf("done\n");
 
     printf("Create the output file\n");
-    fclose(f);
+    of=fopen(argv[2],"w");
+    if(of==NULL) {
+        printf("Could not create output file.\n");
+        return 1;
+    }
     create_header(of);
     output_dictionary(of, dictionary, dsize);
     output_rooms(of, world, rsize);

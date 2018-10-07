@@ -6,7 +6,7 @@ starting with an adventure file produced with Aristide Torrelli's AWS system.
 The game used as an example here is an Italian game called "La piramide di 
 Iunnuh." To compile it you will need the following things:
 
-- the executable of the tool `aws2c
+- the executable of the tool `aws2c`
 - the file `aws.h` that describes the data structures employed in the AWS system
 - files `inout.c` and `inout.h` that contain the parser and the input/output
 routines
