@@ -10,10 +10,10 @@ Iunnuh." To compile it you will need the following things:
 - the file `aws.h` that describes the data structures employed in the AWS system
 - files `inout.c` and `inout.h` that contain the parser and the input/output
 routines
-- the file `modern.h` that contains macros to change colour on the terminal you 
-are using.
+- the file `systemdef.h` that contains macros to change colour on the terminal 
+you are using and other important settings.
 
-You can use the provided `aws.h`, `inout.c`, `inout.h` and `modern.h` files, 
+You can use the provided `aws.h`, `inout.c`, `inout.h` and `systemdef.h` files, 
 or you can  customise them to your needs if you want to.
 
 To play the game, let us suppose that you have a Unix operating system with the

@@ -507,7 +507,7 @@ void create_header(FILE *of)
     fprintf(of,"#include<stdlib.h>\n");
     fprintf(of,"#include\"aws.h\"\n\n");
     fprintf(of,"#include\"inout.h\"\n");
-    fprintf(of,"#include\"modern.h\"\n\n");
+    fprintf(of,"#include\"systemdef.h\"\n\n");
     fprintf(of,"extern int verb;\nextern int noun1;\nextern int noun2;\n"
         "extern int adve;\n");
     fprintf(of, "int dummy;\n");
@@ -541,7 +541,7 @@ void output_utility_func(FILE *of)
     fprintf(of,TAB TAB "if(obj[i].code==o && obj[i].position==-1)\n");
     fprintf(of,TAB TAB TAB "return true;\n");
     fprintf(of,TAB "return false;\n}\n\n");
-    
+
     fprintf(of,"void show_message(int m)\n{\n");
     fprintf(of,TAB "int i;\n");
     fprintf(of,TAB "for(i=0; i<MSIZE;++i)\n");
@@ -682,7 +682,7 @@ int get_token(char *line, int pos)
     int k=0;
     while(line[pos]==' ')
         ++pos;
-    
+
     for(;(c=line[pos])!='\0' && c!=' ';++pos) {
         if(c>='a' && c<='z')
             c-=32;  // Convert to uppercase
@@ -701,7 +701,7 @@ void strcon(char *str1, const char* str2)
 
     for(j=0;(c=str2[j])!='\0'&&i<BUFFERSIZE;++j)
         str1[i++]=str2[j];
-    
+
     str1[i]='\0';
 }
 
@@ -724,7 +724,7 @@ int process_functions(char *line, int scanpos)
         } else {
             printf("Function not recognized %s\n", token);
         }
-        
+
     }
     return scanpos;
 }
@@ -834,7 +834,7 @@ int decision_avai(FILE *f, char *line, int scanpos)
     int counter,value;
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, "((obj[search_object(%s)].position==current_position)||", 
+    fprintf(f, "((obj[search_object(%s)].position==current_position)||",
         function_res);
     fprintf(f, "(obj[search_object(%s)].position==-1))", function_res);
 
@@ -975,7 +975,7 @@ int action_decr(FILE *f, char *line, int scanpos)
     int position, value;
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, TAB TAB "if(counter[%s]>0) --counter[%s];\n", function_res, 
+    fprintf(f, TAB TAB "if(counter[%s]>0) --counter[%s];\n", function_res,
         function_res);
     return scanpos;
 }
@@ -1005,7 +1005,7 @@ int action_brin(FILE *f, char *line, int scanpos)
     int position, value;
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, TAB TAB "obj[search_object(%s)].position=current_position;\n", 
+    fprintf(f, TAB TAB "obj[search_object(%s)].position=current_position;\n",
         function_res);
     return scanpos;
 }
@@ -1013,7 +1013,7 @@ int action_brin(FILE *f, char *line, int scanpos)
 /** QUIT */
 int action_exit(FILE *f, char *line, int scanpos)
 {
-    
+
     fprintf(f, TAB TAB "leave(); exit(0);\n");
     return scanpos;
 }
@@ -1033,7 +1033,7 @@ int action_inve(FILE *f, char *line, int scanpos)
 int action_move(FILE *f, char *line, int scanpos, int dir)
 {
     int position, value;
-    fprintf(f, TAB TAB 
+    fprintf(f, TAB TAB
         "if(world[search_room(current_position)].directions[%d]!=0) {\n",dir-1);
     fprintf(f, TAB TAB TAB "current_position="
         "world[search_room(current_position)].directions[%d];\n", dir-1);
@@ -1056,7 +1056,7 @@ int action_drop(FILE *f, char *line, int scanpos)
     scanpos=process_functions(line, scanpos);
     fprintf(f, TAB TAB "if(obj[search_object(%s)].position==-1){\n",
         function_res);
-    fprintf(f, TAB TAB TAB 
+    fprintf(f, TAB TAB TAB
         "obj[search_object(%s)].position=current_position;\n", function_res);
     fprintf(f, TAB TAB "} else\n");
     fprintf(f, TAB TAB TAB "show_message(1007);\n");
@@ -1122,10 +1122,10 @@ int action_get(FILE *f, char *line, int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, TAB TAB 
+    fprintf(f, TAB TAB
         "if(obj[search_object(%s)].position==current_position){\n",
             function_res);
-    fprintf(f, TAB TAB TAB 
+    fprintf(f, TAB TAB TAB
         "obj[search_object(%s)].position=-1;\n", function_res);
     fprintf(f, TAB TAB "} else\n");
     fprintf(f, TAB TAB TAB "show_message(1007);\n");
@@ -1154,7 +1154,7 @@ int action_swap(FILE *f, char *line, int scanpos)
     scanpos=get_token(line, scanpos);
     sscanf(token, "%d", &object2);
     fprintf(f, TAB TAB "dummy=obj[search_object(%d)].position;\n",object1);
-    fprintf(f, TAB TAB 
+    fprintf(f, TAB TAB
         "obj[search_object(%d)].position=obj[search_object(%d)].position;\n",
         object1,object2);
     fprintf(f, TAB TAB "obj[search_object(%d)].position=dummy;\n",object2);
@@ -1174,7 +1174,7 @@ void process_aws(FILE *f, char *line)
     int scanpos=0;
     scanpos=get_token(line, scanpos);
     //printf("line [%s], token %s\n", line, token);
-    
+
     if(strcmp(token, "IF")!=0) {
         printf("Unrecognised start of aws condition %s instead of IF.\n",
             token);
@@ -1182,7 +1182,7 @@ void process_aws(FILE *f, char *line)
     }
     fprintf(f,TAB "// %s\n",line);
     fprintf(f,TAB "if(");
-    
+
     while(1) {
         scanpos=get_token(line, scanpos);
         if(strcmp(token,"AT")==0) {
@@ -1237,14 +1237,14 @@ void process_aws(FILE *f, char *line)
             return;
         }
     }
-    
+
     fprintf(f,") {\n");  // ACTIONS
     while(1) {
         scanpos=get_token(line, scanpos);
         if(strcmp(token,"PRESSKEY")==0) {
             scanpos=action_presskey(f, line, scanpos);
         } else if(strcmp(token,"GOTO")==0) {
-            scanpos=action_goto(f, line, scanpos); 
+            scanpos=action_goto(f, line, scanpos);
         } else if(strcmp(token,"ENDIF")==0) {
             break;
         } else if(strcmp(token,"SET")==0) {
@@ -1359,7 +1359,7 @@ void output_local(FILE *f, localc* cond, int size)
         process_aws(f,cond[i].condition);
         fprintf(f, TAB "}\n");
     }
-    
+
     fprintf(f, TAB "return 0;\n");
     fprintf(f,"}\n");
 }
@@ -1370,20 +1370,20 @@ void output_gamecycle(FILE *f)
     fprintf(f,"\nvoid game_cycle(void)\n{\n");
     fprintf(f, TAB "int k;\n");
     fprintf(f, TAB "while(1){\n");
-    fprintf(f, TAB TAB 
+    fprintf(f, TAB TAB
         "if(marker[120]==false&&(marker[121]==true||marker[122]==true)) {\n");
-    fprintf(f, TAB TAB TAB 
+    fprintf(f, TAB TAB TAB
         "writeln(world[search_room(current_position)].long_d);\n");
     fprintf(f, TAB TAB TAB "marker[120]=true;\n");
     fprintf(f, TAB TAB TAB "show_message(1031);\n");
     fprintf(f, TAB TAB TAB "for(k=0;k<OSIZE;++k)\n");
-    fprintf(f, TAB TAB TAB TAB 
+    fprintf(f, TAB TAB TAB TAB
         "if(obj[k].position==current_position) writeln(obj[k].desc);\n");
     fprintf(f, TAB TAB "\n");
     fprintf(f, TAB TAB "if(marker[124]==true) {\n");
     fprintf(f, TAB TAB TAB "show_messagenlf(1020);\n");
     fprintf(f, TAB TAB TAB "for(k=0; k<10; ++k)\n");
-    fprintf(f, TAB TAB TAB TAB 
+    fprintf(f, TAB TAB TAB TAB
         "if(world[search_room(current_position)].directions[k]!=0) {\n");
     fprintf(f, TAB TAB TAB TAB TAB "show_messagenlf(1021+k);\n");
     fprintf(f, TAB TAB TAB TAB TAB "writesameln(\" \");\n");
@@ -1394,7 +1394,7 @@ void output_gamecycle(FILE *f)
     fprintf(f, TAB TAB "--counter[126];\n");
     fprintf(f, TAB TAB "--counter[127];\n");
     fprintf(f, TAB TAB "--counter[128];\n");
-    
+
     fprintf(f, TAB TAB "hi_cond();\n");
     fprintf(f, TAB TAB "show_message(1012);\n");
     fprintf(f, TAB TAB "interrogationAndAnalysis(DSIZE);\n");
@@ -1410,7 +1410,7 @@ void output_gamecycle(FILE *f)
 void create_main(FILE *f, info *header)
 {
     fprintf(f, "\nint main(void)\n{\n");
-    fprintf(f, TAB "normaltxt();\n");
+    fprintf(f, TAB "init_term();\n");
     fprintf(f, TAB "greetings();\n");
     fprintf(f, TAB "current_position=%d;\n",header->startroom);
     fprintf(f, TAB "marker[124]=true;\n");
@@ -1449,7 +1449,7 @@ int main(int argc, char **argv)
     int lowcondsize;
     localc* localcond;
     int localcondsize;
-    
+
 
     if(f==NULL) {
         printf("Could not open input file.\n");
@@ -1460,14 +1460,14 @@ int main(int argc, char **argv)
         exit(1);
 
     printf("done\n");
-    
+
     printf("Read number of CONDIZIONIHI: ");
     hicondsize=get_hi_cond_size(f);
     printf("%d\n",hicondsize);
     printf("Read CONDIZIONIHI: ");
     if((hicond=read_cond(f, hicondsize))==NULL)
         exit(1);
-    
+
     printf("done\n");
 
     printf("Read number of CONDIZIONILOW: ");

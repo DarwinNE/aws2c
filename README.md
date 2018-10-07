@@ -19,11 +19,14 @@ following example:
 
 where `adventure.aws` contains the game in the AWS format and the `adventure.c`
 is the generated file. To compile it, you will need the `aws.h`, `inout.c`,
-`inout.h` and `modern.h` files, provided with the tool:
+`inout.h` and `systemdef.h` files, provided with the tool:
 
 `gcc adventure.c inout.c -o adventure`
 
 to obtain an executable called `adventure`.
+
+An example of a file that can be renamed as `systemdef.h` and used for compiling
+games to modern Unix terminals is `modern.h`.
 
 For the moment AWS2C does not cover all the full range of actions, decisions
 and functions offered by Aristide's AWS 3.2 system. If the tool encounters

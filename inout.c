@@ -1,10 +1,19 @@
+/*  This file is provided by the aws2c tool and it contains input/output
+    routines as well as the parser. It should be compiled along with the
+    generated .c file obtained by the tool. This file can be customised for
+    specific needs, for example to write on a window in a GUI system instead
+    of on the terminal.
+
+    Some basic configuration can also be done by adjusting the systemdef.h file
+    to your needs.
+
+    Davide Bucci, October 2018
+*/
+
 #include <stdio.h>
 #include <string.h>
-#include "modern.h"
+#include "systemdef.h"
 #include "aws.h"
-
-#define NCOL 80
-#define BUFFERSIZE 256
 
 char playerInput[BUFFERSIZE];
 char wordbuffer[NCOL*2];
@@ -18,7 +27,9 @@ int adve;
 
 extern word dictionary[];
 
-
+/** Write a string without adding a newline. Process some codes to put in
+    evidence the text and handle the word wrapping.
+*/
 void writesameln(char *line)
 {
     int i=0;
@@ -50,13 +61,13 @@ void writesameln(char *line)
             if(colc>=NCOL) {
                 printf("\n");
                 colc=strlen(wordbuffer);
-            } 
+            }
             printf("%s",wordbuffer);
             if(norm==true) {
                 normaltxt();
                 norm=false;
             }
-            if(c=='\0') 
+            if(c=='\0')
                 return;
             pc=0;
             if(c=='\n') {
@@ -73,6 +84,8 @@ void writesameln(char *line)
     }
 }
 
+/** Same as writesameln, but adds a newline at the end of the message.
+*/
 void writeln(char* line)
 {
     writesameln(line);
@@ -80,9 +93,8 @@ void writeln(char* line)
     colc=0;
 }
 
-/** read a line of text and return the length of the line (remove the \n char).
+/** Read a line of text and return the length of the line (remove the \n char).
 */
-
 int readln(void)
 {
     int lc;
@@ -105,6 +117,8 @@ int readln(void)
 // compile to targets such as the 6502 processor.
 char s[BUFFERSIZE];
 
+/** Main parser.
+*/
 void interrogationAndAnalysis(int num_of_words)
 {
     boolean search=true;
@@ -127,17 +141,15 @@ void interrogationAndAnalysis(int num_of_words)
                 break;
             }
             if(c>='a' && c<='z')
-                c-=32;  // Convert to uppercase
+                c-='a'-'A';  // Convert to uppercase
+
             s[k++]=c;
         }
         s[k]='\0';
-        
         // s now contains the word. Search to find
         // if it is recognized or not.
         for(i=0;i<num_of_words; ++i) {
             if(strcmp(s,dictionary[i].w)==0) {
-                printf("type %d, word %s, code %d\n",
-                    dictionary[i].t, dictionary[i].w, dictionary[i].code);
                 switch (dictionary[i].t) {
                     case VERB:
                         verb=dictionary[i].code;

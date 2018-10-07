@@ -1,9 +1,10 @@
-#ifndef __MODERN_H__
-#define __MODERN_H__
+#ifndef __SYSTEMDEF_H__
+#define __SYSTEMDEF_H__
 
 #include<time.h>
 
-#define LONGVERSION
+#define NCOL 80
+#define BUFFERSIZE 256
 
 #define waitscreen()
 
