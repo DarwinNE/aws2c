@@ -1,9 +1,41 @@
-/* AWS to C converter 1.0 by Davide Bucci */
+/* 
+
+    AWS to C converter 1.0 by Davide Bucci
+
+AWS stands for Adventure Writing System and is a program developed by
+Aristide Torrelli to write interactive fiction games:
+
+http://www.aristidetorrelli.it/aws3/AWS.html
+
+The game developed with AWS is described by a compact file that contains the
+vocabulary, the messages, the descriptions and all the logic needed for the
+game.
+
+Its structure of AWS is relatively simple yet powerful and I decided to write 
+this little converter that automagically generates C code that implements the
+logic described by the game.
+
+The parser and some input/output functions are contained in an external file
+called inout.c that can be customised to the target machine.
+
+I tested this system with gcc and the generated files can be compiled with
+any reasonably standard C compiler. I tested them with cc65 to target
+old Commodore machines.
+
+*/
 
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
 #include"aws.h"
+
+/* TO DO
+
+- Finish implementing the remaining actions, functions and decisions.
+- Free the allocated memory before quitting the program.
+- Test, test, test!
+
+*/
 
 #define BUFFERSIZE 16000
 char buffer[BUFFERSIZE];
@@ -1032,7 +1064,7 @@ int decision_objloceq(FILE *f, char *line, int scanpos)
     start_function();
     scanpos=process_functions(line, scanpos);
 
-    fprintf(f, TAB TAB "obj[search_object(%s)].position==%s", 
+    fprintf(f, TAB TAB "obj[search_object(%s)].position==%s",
         arg1, function_res);
     free(arg1);
     return scanpos;
@@ -1055,7 +1087,7 @@ int decision_objlocgt(FILE *f, char *line, int scanpos)
     start_function();
     scanpos=process_functions(line, scanpos);
 
-    fprintf(f, TAB TAB "obj[search_object(%s)].position>%s", 
+    fprintf(f, TAB TAB "obj[search_object(%s)].position>%s",
         arg1, function_res);
     free(arg1);
     return scanpos;
@@ -1249,7 +1281,7 @@ int action_to(FILE *f, char *line, int scanpos)
     start_function();
     scanpos=process_functions(line, scanpos);
 
-    fprintf(f, TAB TAB "obj[search_object(%s)].position=%s;\n", 
+    fprintf(f, TAB TAB "obj[search_object(%s)].position=%s;\n",
         arg1, function_res);
     free(arg1);
     return scanpos;
@@ -1318,11 +1350,11 @@ int action_get(FILE *f, char *line, int scanpos)
         "if(obj[dummy].position!=current_position) {\n");
     fprintf(f, TAB TAB TAB "show_message(1006);\n");
     fprintf(f, TAB TAB TAB "return -1;\n");
-    fprintf(f, TAB TAB 
+    fprintf(f, TAB TAB
         "} else if(counter[120]+obj[dummy].weight>counter[122]){ \n");
     fprintf(f, TAB TAB TAB "show_message(1003);\n");
     fprintf(f, TAB TAB TAB "return -1;\n");
-    fprintf(f, TAB TAB 
+    fprintf(f, TAB TAB
         "} else if(counter[124]+obj[dummy].size>counter[121]) {\n");
     fprintf(f, TAB TAB TAB "show_message(1004);\n");
     fprintf(f, TAB TAB TAB "return -1;\n");
@@ -1357,9 +1389,9 @@ int action_dropall(FILE *f, char *line, int scanpos)
     fprintf(f, TAB TAB TAB TAB
         "obj[search_object(dummy)].position=current_position;\n");
     fprintf(f, TAB TAB TAB TAB "--counter[119];\n");
-    fprintf(f, TAB TAB TAB TAB 
+    fprintf(f, TAB TAB TAB TAB
         "counter[120]-=obj[search_object(dummy)].weight;\n");
-    fprintf(f, TAB TAB TAB TAB 
+    fprintf(f, TAB TAB TAB TAB
         "counter[124]-=obj[search_object(dummy)].size;\n");
     fprintf(f, TAB TAB TAB "}\n");
     return scanpos;
@@ -1459,8 +1491,22 @@ int action_unwear(FILE *f, char *line, int scanpos)
     fprintf(f, TAB TAB "}\n");
     return scanpos;
 }
-
-
+/** STRE */
+int action_stre(FILE *f, char *line, int scanpos)
+{
+    start_function();
+    scanpos=process_functions(line, scanpos);
+    fprintf(f, TAB TAB "counter[122]=%s;\n",function_res);
+    return scanpos;
+}
+/** DIMENS */
+int action_dimens(FILE *f, char *line, int scanpos)
+{
+    start_function();
+    scanpos=process_functions(line, scanpos);
+    fprintf(f, TAB TAB "counter[121]=%s;\n",function_res);
+    return scanpos;
+}
 
 
 
@@ -1648,6 +1694,10 @@ void process_aws(FILE *f, char *line)
             scanpos=action_wear(f, line, scanpos);
         } else if(strcmp(token,"UNWEAR")==0) {
             scanpos=action_unwear(f, line, scanpos);
+        } else if(strcmp(token,"STRE")==0) {
+            scanpos=action_stre(f, line, scanpos);
+        } else if(strcmp(token,"DIMENS")==0) {
+            scanpos=action_dimens(f, line, scanpos);
         } else if(strcmp(token,"PICT")==0) {
             // ??
             printf("PICT is not implemented\n");
@@ -1759,7 +1809,7 @@ void output_gamecycle(FILE *f)
     fprintf(f, TAB TAB TAB TAB TAB "if(pa==false) {\n");
     fprintf(f, TAB TAB TAB TAB TAB TAB "show_messagenlf(1020);\n");
     fprintf(f, TAB TAB TAB TAB TAB TAB "pa=true;\n");
-    fprintf(f, TAB TAB TAB TAB TAB "}\n"); 
+    fprintf(f, TAB TAB TAB TAB TAB "}\n");
     fprintf(f, TAB TAB TAB TAB TAB "show_messagenlf(1021+k);\n");
     fprintf(f, TAB TAB TAB TAB TAB "writesameln(\" \");\n");
     fprintf(f, TAB TAB TAB TAB "}\n");
@@ -1796,8 +1846,8 @@ void create_main(FILE *f, info *header)
     if(header->maxcarryings==0) {
         header->maxcarryings=10000;
     }
-    fprintf(f, TAB "counter[121]=%d;\n",header->maxcarryingw);
-    fprintf(f, TAB "counter[122]=%d;\n",header->maxcarryings);
+    fprintf(f, TAB "counter[121]=%d;\n",header->maxcarryings);
+    fprintf(f, TAB "counter[122]=%d;\n",header->maxcarryingw);
     fprintf(f, TAB "game_cycle();\n");
     fprintf(f, TAB "return 0;\n");
     fprintf(f, "}\n");
@@ -1927,6 +1977,6 @@ int main(int argc, char **argv)
     printf("No of critical errors: %d\n",no_of_errors);
     if(no_of_errors>0)
         return 1;
-    
+
     return 0;
 }
