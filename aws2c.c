@@ -850,6 +850,22 @@ int decision_noun(FILE *f, char *line, int scanpos)
     fprintf(f, "noun1==%s||noun2==%s", function_res, function_res);
     return scanpos;
 }
+/** ADVE */
+int decision_adve(FILE *f, char *line, int scanpos)
+{
+    start_function();
+    scanpos=process_functions(line, scanpos);
+    fprintf(f, "adve==%s", function_res);
+    return scanpos;
+}
+/** NO1EQ */
+int decision_no1eq(FILE *f, char *line, int scanpos)
+{
+    start_function();
+    scanpos=process_functions(line, scanpos);
+    fprintf(f, "noun1==%s", function_res);
+    return scanpos;
+}
 /** AVAI */
 int decision_avai(FILE *f, char *line, int scanpos)
 {
@@ -998,6 +1014,53 @@ int decision_isnotwearing(FILE *f, char *line, int scanpos)
         function_res);
     return scanpos;
 }
+/** OBJLOCEQ */
+int decision_objloceq(FILE *f, char *line, int scanpos)
+{
+    char *arg1;
+    int l;
+    start_function();
+    scanpos=process_functions(line, scanpos);
+    l=strlen(function_res);
+    arg1=(char *) calloc(l+1,sizeof(char));
+    if(arg1==NULL) {
+        printf("Error allocating memory!\n");
+        exit(1);
+    }
+    strcpy(arg1,function_res);
+
+    start_function();
+    scanpos=process_functions(line, scanpos);
+
+    fprintf(f, TAB TAB "obj[search_object(%s)].position==%s", 
+        arg1, function_res);
+    free(arg1);
+    return scanpos;
+}
+/** OBJLOCGT */
+int decision_objlocgt(FILE *f, char *line, int scanpos)
+{
+    char *arg1;
+    int l;
+    start_function();
+    scanpos=process_functions(line, scanpos);
+    l=strlen(function_res);
+    arg1=(char *) calloc(l+1,sizeof(char));
+    if(arg1==NULL) {
+        printf("Error allocating memory!\n");
+        exit(1);
+    }
+    strcpy(arg1,function_res);
+
+    start_function();
+    scanpos=process_functions(line, scanpos);
+
+    fprintf(f, TAB TAB "obj[search_object(%s)].position>%s", 
+        arg1, function_res);
+    free(arg1);
+    return scanpos;
+}
+
 /* Actions */
 
 /** PRESSKEY */
@@ -1398,6 +1461,9 @@ int action_unwear(FILE *f, char *line, int scanpos)
 }
 
 
+
+
+
 /** Main processing function. Exploits buffer.
 */
 void process_aws(FILE *f, char *line)
@@ -1439,8 +1505,14 @@ void process_aws(FILE *f, char *line)
             scanpos=decision_equ(f, line, scanpos);
         } else if(strcmp(token,"VERB")==0) {
             scanpos=decision_verb(f, line, scanpos);
+        } else if(strcmp(token,"ADVEEQ")==0) {
+            scanpos=decision_adve(f, line, scanpos);
         } else if(strcmp(token,"NOUN")==0) {
             scanpos=decision_noun(f, line, scanpos);
+        } else if(strcmp(token,"ADVE")==0) {
+            scanpos=decision_adve(f, line, scanpos);
+        } else if(strcmp(token,"NO1EQ")==0) {
+            scanpos=decision_no1eq(f, line, scanpos);
         } else if(strcmp(token,"AVAI")==0) {
             scanpos=decision_avai(f, line, scanpos);
         } else if(strcmp(token,"NOTAVAI")==0) {
@@ -1475,6 +1547,10 @@ void process_aws(FILE *f, char *line)
             scanpos=decision_iswearing(f, line, scanpos);
         } else if(strcmp(token,"ISNOTWEARING")==0) {
             scanpos=decision_isnotwearing(f, line, scanpos);
+        } else if(strcmp(token,"OBJLOCEQ")==0) {
+            scanpos=decision_objloceq(f, line, scanpos);
+        } else if(strcmp(token,"OBJLOCGT")==0) {
+            scanpos=decision_objlocgt(f, line, scanpos);
         } else if(strcmp(token,"OR")==0) {
             fprintf(f,"||");
         } else if(strcmp(token,"AND")==0) {
@@ -1849,4 +1925,8 @@ int main(int argc, char **argv)
     fclose(of);
     printf("File %s created\n",argv[2]);
     printf("No of critical errors: %d\n",no_of_errors);
+    if(no_of_errors>0)
+        return 1;
+    
+    return 0;
 }
