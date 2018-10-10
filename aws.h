@@ -3,7 +3,12 @@
 
 typedef enum boolean_d {true=-1, false=0} boolean;
 
-typedef enum word_type_d {ADVERB, VERB, NAME, SEPARATOR} word_type;
+typedef unsigned char word_type;
+#define ADVERB 0
+#define VERB 1
+#define NAME 2
+#define SEPARATOR 3
+
 
 typedef struct info_d {
     char *version;
@@ -51,7 +56,7 @@ typedef struct object_d {
     char *s;
     char *desc;
     int weight;
-    int inc1;
+    int size;
     int position;
     boolean isnotmovable;
     boolean iswereable;
