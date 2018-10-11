@@ -52,6 +52,45 @@ typedef struct localc_t {
 
 int no_of_errors;
 
+boolean convert_utf8=false;
+boolean convert_accents=false;
+boolean convert_accent_alt=false;
+
+typedef struct conv_t {
+    char *orig;
+    char conv;
+    char accent;
+    char accent_alt;
+} conv;
+
+/* This is a minimal conversion that should work for the Italian language at
+   least. */
+
+#define CONVSIZE 20
+conv conversion[CONVSIZE] = {
+    {"à",'a','`','\''},
+    {"è",'e','`','\''},
+    {"ì",'i','`','\''},
+    {"ò",'o','`','\''},
+    {"ù",'u','`','\''},
+    {"á",'a','\'','\''},
+    {"é",'e','\'','\''},
+    {"í",'i','\'','\''},
+    {"ó",'o','\'','\''},
+    {"ú",'u','\'','\''},
+
+    {"À",'A','`','\''},
+    {"È",'E','`','\''},
+    {"Ì",'I','`','\''},
+    {"Ò",'O','`','\''},
+    {"Ù",'U','`','\''},
+    {"Á",'A','\'','\''},
+    {"É",'E','\'','\''},
+    {"Í",'I','\'','\''},
+    {"Ó",'O','\'','\''},
+    {"Ú",'U','\'','\''}
+};
+
 
 /** Read the dictionary contained in the file. The number of words to be read
     should have been already found.
@@ -384,13 +423,41 @@ info *read_header(FILE *f)
 */
 char *encodechar(char *input)
 {
-    int i,k;
-    unsigned char c;
+    int i,j,k;
+    char c;
     for(i=0; (c=input[i])!='\0' && i<BUFFERSIZE-1;++i) {
         if(c=='\"') {
             buffer[k++]='\\';
-        } else if(c==0xE7) {
+        } else if(c==-25) {     // 0xE7
            c=','; // Comma is translated in AWS files!
+        } else if(c=='^' && input[i+1]=='M') {
+           buffer[k++]='\\';
+           c='n';
+        } else if(c<0 && convert_utf8==true) {
+            for(j=0; j<CONVSIZE;++j) {
+                if(c==conversion[j].orig[0]&&
+                    input[i+1]==conversion[j].orig[1])
+                {
+                    if(convert_accents==true) {
+                        buffer[k++]=conversion[j].conv;
+                        if(convert_accent_alt==true)
+                            c=conversion[j].accent_alt;
+                        else
+                            c=conversion[j].accent;
+                    } else {
+                        c=conversion[j].conv;
+                    }
+                    ++i;
+                    break;
+                }
+            }
+            if(j==CONVSIZE) {
+                fprintf(stderr, 
+                    "WARNING: UTF-8 character %c%c has not been converted.\n",
+                    c, input[i+1]);
+                buffer[k++]=c;
+                c=input[++i];
+            }
         }
         buffer[k++]=c;
     }
@@ -701,11 +768,28 @@ void output_objects(FILE *of, object* obj, int osize)
 void output_greetings(FILE *f, info *header)
 {
     fprintf(f, "\nvoid greetings(void)\n{\n");
+    fprintf(f, TAB "writesameln(\"Avventura:   \");\n");
+    fprintf(f, TAB "evidence1();\n");
     fprintf(f, TAB "writeln(\"%s\");\n", encodechar(header->name));
+    fprintf(f, TAB "normaltxt();\n");
+    fprintf(f, TAB "writesameln(\"Autore:      \");\n");
+
+    fprintf(f, TAB "evidence1();\n");
     fprintf(f, TAB "writeln(\"%s\");\n", encodechar(header->author));
+    fprintf(f, TAB "normaltxt();\n");
+    fprintf(f, TAB "writesameln(\"Data:        \");\n");
+
+    fprintf(f, TAB "evidence1();\n");
     fprintf(f, TAB "writeln(\"%s\");\n", encodechar(header->date));
+    fprintf(f, TAB "normaltxt();\n");
+
+    fprintf(f, TAB "writesameln(\"Descrizione: \");\n");
+    fprintf(f, TAB "evidence1();\n");
+
     fprintf(f, TAB "writeln(\"%s\");\n", encodechar(header->description));
-    fprintf(f, TAB "writeln(\"AWS version %s\");\n",
+    fprintf(f, TAB "normaltxt();\n");
+
+    fprintf(f, TAB "writeln(\"AWS version: %s\\n\");\n",
         encodechar(header->version));
     fprintf(f, "}\n");
 }
@@ -760,6 +844,10 @@ int process_functions(char *line, int scanpos)
         strcon(function_res,"obj[search_object(");
         scanpos=process_functions(line,scanpos);
         strcon(function_res,")].position");
+    } else if(strcmp(token,"WEIG")==0) {
+        strcon(function_res,"obj[search_object(");
+        scanpos=process_functions(line,scanpos);
+        strcon(function_res,")].weight");
     } else {
         if(sscanf(token, "%d",&value)==1) {
             sprintf(token, "%d", value);
@@ -855,15 +943,26 @@ int decision_notin(FILE *f, char *line, int scanpos)
     free(arg1);
     return scanpos;
 }
-/** EQU? */     // TODO implement functions
+/** EQU? */
 int decision_equ(FILE *f, char *line, int scanpos)
 {
-    int counter,value;
-    scanpos=get_token(line, scanpos);
-    sscanf(token, "%d", &counter);
-    scanpos=get_token(line, scanpos);
-    sscanf(token, "%d", &value);
-    fprintf(f, "counter[%d]==%d", counter,value);
+    char *arg1;
+    int l;
+    start_function();
+    scanpos=process_functions(line, scanpos);
+    l=strlen(function_res);
+    arg1=(char *) calloc(l+1,sizeof(char));
+    if(arg1==NULL) {
+        printf("Error allocating memory!\n");
+        exit(1);
+    }
+    strcpy(arg1,function_res);
+
+    start_function();
+    scanpos=process_functions(line, scanpos);
+
+    fprintf(f, "counter[%s]==%s", arg1,function_res);
+    free(arg1);
     return scanpos;
 }
 /** VERB */
@@ -872,6 +971,22 @@ int decision_verb(FILE *f, char *line, int scanpos)
     start_function();
     scanpos=process_functions(line, scanpos);
     fprintf(f, "verb==%s", function_res);
+    return scanpos;
+}
+/** VBNOGT */
+int decision_vbnogt(FILE *f, char *line, int scanpos)
+{
+    start_function();
+    scanpos=process_functions(line, scanpos);
+    fprintf(f, "verb>%s", function_res);
+    return scanpos;
+}
+/** VBNOLT */
+int decision_vbnolt(FILE *f, char *line, int scanpos)
+{
+    start_function();
+    scanpos=process_functions(line, scanpos);
+    fprintf(f, "verb<%s", function_res);
     return scanpos;
 }
 /** NOUN */
@@ -962,26 +1077,48 @@ int decision_no2gt(FILE *f, char *line, int scanpos)
     fprintf(f, "noun2>%s", function_res);
     return scanpos;
 }
-/** CTRGT */        // TODO implement functions
+/** CTRGT */
 int decision_ctrgt(FILE *f, char *line, int scanpos)
 {
-    int counter,value;
-    scanpos=get_token(line, scanpos);
-    sscanf(token, "%d", &counter);
-    scanpos=get_token(line, scanpos);
-    sscanf(token, "%d", &value);
-    fprintf(f, "counter[%d]>%d", counter,value);
+    char *arg1;
+    int l;
+    start_function();
+    scanpos=process_functions(line, scanpos);
+    l=strlen(function_res);
+    arg1=(char *) calloc(l+1,sizeof(char));
+    if(arg1==NULL) {
+        printf("Error allocating memory!\n");
+        exit(1);
+    }
+    strcpy(arg1,function_res);
+
+    start_function();
+    scanpos=process_functions(line, scanpos);
+
+    fprintf(f, "counter[%s]>%s", arg1,function_res);
+    free(arg1);
     return scanpos;
 }
-/** IN */       // TODO implement functions
+/** IN */
 int decision_in(FILE *f, char *line, int scanpos)
 {
-    int object,position;
-    scanpos=get_token(line, scanpos);
-    sscanf(token, "%d", &object);
-    scanpos=get_token(line, scanpos);
-    sscanf(token, "%d", &position);
-    fprintf(f, "obj[search_object(%d)].position==%d", object, position);
+    char *arg1;
+    int l;
+    start_function();
+    scanpos=process_functions(line, scanpos);
+    l=strlen(function_res);
+    arg1=(char *) calloc(l+1,sizeof(char));
+    if(arg1==NULL) {
+        printf("Error allocating memory!\n");
+        exit(1);
+    }
+    strcpy(arg1,function_res);
+
+    start_function();
+    scanpos=process_functions(line, scanpos);
+
+    fprintf(f, "obj[search_object(%s)].position==%s", arg1, function_res);
+    free(arg1);
     return scanpos;
 }
 /** HERE */
@@ -1396,18 +1533,37 @@ int action_dropall(FILE *f, char *line, int scanpos)
     fprintf(f, TAB TAB TAB "}\n");
     return scanpos;
 }
-/** SETCONN */       // TODO accept functions
+/** SETCONN */
 int action_setconn(FILE *f, char *line, int scanpos)
 {
-    int room1, direction, room2;
-    scanpos=get_token(line, scanpos);
-    sscanf(token, "%d", &room1);
-    scanpos=get_token(line, scanpos);
-    sscanf(token, "%d", &direction);
-    scanpos=get_token(line, scanpos);
-    sscanf(token, "%d", &room2);
-    fprintf(f, TAB TAB "world[search_room(%d)].directions[%d]=%d;\n",
-        room1, direction-1, room2);
+    char *arg1, *arg2;
+    int l;
+    start_function();
+    scanpos=process_functions(line, scanpos);
+    l=strlen(function_res);
+    arg1=(char *) calloc(l+1,sizeof(char));
+    if(arg1==NULL) {
+        printf("Error allocating memory!\n");
+        exit(1);
+    }
+    strcpy(arg1,function_res);
+
+    start_function();
+    scanpos=process_functions(line, scanpos);
+    l=strlen(function_res);
+    arg2=(char *) calloc(l+1,sizeof(char));
+    if(arg2==NULL) {
+        printf("Error allocating memory!\n");
+        exit(1);
+    }
+    strcpy(arg2,function_res);
+
+    start_function();
+    scanpos=process_functions(line, scanpos);
+    fprintf(f, TAB TAB "world[search_room(%s)].directions[(%s)-1]=%s;\n",
+        arg1, arg2, function_res);
+    free(arg1);
+    free(arg2);
     return scanpos;
 }
 /** SWAP */
@@ -1585,6 +1741,10 @@ void process_aws(FILE *f, char *line)
             scanpos=decision_prob(f, line, scanpos);
         } else if(strcmp(token,"VBNOEQ")==0) {
             scanpos=decision_verb(f, line, scanpos);
+        } else if(strcmp(token,"VBNOGT")==0) {
+            scanpos=decision_vbnogt(f, line, scanpos);
+        } else if(strcmp(token,"VBNOLT")==0) {
+            scanpos=decision_vbnolt(f, line, scanpos);
         } else if(strcmp(token,"ISMOVABLE")==0) {
             scanpos=decision_ismovable(f, line, scanpos);
         } else if(strcmp(token,"ISNOTMOVABLE")==0) {
@@ -1853,19 +2013,53 @@ void create_main(FILE *f, info *header)
     fprintf(f, "}\n");
 }
 
+void print_help(char *name)
+{
+    printf("Adventure Writing System to C compiler, version 1.0\n");
+    printf("Davide Bucci 2018\n\n");
+    printf("The number of arguments is not correct\n\n");
+    printf("Usage: %s [options] inputfile.aws outputfile\n\n",name);
+    printf("Available options:\n"
+           " -h  this help\n"
+           " -u  convert UTF-8 characters into standard ASCII chars.\n"
+           "     i.e. è -> e   é -> e\n"
+           " -r  convert UTF-8 characters into standard ASCII chars, but\n"
+           "     keep accents as separate chars.\n"
+           "     i.e. è -> e'  è -> e`\n"
+           " -s  convert UTF-8 characters into standard ASCII chars, but\n"
+           "     employs a single accent '.\n"
+           "     i.e. é -> e'  è -> e'\n");
+
+    printf("\n");
+    printf("then compile with file inout.c\n");
+}
+
+int process_options(char *arg, char *name)
+{
+    if(strcmp(arg, "-h")==0) {
+        print_help(name);
+        return 1;
+    } else if (strcmp(arg, "-u")==0) {
+        convert_utf8=true;
+        convert_accents=false;
+        return 1;
+    } else if (strcmp(arg, "-r")==0) {
+        convert_utf8=true;
+        convert_accents=true;
+        return 1;
+    } else if (strcmp(arg, "-s")==0) {
+        convert_utf8=true;
+        convert_accents=true;
+        convert_accent_alt=true;
+        return 1;
+    }
+    return 0;
+}
+
 
 int main(int argc, char **argv)
 {
-    if(argc<3) {
-        printf("Adventure Writing System to C compiler, version 1.0\n");
-        printf("Davide Bucci 2018\n\n");
-        printf("The number of arguments is not correct\n\n");
-        printf("Usage: %s inputfile.aws outputfile\n\n",argv[0]);
-        printf("then compile with file inout.c\n");
-        exit(0);
-    }
-    printf("Reading %s\n",argv[1]);
-    FILE *f=fopen(argv[1],"r");
+    FILE *f;
     FILE *of;
     int dsize;
     int rsize;
@@ -1883,7 +2077,22 @@ int main(int argc, char **argv)
     int lowcondsize;
     localc* localcond;
     int localcondsize;
+    int argumentr=1;
 
+    if(argc<3) {
+        print_help(argv[0]);
+        return 0;
+    }
+
+    while (argumentr<argc && process_options(argv[argumentr], argv[0])!=0) {
+        ++argumentr;
+    }   
+    if (argumentr+1!=argc-1) {
+        fprintf(stderr,"Not enough arguments on the command line.\n");
+        return 1;
+    }
+    printf("Reading %s\n",argv[argumentr]);
+    f=fopen(argv[argumentr],"r");
 
     if(f==NULL) {
         printf("Could not open input file.\n");
@@ -1954,7 +2163,7 @@ int main(int argc, char **argv)
     printf("done\n");
 
     printf("Create the output file\n");
-    of=fopen(argv[2],"w");
+    of=fopen(argv[argumentr+1],"w");
     if(of==NULL) {
         printf("Could not create output file.\n");
         return 1;
