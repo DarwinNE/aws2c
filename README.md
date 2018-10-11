@@ -33,3 +33,28 @@ and functions offered by Aristide's AWS 3.2 system. If the tool encounters
 something it does not recognise, it will give an error and the resulting C file
 may not be compilable. Other actions are just ignored but a warning message
 is generated while running `aws2c`.
+
+Since one of the design goals of the utility was to obtain files that can be
+compiled for old Commodore machines (C64, C128, Plus4, etc...), options for
+translating UTF-8 characters are available. The program help should explain them:
+
+~~~~
+$ ./aws2c -h
+Adventure Writing System to C compiler, version 1.0
+Davide Bucci 2018
+
+Usage: ./aws2c [options] inputfile.aws outputfile
+
+then compile (along with file inout.c) using your favourite compiler.
+
+Available options:
+ -h  this help
+ -u  convert UTF-8 characters into standard ASCII chars.
+        è -> e   é -> e
+ -r  same as -u, but keep accents as separate chars.
+        è -> e'  è -> e`
+ -s  same as -u, but only employs the single accent '.
+        é -> e'  è -> e'
+~~~~
+
+If you have a machine that only has the accent ' available such as a Commodore 64, it makes sense to use the `-s` option to create the file to be compiled.

@@ -1,4 +1,4 @@
-/* 
+/*
 
     AWS to C converter 1.0 by Davide Bucci
 
@@ -11,7 +11,7 @@ The game developed with AWS is described by a compact file that contains the
 vocabulary, the messages, the descriptions and all the logic needed for the
 game.
 
-Its structure of AWS is relatively simple yet powerful and I decided to write 
+Its structure of AWS is relatively simple yet powerful and I decided to write
 this little converter that automagically generates C code that implements the
 logic described by the game.
 
@@ -452,7 +452,7 @@ char *encodechar(char *input)
                 }
             }
             if(j==CONVSIZE) {
-                fprintf(stderr, 
+                fprintf(stderr,
                     "WARNING: UTF-8 character %c%c has not been converted.\n",
                     c, input[i+1]);
                 buffer[k++]=c;
@@ -2017,21 +2017,20 @@ void print_help(char *name)
 {
     printf("Adventure Writing System to C compiler, version 1.0\n");
     printf("Davide Bucci 2018\n\n");
-    printf("The number of arguments is not correct\n\n");
     printf("Usage: %s [options] inputfile.aws outputfile\n\n",name);
+    printf( "then compile (along with file inout.c) using your favourite "
+        "compiler.\n\n");
+
     printf("Available options:\n"
            " -h  this help\n"
            " -u  convert UTF-8 characters into standard ASCII chars.\n"
-           "     i.e. è -> e   é -> e\n"
-           " -r  convert UTF-8 characters into standard ASCII chars, but\n"
-           "     keep accents as separate chars.\n"
-           "     i.e. è -> e'  è -> e`\n"
-           " -s  convert UTF-8 characters into standard ASCII chars, but\n"
-           "     employs a single accent '.\n"
-           "     i.e. é -> e'  è -> e'\n");
+           "        è -> e   é -> e\n"
+           " -r  same as -u, but keep accents as separate chars.\n"
+           "        è -> e'  è -> e`\n"
+           " -s  same as -u, but only employs the single accent '.\n"
+           "        é -> e'  è -> e'\n");
 
     printf("\n");
-    printf("then compile with file inout.c\n");
 }
 
 int process_options(char *arg, char *name)
@@ -2086,7 +2085,7 @@ int main(int argc, char **argv)
 
     while (argumentr<argc && process_options(argv[argumentr], argv[0])!=0) {
         ++argumentr;
-    }   
+    }
     if (argumentr+1!=argc-1) {
         fprintf(stderr,"Not enough arguments on the command line.\n");
         return 1;
