@@ -46,9 +46,9 @@ void writesameln(char *line)
         } else if(c=='*' && flag==true) {
             norm=true;
             flag=false;
-        } else if(c=='-' && flag==false) {
+/*        } else if(c=='-' && flag==false) {
             evidence1();
-            flag=true;
+            flag=true;*/
         } else if(c=='-' && flag==true) {
             norm=true;
             flag=false;

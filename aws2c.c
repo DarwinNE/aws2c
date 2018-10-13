@@ -433,6 +433,7 @@ char *encodechar(char *input)
         } else if(c=='^' && input[i+1]=='M') {
            buffer[k++]='\\';
            c='n';
+           ++i;
         } else if(c<0 && convert_utf8==true) {
             for(j=0; j<CONVSIZE;++j) {
                 if(c==conversion[j].orig[0]&&
@@ -649,6 +650,12 @@ int process_functions(char *line, int scanpos)
         strcon(function_res,"counter[");
         scanpos=process_functions(line,scanpos);
         strcon(function_res,"]");
+    } else if(strcmp(token,"VBNO")==0) {
+        strcon(function_res,"verb");
+    } else if(strcmp(token,"NO2")==0) {
+        strcon(function_res,"noun2");
+    } else if(strcmp(token,"ADJENO")==0||strcmp(token,"ADVENO")==0) {
+        strcon(function_res,"adve");
     } else if(strcmp(token,"ROOM")==0) {
         strcon(function_res,"current_position");
     } else if(strcmp(token,"OBJLOC")==0) {
