@@ -59,7 +59,7 @@ typedef struct object_d {
     int size;
     int position;
     boolean isnotmovable;
-    boolean iswereable;
+    boolean isnotwereable;
 } object;
 
 #endif
