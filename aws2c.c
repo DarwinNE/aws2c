@@ -1333,14 +1333,14 @@ int action_dropall(FILE *f, char *line, int scanpos)
 {
     fprintf(f, TAB TAB "for(dummy=0; dummy<OSIZE;++dummy)");
     fprintf(f, TAB TAB TAB
-        "if(obj[search_object(dummy)].position==CARRIED) {\n");
+        "if(obj[dummy].position==CARRIED) {\n");
     fprintf(f, TAB TAB TAB TAB
-        "obj[search_object(dummy)].position=current_position;\n");
+        "obj[dummy].position=current_position;\n");
     fprintf(f, TAB TAB TAB TAB "--counter[119];\n");
     fprintf(f, TAB TAB TAB TAB
-        "counter[120]-=obj[search_object(dummy)].weight;\n");
+        "counter[120]-=obj[dummy].weight;\n");
     fprintf(f, TAB TAB TAB TAB
-        "counter[124]-=obj[search_object(dummy)].size;\n");
+        "counter[124]-=obj[dummy].size;\n");
     fprintf(f, TAB TAB TAB "}\n");
     return scanpos;
 }
@@ -1432,7 +1432,7 @@ int action_wear(FILE *f, char *line, int scanpos)
     fprintf(f, TAB TAB "dummy=search_object(%s);\n",function_res);
     fprintf(f, TAB TAB
         "if(obj[dummy].isnotwereable==false&&obj[dummy].position==CARRIED){\n");
-    fprintf(f, TAB TAB TAB"obj[search_object(dummy)].position=-2;\n");
+    fprintf(f, TAB TAB TAB"obj[dummy].position=-2;\n");
     fprintf(f, TAB TAB TAB "++counter[118];\n");
     fprintf(f, TAB TAB "} else if(obj[dummy].position==-2) {\n");
     fprintf(f, TAB TAB TAB "show_message(1019);\n");
@@ -1450,7 +1450,7 @@ int action_unwear(FILE *f, char *line, int scanpos)
     scanpos=process_functions(line, scanpos);
     fprintf(f, TAB TAB "dummy=search_object(%s);\n",function_res);
     fprintf(f, TAB TAB "if(obj[dummy].position==-2){\n");
-    fprintf(f, TAB TAB TAB "obj[search_object(dummy)].position=CARRIED;\n");
+    fprintf(f, TAB TAB TAB "obj[dummy].position=CARRIED;\n");
     fprintf(f, TAB TAB TAB "--counter[118];\n");
     fprintf(f, TAB TAB "} else {\n");
     fprintf(f, TAB TAB TAB "show_message(1010);\n");
