@@ -136,7 +136,7 @@ void interrogationAndAnalysis(int num_of_words)
         k=0;
         for(; ls<lc && k<BUFFERSIZE; ++ls) {
             c=playerInput[ls];
-            if(c==' ') {
+            if(c==' ' || c=='\'') {
                 ls++;
                 break;
             }
