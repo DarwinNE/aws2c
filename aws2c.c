@@ -1991,7 +1991,7 @@ void output_gamecycle(FILE *f)
     fprintf(f, TAB TAB "--counter[128];\n");
 
     fprintf(f, TAB TAB "if(hi_cond()!=0) continue;\n");
-    fprintf(f, TAB TAB "show_message(1012);\n");
+    fprintf(f, TAB TAB "if(line_finished()==true) show_message(1012);\n");
     fprintf(f, TAB TAB "interrogationAndAnalysis(DSIZE);\n");
     fprintf(f, TAB TAB "if(local_cond()!=0) continue;\n");
     fprintf(f, TAB TAB "if(low_cond()!=0) continue;\n");

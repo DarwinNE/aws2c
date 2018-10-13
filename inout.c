@@ -112,21 +112,27 @@ int readln(void)
 }
 
 
-// Having this buffer as a static variable allows to avoid running into
-// troubles with Cc65 that needs to have very few local variables to
-// compile to targets such as the 6502 processor.
+/* Having this buffer as a static variable allows to avoid running into
+   troubles with Cc65 that needs to have very few local variables to
+   compile to targets such as the 6502 processor. */
+   
 char s[BUFFERSIZE];
+
+/* The current position in the line */
+
+int ls, lc;
 
 /** Main parser.
 */
 void interrogationAndAnalysis(int num_of_words)
 {
     boolean search=true;
-    int ls=0, lc, i, k;
+    int i, k;
     boolean found = false;
     char c;
-
-    lc=readln();
+    if(ls==0) {
+        lc=readln();
+    }
     verb=0;
     noun1=0;
     noun2=0;
@@ -165,12 +171,22 @@ void interrogationAndAnalysis(int num_of_words)
                         adve=dictionary[i].code;
                         break;
                     case SEPARATOR:
-                        break;
+                        /*  The line is not finished but it can be executed. */
+                        return;
                     default:
                         break;
                 }
             }
         }
-        fflush(stdout);
     }
+    /*  The scanning has finished because the line is complete. Read a new line
+        the next time the function is called */
+    
+    ls=0;
+}
+
+/*  Check if all the line has been processed. */
+int line_finished(void)
+{
+    return ls==0?true:false;
 }
