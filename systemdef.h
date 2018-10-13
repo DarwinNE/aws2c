@@ -12,6 +12,8 @@
 
 #ifdef C128  /* Definitions to be used for the Commodore 128 computer */
 
+#include<conio.h>
+
 #define BUFFERSIZE 128
 
 #define waitscreen()
@@ -28,13 +30,29 @@
 
 #define switch80col "\x1Bx\x0E"
 
+/* Macro to wait for a key */
+#define waitkey() cgetc()
+
+/* Define the style of the input text */
 #define inputtxt() printf(green)
+
+/* Define the style of the first evidenced text */
 #define evidence1() printf(red)
+
+/* Define the style of the second evidenced text */
 #define evidence2() printf(yellow)
+
+/* Define the style of the normal text */
 #define normaltxt() printf(cyan)
+
+/* Write a tabulation (it can be adapted to screen width). */
 #define tab() printf("        ")
+
+/* Wait for one second */
 #define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
     retTime);}
+
+/* Init the terminal */
 #define init_term() {\
     char *pt80col=(char*)215;\
     char *ptFast=(char*)53296;\
@@ -46,6 +64,7 @@
     normaltxt();\
 }
 
+/* Prepare the terminal to leave the program execution. */
 #define leave() printf(cyan)
 
 
@@ -59,6 +78,7 @@
 // The number of columns of the screen
 #define NCOL 80
 
+#define waitkey() getchar()
 #define inputtxt() printf("\033[1m\x1b[32m\33[40m")
 #define evidence1() printf("\033[1m\x1b[31m\33[40m")
 #define evidence2() printf("\033[0m\x1b[93m\33[40m")

@@ -1053,7 +1053,7 @@ int decision_objlocgt(FILE *f, char *line, int scanpos)
 /** PRESSKEY */
 int action_presskey(FILE *f, char *line, int scanpos)
 {
-    fprintf(f, TAB TAB "getchar();\n");
+    fprintf(f, TAB TAB "waitkey();\n");
     return scanpos;
 }
 
