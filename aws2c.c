@@ -24,10 +24,11 @@ old Commodore machines.
 
 */
 
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
-#include"aws.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "aws.h"
+#include "compress.h"
 
 /* TO DO
 
@@ -55,6 +56,11 @@ int no_of_errors;
 boolean convert_utf8=false;
 boolean convert_accents=false;
 boolean convert_accent_alt=false;
+
+boolean compress_messages=false;
+boolean compress_descriptions=false;
+
+boolean use_6_directions=false;
 
 typedef struct conv_t {
     char *orig;
@@ -91,6 +97,54 @@ conv conversion[CONVSIZE] = {
     {"Ú",'U','\'','\''}
 };
 
+/** Change and encode characters that may create troubles when output, such
+    as ".
+    Exploits buffer.
+*/
+char *encodechar(char *input)
+{
+    int i,j,k;
+    char c;
+    for(i=0; (c=input[i])!='\0' && i<BUFFERSIZE-1;++i) {
+        if(c=='\"') {
+            buffer[k++]='\\';
+        } else if(c==-25) {     // 0xE7
+           c=','; // Comma is translated in AWS files!
+        } else if(c=='^' && input[i+1]=='M') {
+           buffer[k++]='\\';
+           c='n';
+           ++i;
+        } else if(c<0 && convert_utf8==true) {
+            for(j=0; j<CONVSIZE;++j) {
+                if(c==conversion[j].orig[0]&&
+                    input[i+1]==conversion[j].orig[1])
+                {
+                    if(convert_accents==true) {
+                        buffer[k++]=conversion[j].conv;
+                        if(convert_accent_alt==true)
+                            c=conversion[j].accent_alt;
+                        else
+                            c=conversion[j].accent;
+                    } else {
+                        c=conversion[j].conv;
+                    }
+                    ++i;
+                    break;
+                }
+            }
+            if(j==CONVSIZE) {
+                fprintf(stderr,
+                    "WARNING: UTF-8 character %c%c has not been converted.\n",
+                    c, input[i+1]);
+                buffer[k++]=c;
+                c=input[++i];
+            }
+        }
+        buffer[k++]=c;
+    }
+    buffer[k++]='\0';
+    return buffer;
+}
 
 /** Read the dictionary contained in the file. The number of words to be read
     should have been already found.
@@ -274,12 +328,18 @@ room* read_rooms(FILE *f, int size)
         getlinep(f);
         world[i].long_d=calloc(strlen(buffer)+1,sizeof(char));
         strcpy(world[i].long_d,buffer);
+        if(compress_descriptions==true)
+            analyze(encodechar(world[i].long_d));
         getlinep(f);
         world[i].s=calloc(strlen(buffer)+1,sizeof(char));
         strcpy(world[i].s,buffer);
+        if(compress_descriptions==true)
+            analyze(encodechar(world[i].s));
         getlinep(f);
         world[i].short_d=calloc(strlen(buffer)+1,sizeof(char));
         strcpy(world[i].short_d,buffer);
+        if(compress_descriptions==true)
+            analyze(encodechar(world[i].short_d));
         for(j=0;j<10;++j) {
             if(fscanf(f,"%d",&(world[i].directions[j]))!=1) {
                 printf("Error reading directions.\n");
@@ -417,54 +477,6 @@ info *read_header(FILE *f)
     sscanf(buffer, "%d",&(in->maxcarryings));
     return in;
 }
-/** Change and encode characters that may create troubles when output, such
-    as ".
-    Exploits buffer.
-*/
-char *encodechar(char *input)
-{
-    int i,j,k;
-    char c;
-    for(i=0; (c=input[i])!='\0' && i<BUFFERSIZE-1;++i) {
-        if(c=='\"') {
-            buffer[k++]='\\';
-        } else if(c==-25) {     // 0xE7
-           c=','; // Comma is translated in AWS files!
-        } else if(c=='^' && input[i+1]=='M') {
-           buffer[k++]='\\';
-           c='n';
-           ++i;
-        } else if(c<0 && convert_utf8==true) {
-            for(j=0; j<CONVSIZE;++j) {
-                if(c==conversion[j].orig[0]&&
-                    input[i+1]==conversion[j].orig[1])
-                {
-                    if(convert_accents==true) {
-                        buffer[k++]=conversion[j].conv;
-                        if(convert_accent_alt==true)
-                            c=conversion[j].accent_alt;
-                        else
-                            c=conversion[j].accent;
-                    } else {
-                        c=conversion[j].conv;
-                    }
-                    ++i;
-                    break;
-                }
-            }
-            if(j==CONVSIZE) {
-                fprintf(stderr,
-                    "WARNING: UTF-8 character %c%c has not been converted.\n",
-                    c, input[i+1]);
-                buffer[k++]=c;
-                c=input[++i];
-            }
-        }
-        buffer[k++]=c;
-    }
-    buffer[k++]='\0';
-    return buffer;
-}
 
 /** Get the messages in the game
 */
@@ -486,6 +498,8 @@ message* read_messages(FILE *f, int size)
         getlinep(f);
         msg[i].txt=calloc(strlen(buffer)+1,sizeof(char));
         strcpy(msg[i].txt,buffer);
+        if(compress_messages==true)
+            analyze(encodechar(msg[i].txt));
     }
     return msg;
 }
@@ -1719,6 +1733,9 @@ void output_header(FILE *of)
     fprintf(of,"/* Adventure Writing System, file generated by aws2c */\n\n");
     fprintf(of,"#include<stdio.h>\n");
     fprintf(of,"#include<stdlib.h>\n");
+    if(use_6_directions==true) {
+        fprintf(of,"#define DIR_REDUCED\n");
+    }
     fprintf(of,"#include\"aws.h\"\n\n");
     fprintf(of,"#include\"inout.h\"\n");
     fprintf(of,"#include\"systemdef.h\"\n\n");
@@ -1737,6 +1754,10 @@ void output_utility_func(FILE *of)
 
     fprintf(of,"boolean marker[129];\n");
     fprintf(of,"int counter[129];\n");
+    if(compress_messages==true) {
+        fprintf(of,"#define B_SIZE 2000\n");
+        fprintf(of,"char decompress_b[B_SIZE];\n");
+    }
 
     fprintf(of,"int search_object(int o)\n{\n");
     fprintf(of,TAB "int i;\n");
@@ -1756,7 +1777,12 @@ void output_utility_func(FILE *of)
     fprintf(of,TAB "int i;\n");
     fprintf(of,TAB "for(i=0; i<MSIZE;++i)\n");
     fprintf(of,TAB TAB "if(msg[i].code==m)\n");
-    fprintf(of,TAB TAB TAB "writesameln(msg[i].txt);\n");
+    if(compress_messages==true) {
+        fprintf(of,TAB TAB TAB "decode(msg[i].txt,decompress_b,B_SIZE);\n");
+        fprintf(of,TAB TAB TAB "writesameln(decompress_b);\n");
+    } else {
+        fprintf(of,TAB TAB TAB "writesameln(msg[i].txt);\n");
+    }
     fprintf(of, "}\n\n");
 
     fprintf(of,"void show_message(int m)\n{\n");
@@ -1780,13 +1806,20 @@ void output_utility_func(FILE *of)
 */
 void output_dictionary(FILE *of, word* dictionary, int dsize)
 {
-    int i;
+    int i, size_d;
     fprintf(of, "#define DSIZE %d\n",dsize);
 
     fprintf(of, "word dictionary[DSIZE]={\n");
     for(i=0; i<dsize;++i) {
-        fprintf(of, TAB "{\"%s\",%d,%d}",dictionary[i].w,
+        /*if(compress_messages==true) {
+            fprintf(of, TAB "{\"");
+            size_d=compress(of, encodechar(dictionary[i].w));
+            fprintf(of, "\",%d,%d}",dictionary[i].code,dictionary[i].t);
+        } else {*/
+            fprintf(of, TAB "{\"%s\",%d,%d}",dictionary[i].w,
             dictionary[i].code,dictionary[i].t);
+        //}
+        
         if(i<dsize-1) {
             fprintf(of,",");
         }
@@ -1803,22 +1836,34 @@ void output_rooms(FILE *of, room* world, int rsize)
     int i,j;
     char *long_d;
     char *p;
+    int size_d=0;
     fprintf(of, "#define RSIZE %d\n",rsize);
     fprintf(of, "room world[RSIZE]={\n");
     for(i=0; i<rsize;++i) {
         p=encodechar(world[i].long_d);
         long_d = (char*) calloc(strlen(p)+1, sizeof(char));
         strcpy(long_d,p);
-        fprintf(of, TAB "{%d,\"%s\",\"%s\",\"%s\",",
-            world[i].code, long_d, world[i].s,
-            encodechar(world[i].short_d));
+        
+        fprintf(of, TAB "{%d,\"",world[i].code);
+        if(compress_messages==true) {
+            size_d=compress(of, encodechar(long_d));
+        } else {
+            fprintf(of, "%s", long_d);
+        }
+        fprintf(of,"\",\"%s\",\"",world[i].s);
+        if(compress_messages==true) {
+            size_d=compress(of, encodechar(world[i].short_d));
+        } else {
+            fprintf(of, "%s", encodechar(world[i].short_d));
+        }
+        fprintf(of, "\",");
         free(long_d);
         fprintf(of, "{");
-        for(j=0; j<9;++j) {
+        for(j=0; use_6_directions==true?j<6:j<10;++j) {
             fprintf(of, "%d,", world[i].directions[j]);
         }
-        fprintf(of, "%d}", world[i].directions[j]);
-        fprintf(of,"}");
+        fprintf(of, "}");
+        fprintf(of, "}");
         if(i<rsize-1) {
             fprintf(of,",");
         }
@@ -1832,10 +1877,18 @@ void output_rooms(FILE *of, room* world, int rsize)
 void output_messages(FILE *of, message* msg, int msize)
 {
     int i,j;
+    int size_d=0;
     fprintf(of, "#define MSIZE %d\n",msize);
     fprintf(of, "message msg[MSIZE]={\n");
     for(i=0; i<msize;++i) {
-        fprintf(of, TAB "{%d,\"%s\"}", msg[i].code, encodechar(msg[i].txt));
+        if(compress_messages==true) {
+            fprintf(of, TAB "{%d,\"", msg[i].code);
+            size_d=compress(of, encodechar(msg[i].txt));
+            fprintf(of, "\"}");
+        } else {
+            fprintf(of, TAB "{%d,\"%s\"}", msg[i].code, 
+                encodechar(msg[i].txt));
+        }
         if(i<msize-1) {
             fprintf(of,",");
         }
@@ -1959,8 +2012,16 @@ void output_gamecycle(FILE *f)
     fprintf(f, TAB TAB "current_position=next_position;\n");
     fprintf(f, TAB TAB
         "if(marker[120]==false&&(marker[121]==true||marker[122]==true)) {\n");
-    fprintf(f, TAB TAB TAB
-        "writeln(world[search_room(current_position)].long_d);\n");
+    if(compress_messages==true) {
+        fprintf(f,TAB TAB TAB 
+            "decode(world[search_room(current_position)]."
+            "long_d,decompress_b,B_SIZE);\n");
+        fprintf(f,TAB TAB TAB "writesameln(decompress_b);\n");
+    } else {
+        fprintf(f, TAB TAB TAB
+            "writeln(world[search_room(current_position)].long_d);\n");
+    }
+   
     fprintf(f, TAB TAB TAB "marker[120]=true;\n");
     fprintf(f, TAB TAB TAB "ve=false;\n");
     fprintf(f, TAB TAB TAB "for(k=0;k<OSIZE;++k)\n");
@@ -1973,7 +2034,11 @@ void output_gamecycle(FILE *f)
     fprintf(f, TAB TAB TAB TAB "}\n");
     fprintf(f, TAB TAB "if(marker[124]==true) {\n");
     fprintf(f, TAB TAB TAB TAB "pa=false;\n");
-    fprintf(f, TAB TAB TAB "for(k=0; k<10; ++k)\n");
+    if(use_6_directions)
+        fprintf(f, TAB TAB TAB "for(k=0; k<6; ++k)\n");
+    else
+        fprintf(f, TAB TAB TAB "for(k=0; k<10; ++k)\n");
+
     fprintf(f, TAB TAB TAB TAB
         "if(world[search_room(current_position)].directions[k]!=0) {\n");
     fprintf(f, TAB TAB TAB TAB TAB "if(pa==false) {\n");
@@ -2038,7 +2103,9 @@ void print_help(char *name)
            " -r  same as -u, but keep accents as separate chars.\n"
            "        è -> e'  è -> e`\n"
            " -s  same as -u, but only employs the single accent '.\n"
-           "        é -> e'  è -> e'\n");
+           "        é -> e'  è -> e'\n"
+           " -c  compress text with Huffman algorithm.\n"
+           " -d  employ 6 directions instead of 10.\n");
 
     printf("\n");
 }
@@ -2060,6 +2127,13 @@ int process_options(char *arg, char *name)
         convert_utf8=true;
         convert_accents=true;
         convert_accent_alt=true;
+        return 1;
+    } else if (strcmp(arg, "-d")==0) {
+        use_6_directions=true;
+        return 1;
+    } else if (strcmp(arg, "-c")==0) {
+        compress_messages=true;
+        compress_descriptions=true;
         return 1;
     }
     return 0;
@@ -2092,7 +2166,7 @@ int main(int argc, char **argv)
         print_help(argv[0]);
         return 0;
     }
-
+    init_analysis();
     while (argumentr<argc && process_options(argv[argumentr], argv[0])!=0) {
         ++argumentr;
     }
@@ -2179,6 +2253,9 @@ int main(int argc, char **argv)
     }
     no_of_errors=0;
     output_header(of);
+    if(compress_messages==true || compress_descriptions==true) {
+        output_decoder(of);
+    }
     output_dictionary(of, dictionary, dsize);
     output_rooms(of, world, rsize);
     output_messages(of, msg, msize);

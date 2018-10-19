@@ -41,9 +41,15 @@ typedef struct room_d {
     char *long_d;
     char *s;
     char *short_d;
+
+    #ifndef DIR_REDUCED
     // north, sud, east, west, up, down, north east, north west, south east,
     // south west
     int directions[10];
+    #else
+    // north, sud, east, west, up, down
+    int directions[6];
+    #endif
 } room;
 
 typedef struct message_d {

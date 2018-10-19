@@ -56,7 +56,7 @@ void writesameln(char *line)
             waitscreen();
         } else if(c=='\t') {
             tab();
-        } else if(c==' ' || c=='\n'||c=='\0') {
+        } else if(c==' ' || c=='\n'||c=='\0' || (c=='\\' && line[i]=='n')) {
             wordbuffer[pc]='\0';
             if(colc>=NCOL) {
                 printf("\n");
@@ -70,7 +70,9 @@ void writesameln(char *line)
             if(c=='\0')
                 return;
             pc=0;
-            if(c=='\n') {
+            if(c=='\n' || (c=='\\' && line[i]=='n')) {
+                if(c=='\\')
+                    ++i;
                 printf("\n");
                 colc=0;
             } else if(colc<NCOL-1) {

@@ -8,3 +8,6 @@ modern: innuh.c inout.c
 
 c64: innuh.c inout.c
 	cl65 -t c64 -D C64 innuh.c inout.c -o innuh.prg
+
+clean:
+	rm innuh.c
