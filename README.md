@@ -55,6 +55,9 @@ Available options:
         è -> e'  è -> e`
  -s  same as -u, but only employs the single accent '.
         é -> e'  è -> e'
+ -c  compress text with Huffman algorithm.
+ -d  employ 6 directions instead of 10.
 ~~~~
 
 If you have a machine that only has the accent ' available such as a Commodore 64, it makes sense to use the `-s` option to create the file to be compiled.
+Compression can not be used for files to be compiled by Cc65 for Commodore machines.
