@@ -52,7 +52,6 @@ typedef struct localc_t {
 } localc;
 
 int no_of_errors;
-
 boolean convert_utf8=false;
 boolean convert_accents=false;
 boolean convert_accent_alt=false;
@@ -1201,15 +1200,7 @@ int action_inve(FILE *f, char *line, int scanpos)
 int action_move(FILE *f, char *line, int scanpos, int dir)
 {
     int position, value;
-    fprintf(f, TAB TAB
-        "if(world[search_room(current_position)].directions[%d]!=0) {\n",dir-1);
-    fprintf(f, TAB TAB TAB "next_position="
-        "world[search_room(current_position)].directions[%d];\n", dir-1);
-    fprintf(f, TAB TAB TAB "marker[120]=false;\n");
-    fprintf(f, TAB TAB TAB "return 1;\n");
-    fprintf(f, TAB TAB "} else \n");
-    fprintf(f, TAB TAB TAB "show_message(1008);\n");
-
+    fprintf(f, TAB TAB "if(move(%d)==1) return 1;\n", dir-1);
     return scanpos;
 }
 /** LOOK */
@@ -1755,7 +1746,7 @@ void output_utility_func(FILE *of)
     fprintf(of,"boolean marker[129];\n");
     fprintf(of,"int counter[129];\n");
     if(compress_messages==true) {
-        fprintf(of,"#define B_SIZE 2000\n");
+        fprintf(of,"#define B_SIZE %d\n", get_max_len()+1);
         fprintf(of,"char decompress_b[B_SIZE];\n");
     }
 
@@ -1800,6 +1791,18 @@ void output_utility_func(FILE *of)
     fprintf(of,TAB TAB "}\n");
     fprintf(of,TAB "}\n");
     fprintf(of,TAB "if(gs==0) show_message(1033);\n}\n\n");
+
+    fprintf(of, "int move(int dir)\n");
+    fprintf(of, "{\n");
+    fprintf(of, TAB
+        "if(world[search_room(current_position)].directions[dir]!=0) {\n");
+    fprintf(of, TAB TAB "next_position="
+        "world[search_room(current_position)].directions[dir];\n");
+    fprintf(of, TAB TAB "marker[120]=false;\n");
+    fprintf(of, TAB TAB "return 1;\n");
+    fprintf(of, TAB "} else \n");
+    fprintf(of, TAB TAB "show_message(1008);\n");
+    fprintf(of, TAB "return 0;\n}\n\n");
 }
 
 /** Create the code for the dictionary in the output file.
@@ -1819,7 +1822,7 @@ void output_dictionary(FILE *of, word* dictionary, int dsize)
             fprintf(of, TAB "{\"%s\",%d,%d}",dictionary[i].w,
             dictionary[i].code,dictionary[i].t);
         //}
-        
+
         if(i<dsize-1) {
             fprintf(of,",");
         }
@@ -1843,7 +1846,7 @@ void output_rooms(FILE *of, room* world, int rsize)
         p=encodechar(world[i].long_d);
         long_d = (char*) calloc(strlen(p)+1, sizeof(char));
         strcpy(long_d,p);
-        
+
         fprintf(of, TAB "{%d,\"",world[i].code);
         if(compress_messages==true) {
             size_d=compress(of, encodechar(long_d));
@@ -1886,7 +1889,7 @@ void output_messages(FILE *of, message* msg, int msize)
             size_d=compress(of, encodechar(msg[i].txt));
             fprintf(of, "\"}");
         } else {
-            fprintf(of, TAB "{%d,\"%s\"}", msg[i].code, 
+            fprintf(of, TAB "{%d,\"%s\"}", msg[i].code,
                 encodechar(msg[i].txt));
         }
         if(i<msize-1) {
@@ -1951,8 +1954,11 @@ void output_greetings(FILE *f, info *header)
     fprintf(f, TAB "writeln(\"%s\");\n", encodechar(header->description));
     fprintf(f, TAB "normaltxt();\n");
 
-    fprintf(f, TAB "writeln(\"AWS version: %s\\n\");\n",
-        encodechar(header->version));
+    fprintf(f, TAB "writesameln(\"AWS version: \");\n");
+    fprintf(f, TAB "evidence1();\n");
+    fprintf(f, TAB "writeln(\"%s\\n\");\n", encodechar(header->version));
+    fprintf(f, TAB "normaltxt();\n");
+
     fprintf(f, "}\n");
 }
 
@@ -2013,7 +2019,7 @@ void output_gamecycle(FILE *f)
     fprintf(f, TAB TAB
         "if(marker[120]==false&&(marker[121]==true||marker[122]==true)) {\n");
     if(compress_messages==true) {
-        fprintf(f,TAB TAB TAB 
+        fprintf(f,TAB TAB TAB
             "decode(world[search_room(current_position)]."
             "long_d,decompress_b,B_SIZE);\n");
         fprintf(f,TAB TAB TAB "writesameln(decompress_b);\n");
@@ -2021,7 +2027,7 @@ void output_gamecycle(FILE *f)
         fprintf(f, TAB TAB TAB
             "writeln(world[search_room(current_position)].long_d);\n");
     }
-   
+
     fprintf(f, TAB TAB TAB "marker[120]=true;\n");
     fprintf(f, TAB TAB TAB "ve=false;\n");
     fprintf(f, TAB TAB TAB "for(k=0;k<OSIZE;++k)\n");

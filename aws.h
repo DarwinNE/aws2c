@@ -68,4 +68,10 @@ typedef struct object_d {
     boolean isnotwereable;
 } object;
 
+typedef struct tree_d {
+    int c;
+    unsigned char son0idx;
+    unsigned char son1idx;
+} tree;
+
 #endif
