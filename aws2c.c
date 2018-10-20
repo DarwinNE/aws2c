@@ -1271,11 +1271,12 @@ int action_drop(FILE *f, char *line, int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, TAB TAB "if(obj[search_object(%s)].position==CARRIED){\n",
-        function_res);
-    fprintf(f, TAB TAB TAB
-        "obj[search_object(%s)].position=current_position;\n", function_res);
-        fprintf(f, TAB TAB TAB "--counter[119];\n");
+    fprintf(f, TAB TAB "dummy=search_object(%s);\n", function_res);
+    fprintf(f, TAB TAB "if(obj[dummy].position==CARRIED){\n");
+    fprintf(f, TAB TAB TAB "obj[dummy].position=current_position;\n");
+    fprintf(f, TAB TAB TAB "--counter[119];\n");
+    fprintf(f, TAB TAB TAB "counter[120]-=obj[dummy].weight;\n");
+    fprintf(f, TAB TAB TAB "counter[124]-=obj[dummy].size;\n");
     fprintf(f, TAB TAB "} else\n");
     fprintf(f, TAB TAB TAB "show_message(1007);\n");
     return scanpos;
@@ -2073,12 +2074,13 @@ void output_local(FILE *f, localc* cond, int size)
     int oldroom=-1;
     boolean first=true;
     fprintf(f,"int local_cond(void)\n{\n");
+    fprintf(f, TAB "switch(current_position) {\n");
     for(i=0; i<size; ++i) {
         if(oldroom!=cond[i].room) {
             if(first==false)
-                fprintf(f, TAB "}\n");
+                fprintf(f, TAB "break;\n");
 
-            fprintf(f, TAB "if(current_position==%d) {\n", cond[i].room);
+            fprintf(f, TAB "case %d:\n", cond[i].room);
             first=false;
             oldroom=cond[i].room;
         }
