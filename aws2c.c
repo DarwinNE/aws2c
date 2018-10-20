@@ -1200,7 +1200,9 @@ int action_inve(FILE *f, char *line, int scanpos)
 int action_move(FILE *f, char *line, int scanpos, int dir)
 {
     int position, value;
-    fprintf(f, TAB TAB "if(move(%d)==1) return 1;\n", dir-1);
+    /*fprintf(f, TAB TAB "if(move(%d)==1) return 1;\n", dir-1);*/
+    /* This second version should work all the times. */
+    fprintf(f, TAB TAB "move(%d);\n", dir-1);
     return scanpos;
 }
 /** LOOK */
@@ -1305,25 +1307,8 @@ int action_get(FILE *f, char *line, int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, TAB TAB "dummy=search_object(%s);\n", function_res);
-    fprintf(f, TAB TAB
-        "if(obj[dummy].position!=current_position) {\n");
-    fprintf(f, TAB TAB TAB "show_message(1006);\n");
-    fprintf(f, TAB TAB TAB "return -1;\n");
-    fprintf(f, TAB TAB
-        "} else if(counter[120]+obj[dummy].weight>counter[122]){ \n");
-    fprintf(f, TAB TAB TAB "show_message(1003);\n");
-    fprintf(f, TAB TAB TAB "return -1;\n");
-    fprintf(f, TAB TAB
-        "} else if(counter[124]+obj[dummy].size>counter[121]) {\n");
-    fprintf(f, TAB TAB TAB "show_message(1004);\n");
-    fprintf(f, TAB TAB TAB "return -1;\n");
-    fprintf(f, TAB TAB "} else {\n");
-    fprintf(f, TAB TAB TAB "obj[dummy].position=CARRIED;\n");
-    fprintf(f, TAB TAB TAB "++counter[119];\n");
-    fprintf(f, TAB TAB TAB "counter[120]+=obj[dummy].weight;\n");
-    fprintf(f, TAB TAB TAB "counter[124]+=obj[dummy].size;\n");
-    fprintf(f, TAB TAB "}\n");
+    fprintf(f, TAB TAB "if(get(%s)!=00) return -1;\n", function_res);
+
     return scanpos;
 }
 /** GETALL */
@@ -1803,6 +1788,32 @@ void output_utility_func(FILE *of)
     fprintf(of, TAB "} else \n");
     fprintf(of, TAB TAB "show_message(1008);\n");
     fprintf(of, TAB "return 0;\n}\n\n");
+
+    fprintf(of, "int get(int o)\n");
+    fprintf(of, "{\n");
+    fprintf(of, TAB "dummy=search_object(o);\n");
+    fprintf(of, TAB "if(obj[dummy].position!=current_position) {\n");
+    fprintf(of, TAB TAB "show_message(1006);\n");
+    fprintf(of, TAB TAB "return -1;\n");
+    /* Euh... should not be isnotmovable==true here??? */
+    fprintf(of, TAB "} else if(obj[dummy].isnotmovable==false) {\n");
+    fprintf(of, TAB TAB "show_message(1005);\n");
+    fprintf(of, TAB TAB "return -1;\n");
+    fprintf(of, TAB 
+        "} else if(counter[120]+obj[dummy].weight>counter[122]){ \n");
+    fprintf(of, TAB TAB "show_message(1003);\n");
+    fprintf(of, TAB TAB TAB "return -1;\n");
+    fprintf(of, TAB "} else if(counter[124]+obj[dummy].size>counter[121]) {\n");
+    fprintf(of, TAB TAB "show_message(1004);\n");
+    fprintf(of, TAB TAB "return -1;\n");
+    fprintf(of, TAB "} else {\n");
+    fprintf(of, TAB TAB "obj[dummy].position=CARRIED;\n");
+    fprintf(of, TAB TAB "++counter[119];\n");
+    fprintf(of, TAB TAB "counter[120]+=obj[dummy].weight;\n");
+    fprintf(of, TAB TAB "counter[124]+=obj[dummy].size;\n");
+    fprintf(of, TAB "}\n");
+    fprintf(of, TAB "return 0;\n");
+    fprintf(of, "}\n");
 }
 
 /** Create the code for the dictionary in the output file.
@@ -1812,16 +1823,12 @@ void output_dictionary(FILE *of, word* dictionary, int dsize)
     int i, size_d;
     fprintf(of, "#define DSIZE %d\n",dsize);
 
+    /*  I did a few tests and it seemed to me that it is not worth compressing
+        the dictionary. */
     fprintf(of, "word dictionary[DSIZE]={\n");
     for(i=0; i<dsize;++i) {
-        /*if(compress_messages==true) {
-            fprintf(of, TAB "{\"");
-            size_d=compress(of, encodechar(dictionary[i].w));
-            fprintf(of, "\",%d,%d}",dictionary[i].code,dictionary[i].t);
-        } else {*/
-            fprintf(of, TAB "{\"%s\",%d,%d}",dictionary[i].w,
-            dictionary[i].code,dictionary[i].t);
-        //}
+        fprintf(of, TAB "{\"%s\",%d,%d}",dictionary[i].w,
+        dictionary[i].code,dictionary[i].t);
 
         if(i<dsize-1) {
             fprintf(of,",");
@@ -1832,8 +1839,7 @@ void output_dictionary(FILE *of, word* dictionary, int dsize)
 }
 
 
-/** Create the code for the dictionary in the output file.
-*/
+/** Create the code for the rooms' description in the output file. */
 void output_rooms(FILE *of, room* world, int rsize)
 {
     int i,j;
@@ -1853,11 +1859,17 @@ void output_rooms(FILE *of, room* world, int rsize)
         } else {
             fprintf(of, "%s", long_d);
         }
-        fprintf(of,"\",\"%s\",\"",world[i].s);
+        fprintf(of, "\",\"");
+        if(compress_messages==true) {
+            size_d=compress(of, encodechar(world[i].s));
+        } else {
+            fprintf(of, "%s", encodechar(world[i].s));
+        }
+        fprintf(of, "\",\"");
         if(compress_messages==true) {
             size_d=compress(of, encodechar(world[i].short_d));
         } else {
-            fprintf(of, "%s", encodechar(world[i].short_d));
+            fprintf(of, "%s", world[i].short_d);
         }
         fprintf(of, "\",");
         free(long_d);
@@ -1875,8 +1887,7 @@ void output_rooms(FILE *of, room* world, int rsize)
     fprintf(of,"};\n\n");
 }
 
-/** Create the code for the messages in the output file.
-*/
+/** Create the code for the messages in the output file. */
 void output_messages(FILE *of, message* msg, int msize)
 {
     int i,j;
@@ -1900,8 +1911,7 @@ void output_messages(FILE *of, message* msg, int msize)
     fprintf(of,"};\n\n");
 }
 
-/** Create the code for the objects in the output file.
-*/
+/** Create the code for the objects in the output file. */
 void output_objects(FILE *of, object* obj, int osize)
 {
     int i,j;
@@ -1928,8 +1938,7 @@ void output_objects(FILE *of, object* obj, int osize)
     fprintf(of,"};\n\n");
 }
 
-/** Write the code to provide the welcome message when the game starts.
-*/
+/** Write the code to provide the welcome message when the game starts. */
 void output_greetings(FILE *f, info *header)
 {
     fprintf(f, "\nvoid greetings(void)\n{\n");
@@ -1962,7 +1971,7 @@ void output_greetings(FILE *f, info *header)
     fprintf(f, "}\n");
 }
 
-
+/* Create code for HI conditions */
 void output_hicond(FILE *f, char **cond, int size)
 {
     int i;
@@ -1974,6 +1983,7 @@ void output_hicond(FILE *f, char **cond, int size)
     fprintf(f,"}\n");
 }
 
+/* Create code for LOW conditions */
 void output_lowcond(FILE *f, char **cond, int size)
 {
     int i;
@@ -1985,6 +1995,7 @@ void output_lowcond(FILE *f, char **cond, int size)
     fprintf(f,"}\n");
 }
 
+/* Create code for LOCAL conditions */
 void output_local(FILE *f, localc* cond, int size)
 {
     int i;
@@ -2008,7 +2019,7 @@ void output_local(FILE *f, localc* cond, int size)
     fprintf(f,"}\n");
 }
 
-
+/* Create code for the main game cycle */
 void output_gamecycle(FILE *f)
 {
     fprintf(f,"\nvoid game_cycle(void)\n{\n");
@@ -2071,8 +2082,7 @@ void output_gamecycle(FILE *f)
     fprintf(f, "}\n");
 }
 
-/** Create the entry point of the game.
-*/
+/** Create the entry point of the game. */
 void create_main(FILE *f, info *header)
 {
     fprintf(f, "\nint main(void)\n{\n");
@@ -2094,6 +2104,7 @@ void create_main(FILE *f, info *header)
     fprintf(f, "}\n");
 }
 
+/* Print a help. */
 void print_help(char *name)
 {
     printf("Adventure Writing System to C compiler, version 1.0\n");
@@ -2116,6 +2127,7 @@ void print_help(char *name)
     printf("\n");
 }
 
+/* Process options from the command line. */
 int process_options(char *arg, char *name)
 {
     if(strcmp(arg, "-h")==0) {
@@ -2145,7 +2157,7 @@ int process_options(char *arg, char *name)
     return 0;
 }
 
-
+/* Entry point of the program. */
 int main(int argc, char **argv)
 {
     FILE *f;
@@ -2274,7 +2286,7 @@ int main(int argc, char **argv)
     output_gamecycle(of);
     create_main(of, header);
     fclose(of);
-    printf("File %s created\n",argv[2]);
+    printf("File %s created\n",argv[argumentr+1]);
     printf("No of critical errors: %d\n",no_of_errors);
     if(no_of_errors>0)
         return 1;

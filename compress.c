@@ -23,8 +23,6 @@ boolean show_codes=true;
 int max_len;
 node treearray[256];
 
-FILE *fout;
-
 /* Analyse the frequency of occurrence of each letter in the given text */
 void analyze(char *text)
 {
@@ -52,6 +50,7 @@ int compare(const void *a1, const void *a2)
     return ((compression *)a1)->occur-((compression*)a2)->occur;
 }
 
+/* Push operation a stack used to put together the code during compression. */
 void push(char c)
 {
     codestack[stackp++]=c;
@@ -60,6 +59,7 @@ void push(char c)
         ++valuestack;
 }
 
+/* Pop operation a stack used to put together the code during compression. */
 char pop(void)
 {
     char c=codestack[--stackp];
@@ -73,8 +73,6 @@ void explore_tree(node *n)
 {
     int c;
     treearray[n->nodeindex]=*n;
-    /*fprintf(fout, "    {%d, %d,%d,%d},\n",n->c,n->nodeindex,
-        n->son0idx, n->son1idx);*/
 
     if(n->son0==NULL&&n->son1==NULL) {
         c=n->c;
@@ -178,8 +176,8 @@ node *create_tree(void)
             }
         }
     } while (created);
-    if (num_nodes>255) {
-        printf("Compression error: more than 255 nodes in the Huffman tree.\n"
+    if (num_nodes>254) {
+        printf("Compression error: more than 254 nodes in the Huffman tree.\n"
             "Code is fragile and life is short: avoid compression here...\n");
         exit(1);
     }
@@ -199,17 +197,15 @@ void init_analysis(void)
 }
 
 /*  Write in the file everything it is needed for decoding compressed messages
-    and other descriptions.
-*/
-void output_decoder(FILE *f)
+    and other descriptions. */
+void output_decoder(FILE *fout)
 {
     int i;
-    fout=f;
     node *np;
     fprintf(fout,"char *compressed;\n");
-    fprintf(fout,"int bpointer;\n");
+    fprintf(fout,"unsigned char bpointer;\n");
     fprintf(fout,"int cpointer;\n");
-    fprintf(fout,"int currbyte;\n\n");
+    fprintf(fout,"unsigned char currbyte;\n\n");
     fprintf(fout,"int g_b(void)\n");
     fprintf(fout,"{\n");
     fprintf(fout,"   int t;\n");
@@ -231,8 +227,12 @@ void output_decoder(FILE *f)
     fprintf(fout, "#define NUM_NODES %d\n", num_nodes);
     fprintf(fout, "tree huftree[NUM_NODES]={\n");
     for(i=0;i<num_nodes;++i) {
-        fprintf(fout, "    {%d,%d,%d},\n",treearray[i].c, treearray[i].son0idx,
-            treearray[i].son1idx);
+        if(treearray[i].c!=-1)
+            fprintf(fout, "    {%d,%d,%d},\n",treearray[i].c,
+                treearray[i].son0idx, treearray[i].son1idx);
+        else
+            fprintf(fout, "    {255,%d,%d},\n",
+                treearray[i].son0idx, treearray[i].son1idx);
     }
 
     fprintf(fout,"};\n\n");
@@ -241,7 +241,7 @@ void output_decoder(FILE *f)
     fprintf(fout,"{\n");
     fprintf(fout,"    int i=NUM_NODES-1;\n");
     fprintf(fout,"    while(1) {\n");
-    fprintf(fout,"        if(huftree[i].c!=-1)\n");
+    fprintf(fout,"        if(huftree[i].c!=255)\n");
     fprintf(fout,"            return huftree[i].c;\n");
     fprintf(fout,"        if(g_b()==0) {\n");
     fprintf(fout,"            i=huftree[i].son0idx;\n");
