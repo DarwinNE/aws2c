@@ -24,6 +24,8 @@ int verb;
 int noun1;
 int noun2;
 int adve;
+int actor;
+int adjective;
 
 extern word dictionary[];
 
@@ -139,6 +141,8 @@ void interrogationAndAnalysis(int num_of_words)
     noun1=0;
     noun2=0;
     adve=0;
+    actor=0;
+    adjective=0;
 
     while(ls<lc) {
         k=0;
@@ -171,6 +175,12 @@ void interrogationAndAnalysis(int num_of_words)
                         break;
                     case ADVERB:
                         adve=dictionary[i].code;
+                        break;
+                    case ACTOR:
+                        actor=dictionary[i].code;
+                        break;
+                    case ADJECTIVE:
+                        adjective=dictionary[i].code;
                         break;
                     case SEPARATOR:
                         /*  The line is not finished but it can be executed. */

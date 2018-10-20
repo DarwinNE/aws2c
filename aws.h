@@ -8,6 +8,8 @@ typedef unsigned char word_type;
 #define VERB 1
 #define NAME 2
 #define SEPARATOR 3
+#define ACTOR 4
+#define ADJECTIVE 5
 
 
 typedef struct info_d {

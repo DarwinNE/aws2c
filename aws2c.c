@@ -179,8 +179,12 @@ word *read_dictionary(FILE *f, int size)
             dictionary[cw].t=SEPARATOR;
         } else if(strcmp(buffer, "NOME")==0) {
             dictionary[cw].t=NAME;
+        } else if(strcmp(buffer, "ATTORE")==0) {
+            dictionary[cw].t=ACTOR;
+        } else if(strcmp(buffer, "AGGETTIVO")==0) {
+            dictionary[cw].t=ADJECTIVE;
         } else {
-            printf("Unknown word type.\n");
+            printf("Unknown word type: %s.\n",buffer);
             free(dictionary);
             return NULL;
         }
@@ -679,12 +683,15 @@ int process_functions(char *line, int scanpos)
         strcon(function_res,"obj[search_object(");
         scanpos=process_functions(line,scanpos);
         strcon(function_res,")].weight");
+    } else if(strcmp(token,"ACTORNO")==0) {
+        strcon(function_res,"actor");
     } else {
         if(sscanf(token, "%d",&value)==1) {
             sprintf(token, "%d", value);
             strcon(function_res,token);
         } else {
             printf("Function not recognized %s\n", token);
+            ++no_of_errors;
         }
 
     }
@@ -1058,6 +1065,54 @@ int decision_objlocgt(FILE *f, char *line, int scanpos)
     fprintf(f, TAB TAB "obj[search_object(%s)].position>%s",
         arg1, function_res);
     free(arg1);
+    return scanpos;
+}
+/** ACTOR */
+int decision_actor(FILE *f, char *line, int scanpos)
+{
+    start_function();
+    scanpos=process_functions(line, scanpos);
+    fprintf(f, "actor==%s", function_res);
+    return scanpos;
+}
+/** ACTORGT */
+int decision_actorgt(FILE *f, char *line, int scanpos)
+{
+    start_function();
+    scanpos=process_functions(line, scanpos);
+    fprintf(f, "actor>%s", function_res);
+    return scanpos;
+}
+/** ACTORLT */
+int decision_actorlt(FILE *f, char *line, int scanpos)
+{
+    start_function();
+    scanpos=process_functions(line, scanpos);
+    fprintf(f, "actor<%s", function_res);
+    return scanpos;
+}
+/** ADJE */
+int decision_adje(FILE *f, char *line, int scanpos)
+{
+    start_function();
+    scanpos=process_functions(line, scanpos);
+    fprintf(f, "adjective==%s", function_res);
+    return scanpos;
+}
+/** ADJEGT */
+int decision_adjegt(FILE *f, char *line, int scanpos)
+{
+    start_function();
+    scanpos=process_functions(line, scanpos);
+    fprintf(f, "adjective>%s", function_res);
+    return scanpos;
+}
+/** ADJELT */
+int decision_adjelt(FILE *f, char *line, int scanpos)
+{
+    start_function();
+    scanpos=process_functions(line, scanpos);
+    fprintf(f, "adjective<%s", function_res);
     return scanpos;
 }
 
@@ -1565,6 +1620,22 @@ void process_aws(FILE *f, char *line)
             scanpos=decision_objloceq(f, line, scanpos);
         } else if(strcmp(token,"OBJLOCGT")==0) {
             scanpos=decision_objlocgt(f, line, scanpos);
+        } else if(strcmp(token,"ACTOR")==0) {
+            scanpos=decision_actor(f, line, scanpos);
+        } else if(strcmp(token,"ACTOREQ")==0) {
+            scanpos=decision_actor(f, line, scanpos);
+        } else if(strcmp(token,"ACTORGT")==0) {
+            scanpos=decision_actorgt(f, line, scanpos);
+        } else if(strcmp(token,"ACTORLT")==0) {
+            scanpos=decision_actorlt(f, line, scanpos);
+        } else if(strcmp(token,"ADJE")==0) {
+            scanpos=decision_adje(f, line, scanpos);
+        } else if(strcmp(token,"ADJEEQ")==0) {
+            scanpos=decision_adje(f, line, scanpos);
+        } else if(strcmp(token,"ADJEGT")==0) {
+            scanpos=decision_adjegt(f, line, scanpos);
+        } else if(strcmp(token,"ADJELT")==0) {
+            scanpos=decision_adjelt(f, line, scanpos);
         } else if(strcmp(token,"OR")==0) {
             fprintf(f,"||");
         } else if(strcmp(token,"AND")==0) {
@@ -1716,7 +1787,7 @@ void output_header(FILE *of)
     fprintf(of,"#include\"inout.h\"\n");
     fprintf(of,"#include\"systemdef.h\"\n\n");
     fprintf(of,"extern int verb;\nextern int noun1;\nextern int noun2;\n"
-        "extern int adve;\n");
+        "extern int adve;\nextern int actor;\nextern int adjective;\n");
     fprintf(of, "int dummy;\n");
     fprintf(of, "#define CARRIED 1500\n");
     fprintf(of,"\n");

@@ -134,8 +134,8 @@ node *create_tree(void)
                     /* Create a new leaf */
                     np0=(node*)malloc(sizeof(node));
                     np0->nodeindex=num_nodes++;
-                    np0->son0idx=-1;
-                    np0->son1idx=-1;
+                    np0->son0idx=255;
+                    np0->son1idx=255;
                     np0->son0=NULL;
                     np0->son1=NULL;
                     np0->c=stats[i].c;
@@ -147,8 +147,8 @@ node *create_tree(void)
                 if(stats[i+1].tree==NULL) {
                     np1=(node*)malloc(sizeof(node));
                     np1->nodeindex=num_nodes++;
-                    np1->son0idx=-1;
-                    np1->son1idx=-1;
+                    np1->son0idx=255;
+                    np1->son1idx=255;
                     np1->son0=NULL;
                     np1->son1=NULL;
                     np1->c=stats[i+1].c;
