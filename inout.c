@@ -51,13 +51,13 @@ void writesameln(char *line)
 /*        } else if(c=='-' && flag==false) {
             evidence1();
             flag=true;*/
-        } else if(c=='-' && flag==true) {
+/*        } else if(c=='-' && flag==true) {
             norm=true;
             flag=false;
         } else if(c=='\b') {
             waitscreen();
         } else if(c=='\t') {
-            tab();
+            tab();*/
         } else if(c==' ' || c=='\n'||c=='\0' || (c=='\\' && line[i]=='n')) {
             wordbuffer[pc]='\0';
             if(colc>=NCOL) {

@@ -61,6 +61,10 @@ boolean compress_descriptions=false;
 
 boolean use_6_directions=false;
 
+boolean shortcuts=true;
+
+boolean complete_shortcut=false;
+
 typedef struct conv_t {
     char *orig;
     char conv;
@@ -624,6 +628,8 @@ int get_local_cond_size(FILE *f)
 
 
 char token[BUFFERSIZE];
+char next[BUFFERSIZE];
+
 
 /** Get a new token (store it in the shared variable "token") and
     return the new position in the line.
@@ -641,6 +647,24 @@ int get_token(char *line, int pos)
         token[k++]=c;
     }
     token[k]='\0';
+    return pos+1;
+}
+
+/** Give a peek to the next token (store it in the shared variable "next").
+*/
+int peek_token(char *line, int pos)
+{
+    char c;
+    int k=0;
+    while(line[pos]==' ')
+        ++pos;
+
+    for(;(c=line[pos])!='\0' && c!=' ';++pos) {
+        if(c>='a' && c<='z')
+            c-=32;  // Convert to uppercase
+        next[k++]=c;
+    }
+    next[k]='\0';
     return pos+1;
 }
 
@@ -806,9 +830,53 @@ int decision_equ(FILE *f, char *line, int scanpos)
 /** VERB */
 int decision_verb(FILE *f, char *line, int scanpos)
 {
+    int sp,at;
+    int proc=false;
+    char *arg1,*arg2;
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, "verb==%s", function_res);
+    sp=peek_token(line, scanpos);
+    
+    if(shortcuts==true&&(strcmp(next,"AND")==0)) {
+        sp=peek_token(line, sp);
+        if(strcmp(next,"NOUN")==0) {
+            arg1=(char *) calloc(strlen(function_res)+1,sizeof(char));
+            if(arg1==NULL) {
+                printf("Error allocating memory!\n");
+                exit(1);
+            }
+            strcpy(arg1,function_res);
+            scanpos=sp;
+            start_function();
+            scanpos=process_functions(line, scanpos);
+            arg2=(char *) calloc(strlen(function_res)+1,sizeof(char));
+            if(arg2==NULL) {
+                printf("Error allocating memory!\n");
+                exit(1);
+            }
+            strcpy(arg2,function_res);
+            sp=peek_token(line, scanpos);
+            if(strcmp(next,"AND")==0) {
+                sp=peek_token(line, sp);
+                if(strcmp(next,"AVAI")==0) {
+                    scanpos=sp;
+                    start_function();
+                    scanpos=process_functions(line, scanpos);
+                    fprintf(f,"cvna(%s,%s,%s)", arg1, arg2, function_res);
+                    proc=true;
+                }
+            }
+            if(proc==false) {
+                fprintf(f, "cvn(%s,%s)", arg1,arg2);
+            }
+            free(arg1);
+            free(arg2);
+        } else {
+            fprintf(f, "verb==%s", function_res);
+        }
+    } else {
+        fprintf(f, "verb==%s", function_res);
+    }
     return scanpos;
 }
 /** VBNOGT */
@@ -1131,8 +1199,7 @@ int action_goto(FILE *f, char *line, int scanpos)
     int position;
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, TAB TAB "next_position=%s;\n", function_res);
-    fprintf(f, TAB TAB "marker[120]=false;\n");
+    fprintf(f, TAB TAB "jump(%s);\n",function_res);
     fprintf(f, TAB TAB "return 1;\n");
 
     return scanpos;
@@ -1205,7 +1272,6 @@ int action_decr(FILE *f, char *line, int scanpos)
 /** MESS */
 int action_mess(FILE *f, char *line, int scanpos)
 {
-    int position, value;
     start_function();
     scanpos=process_functions(line, scanpos);
     fprintf(f, TAB TAB "show_message(%s);\n",  function_res);
@@ -1214,7 +1280,6 @@ int action_mess(FILE *f, char *line, int scanpos)
 /** MESSNOLF */
 int action_messnolf(FILE *f, char *line, int scanpos)
 {
-    int position, value;
     start_function();
     scanpos=process_functions(line, scanpos);
     fprintf(f, TAB TAB "show_messagenlf(%s);\n",  function_res);
@@ -1271,14 +1336,7 @@ int action_drop(FILE *f, char *line, int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, TAB TAB "dummy=search_object(%s);\n", function_res);
-    fprintf(f, TAB TAB "if(obj[dummy].position==CARRIED){\n");
-    fprintf(f, TAB TAB TAB "obj[dummy].position=current_position;\n");
-    fprintf(f, TAB TAB TAB "--counter[119];\n");
-    fprintf(f, TAB TAB TAB "counter[120]-=obj[dummy].weight;\n");
-    fprintf(f, TAB TAB TAB "counter[124]-=obj[dummy].size;\n");
-    fprintf(f, TAB TAB "} else\n");
-    fprintf(f, TAB TAB TAB "show_message(1007);\n");
+    fprintf(f, TAB TAB "drop(%s);\n",function_res);
     return scanpos;
 }
 /** TO */
@@ -1536,8 +1594,9 @@ void process_aws(FILE *f, char *line)
 {
     int scanpos=0;
     boolean atleastone=false;
+    complete_shortcut=false;
     scanpos=get_token(line, scanpos);
-    //printf("line [%s], token %s\n", line, token);
+    shortcuts=true;
 
     if(strcmp(token, "IF")!=0) {
         printf("Unrecognised start of aws condition %s instead of IF.\n",
@@ -1638,8 +1697,10 @@ void process_aws(FILE *f, char *line)
         } else if(strcmp(token,"ADJELT")==0) {
             scanpos=decision_adjelt(f, line, scanpos);
         } else if(strcmp(token,"OR")==0) {
+            shortcuts=false;
             fprintf(f,"||");
         } else if(strcmp(token,"AND")==0) {
+            shortcuts=true;
             // this is a trick to have the behaviour of AND as it is in AWS.
             fprintf(f,") if("); // There, AND has the same priority of OR :-(
         } else if(strcmp(token,"THEN")==0) {
@@ -1648,6 +1709,8 @@ void process_aws(FILE *f, char *line)
                 fprintf(f,"1");
             break;
         } else {
+            if(complete_shortcut==true)
+                return;
             printf("Unrecognised decision %s in [%s].\n", token, line);
             ++no_of_errors;
             return;
@@ -1655,6 +1718,7 @@ void process_aws(FILE *f, char *line)
         atleastone=true;
     }
 
+    
     fprintf(f,") {\n");  // ACTIONS
     while(1) {
         scanpos=get_token(line, scanpos);
@@ -1662,6 +1726,7 @@ void process_aws(FILE *f, char *line)
             scanpos=action_presskey(f, line, scanpos);
         } else if(strcmp(token,"GOTO")==0) {
             scanpos=action_goto(f, line, scanpos);
+            break;  /* Goto generates a return. Ignore what comes after. */
         } else if(strcmp(token,"ENDIF")==0) {
             break;
         } else if(strcmp(token,"SET")==0) {
@@ -1886,6 +1951,36 @@ void output_utility_func(FILE *of)
     fprintf(of, TAB "}\n");
     fprintf(of, TAB "return 0;\n");
     fprintf(of, "}\n");
+
+    /* Check for a name and noun */
+    fprintf(of, "int cvn(int v, int n)\n");
+    fprintf(of, "{\n");
+    fprintf(of, "    return verb==v&&(noun1==n||noun2==n);\n");
+    fprintf(of, "}\n");
+
+    /* If a name and a noun and avai conditions are given */
+    fprintf(of, "int cvna(int v, int n, int o)\n");
+    fprintf(of, "{\n    dummy=obj[search_object(o)].position;\n");
+    fprintf(of, "    return (verb==v&&(noun1==n||noun2==n))&&"
+        "(o==current_position||o==CARRIED);\n");
+    fprintf(of, "}\n");
+    
+    fprintf(of, "void drop(int o)\n{\n");
+    fprintf(of, TAB  "dummy=search_object(o);\n");
+    fprintf(of, TAB  "if(obj[dummy].position==CARRIED){\n");
+    fprintf(of, TAB TAB "obj[dummy].position=current_position;\n");
+    fprintf(of, TAB TAB "--counter[119];\n");
+    fprintf(of, TAB TAB "counter[120]-=obj[dummy].weight;\n");
+    fprintf(of, TAB TAB "counter[124]-=obj[dummy].size;\n");
+    fprintf(of, TAB "} else\n");
+    fprintf(of, TAB TAB "show_message(1007);\n");
+    fprintf(of, "}\n");
+
+    fprintf(of, "void jump(int p)\n{\n");
+    fprintf(of, TAB "next_position=p;\n");
+    fprintf(of, TAB "marker[120]=false;\n");
+    fprintf(of, "}\n");
+
 }
 
 /** Create the code for the dictionary in the output file.

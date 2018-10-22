@@ -1,7 +1,10 @@
 #ifndef _AWS_H_
 #define _AWS_H_
 
-typedef enum boolean_d {true=-1, false=0} boolean;
+typedef char boolean;
+
+#define true 1
+#define false 0
 
 typedef unsigned char word_type;
 #define ADVERB 0
