@@ -60,4 +60,3 @@ Available options:
 ~~~~
 
 If you have a machine that only has the accent ' available such as a Commodore 64, it makes sense to use the `-s` option to create the file to be compiled.
-Compression can not be used for files to be compiled by Cc65 for Commodore machines.
