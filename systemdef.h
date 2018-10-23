@@ -34,19 +34,19 @@
 #define waitkey() cgetc()
 
 /* Define the style of the input text */
-#define inputtxt() printf(green)
+#define inputtxt() cputs(green)
 
 /* Define the style of the first evidenced text */
-#define evidence1() printf(red)
+#define evidence1() cputs(red)
 
 /* Define the style of the second evidenced text */
-#define evidence2() printf(yellow)
+#define evidence2() cputs(yellow)
 
 /* Define the style of the normal text */
-#define normaltxt() printf(cyan)
+#define normaltxt() cputs(cyan)
 
 /* Write a tabulation (it can be adapted to screen width). */
-#define tab() printf("        ")
+#define tab() cputs("        ")
 
 /* Wait for one second */
 #define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
@@ -54,19 +54,72 @@
 
 /* Init the terminal */
 #define init_term() {\
-    char *pt80col=(char*)215;\
-    char *ptFast=(char*)53296;\
-    if (*pt80col==0) {\
+    #define PT80COL 215\
+    #define PTFST 53296;\
+    if (*(char*)PT80COL==0) {\
         printf(switch80col);\
     }\
-    *ptFast=1;\
-    printf(cls);\
+    *(char*)PTFST=1;\
+    cputs(cls);\
     normaltxt();\
 }
 
 /* Prepare the terminal to leave the program execution. */
 #define leave() printf(cyan)
 
+#elseif defined(C64)
+
+#include<conio.h>
+
+#define BUFFERSIZE 128
+
+#define waitscreen()
+
+// The number of columns of the screen
+#define NCOL 40
+
+#define green       "\x1E"
+#define red         "\x1C"
+#define cyan        "\x9F"
+#define blue        "\x1F"
+#define yellow      "\x9E"
+#define cls         "\x93"
+
+
+/* Macro to wait for a key */
+#define waitkey() cgetc()
+
+/* Define the style of the input text */
+#define inputtxt() cputs(green)
+
+/* Define the style of the first evidenced text */
+#define evidence1() cputs(red)
+
+/* Define the style of the second evidenced text */
+#define evidence2() cputs(yellow)
+
+/* Define the style of the normal text */
+#define normaltxt() cputs(cyan)
+
+/* Write a tabulation (it can be adapted to screen width). */
+#define tab() cputs("    ")
+
+/* Wait for one second */
+#define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
+    retTime);}
+
+/* Init the terminal */
+#define init_term() {\
+    #define PTRBRD 53280\
+    *(char*)PTRBRD = 0x00;\
+    #define PTRBRD 53281\
+    *(char*)PTRBRD = 0x00;\
+    cputs(cls);\
+    normaltxt();\
+}
+
+/* Prepare the terminal to leave the program execution. */
+#define leave() cputs(cyan)
 
 #else /* Definitions for modern ANSI terminals */
 

@@ -47,20 +47,17 @@ char function_res[BUFFERSIZE];
 #define start_function() function_res[0]='\0';
 
 typedef struct localc_t {
-    int room;
+    unsigned int room;
     char *condition;
 } localc;
 
-int no_of_errors;
+unsigned int no_of_errors;
 boolean convert_utf8=false;
 boolean convert_accents=false;
 boolean convert_accent_alt=false;
-
 boolean compress_messages=false;
 boolean compress_descriptions=false;
-
 boolean use_6_directions=false;
-
 boolean shortcuts=true;
 
 boolean complete_shortcut=false;
@@ -72,8 +69,9 @@ typedef struct conv_t {
     char accent_alt;
 } conv;
 
-/* This is a minimal conversion that should work for the Italian language at
-   least. */
+/* This is a minimal conversion that should work for the Italian language 
+   (at least). It is used to the conversion between UTF-8 chars and standard
+   ASCII characters, plus the accents. */
 
 #define CONVSIZE 20
 conv conversion[CONVSIZE] = {
@@ -106,7 +104,7 @@ conv conversion[CONVSIZE] = {
 */
 char *encodechar(char *input)
 {
-    int i,j,k;
+    unsigned int i,j,k;
     char c;
     for(i=0; (c=input[i])!='\0' && i<BUFFERSIZE-1;++i) {
         if(c=='\"') {
@@ -154,9 +152,9 @@ char *encodechar(char *input)
     @return a pointer to the allocated dictionary, or NULL if something bad
         happened.
 */
-word *read_dictionary(FILE *f, int size)
+word *read_dictionary(FILE *f, unsigned int size)
 {
-    int cw;
+    unsigned int cw;
     fpos_t pos;
     char *errorp="Could not allocate enough memory for the dictionary.\n";
     word *dictionary = (word*)calloc(size, sizeof(word));
@@ -198,10 +196,10 @@ word *read_dictionary(FILE *f, int size)
 
 /** Get the dictionary size.
 */
-int get_dict_size(FILE *f)
+unsigned int get_dict_size(FILE *f)
 {
     fpos_t pos;
-    int counter=0;
+    unsigned int counter=0;
 
     while(fscanf(f,"%80s",buffer)==1){
         if(strcmp(buffer,"DIZIONARIO")==0) {
@@ -223,7 +221,7 @@ int get_dict_size(FILE *f)
 */
 char *getlinep(FILE *f)
 {
-    int sl;
+    unsigned int sl;
     if(fgets(buffer, BUFFERSIZE, f) == NULL) {
         return NULL;
     }
@@ -237,11 +235,11 @@ char *getlinep(FILE *f)
 
 /** Get the number of the rooms in the game.
 */
-int get_room_number(FILE *f)
+unsigned int get_room_number(FILE *f)
 {
     fpos_t pos;
-    int counter=0;
-    int sl=0;
+    unsigned int counter=0;
+    unsigned int sl=0;
     while(fscanf(f,"%80s",buffer)==1){
         if(strcmp(buffer,"LOCAZIONI")==0) {
             break;
@@ -260,9 +258,9 @@ int get_room_number(FILE *f)
 
 /** Read all the "conditions" in the file.
 */
-char **read_cond(FILE*f, int size)
+char **read_cond(FILE*f, unsigned int size)
 {
-    int i;
+    unsigned int i;
     char **cond;
     char *errorp="Could not allocate enough memory for the conditions.\n";
 
@@ -286,9 +284,9 @@ char **read_cond(FILE*f, int size)
 
 /** Read all the "local conditions" in the file.
 */
-localc* read_local(FILE*f, int size)
+localc* read_local(FILE*f, unsigned int size)
 {
-    int i,r;
+    unsigned int i,r;
     localc* cond;
     char *errorp="Could not allocate enough memory for the local conditions.\n";
 
@@ -318,10 +316,10 @@ localc* read_local(FILE*f, int size)
 
 /** Get the rooms in the game
 */
-room* read_rooms(FILE *f, int size)
+room* read_rooms(FILE *f, unsigned int size)
 {
     char *errorp="Could not allocate enough memory for the room description.\n";
-    int i,j;
+    unsigned int i,j;
     room *world = (room*)calloc(size, sizeof(room));
     if (world==NULL) {
         printf("%s",errorp);
@@ -362,10 +360,10 @@ room* read_rooms(FILE *f, int size)
 
 /** Get the rooms in the game
 */
-object* read_objects(FILE *f, int size)
+object* read_objects(FILE *f, unsigned int size)
 {
     char *errorp="Could not allocate enough memory for the objects.\n";
-    int i,j;
+    unsigned int i,j;
     object *obj = (object*)calloc(size, sizeof(object));
     if (obj==NULL) {
         printf("%s",errorp);
@@ -487,10 +485,10 @@ info *read_header(FILE *f)
 
 /** Get the messages in the game
 */
-message* read_messages(FILE *f, int size)
+message* read_messages(FILE *f, unsigned int size)
 {
     char *errorp="Could not allocate enough memory for messages.\n";
-    int i,j;
+    unsigned int i,j;
     message *msg = (message*)calloc(size, sizeof(message));
     if (msg==NULL) {
         printf("%s",errorp);
@@ -513,11 +511,11 @@ message* read_messages(FILE *f, int size)
 
 /** Get the number of the objects in the game.
 */
-int get_objects_number(FILE *f)
+unsigned int get_objects_number(FILE *f)
 {
     fpos_t pos;
-    int counter=0;
-    int sl=0;
+    unsigned int counter=0;
+    unsigned int sl=0;
     while(fscanf(f,"%80s",buffer)==1){
         if(strcmp(buffer,"OGGETTI")==0) {
             break;
@@ -536,11 +534,11 @@ int get_objects_number(FILE *f)
 
 /** Get the number of messages in the game.
 */
-int get_messages_number(FILE *f)
+unsigned int get_messages_number(FILE *f)
 {
     fpos_t pos;
-    int counter=0;
-    int sl=0;
+    unsigned int counter=0;
+    unsigned int sl=0;
     while(fscanf(f,"%80s",buffer)==1){
         if(strcmp(buffer,"MESSAGGI")==0) {
             break;
@@ -559,11 +557,11 @@ int get_messages_number(FILE *f)
 
 /** Get the number of "high conditions" in the file.
 */
-int get_hi_cond_size(FILE *f)
+unsigned int get_hi_cond_size(FILE *f)
 {
     fpos_t pos;
-    int counter=0;
-    int sl=0;
+    unsigned int counter=0;
+    unsigned int sl=0;
     while(fscanf(f,"%80s",buffer)==1){
         if(strcmp(buffer,"CONDIZIONIHI")==0) {
             break;
@@ -582,11 +580,11 @@ int get_hi_cond_size(FILE *f)
 
 /** Get the number of "low conditions" in the file.
 */
-int get_low_cond_size(FILE *f)
+unsigned int get_low_cond_size(FILE *f)
 {
     fpos_t pos;
-    int counter=0;
-    int sl=0;
+    unsigned int counter=0;
+    unsigned int sl=0;
     while(fscanf(f,"%80s",buffer)==1){
         if(strcmp(buffer,"CONDIZIONILOW")==0) {
             break;
@@ -604,11 +602,11 @@ int get_low_cond_size(FILE *f)
 }
 /** Get the number of "local conditions" in the file.
 */
-int get_local_cond_size(FILE *f)
+unsigned int get_local_cond_size(FILE *f)
 {
     fpos_t pos;
-    int counter=0;
-    int sl=0;
+    unsigned int counter=0;
+    unsigned int sl=0;
     while(fscanf(f,"%80s",buffer)==1){
         if(strcmp(buffer,"CONDIZIONILOCALI")==0) {
             break;
@@ -634,10 +632,10 @@ char next[BUFFERSIZE];
 /** Get a new token (store it in the shared variable "token") and
     return the new position in the line.
 */
-int get_token(char *line, int pos)
+unsigned int get_token(char *line, unsigned int pos)
 {
     char c;
-    int k=0;
+    unsigned int k=0;
     while(line[pos]==' ')
         ++pos;
 
@@ -652,10 +650,10 @@ int get_token(char *line, int pos)
 
 /** Give a peek to the next token (store it in the shared variable "next").
 */
-int peek_token(char *line, int pos)
+unsigned int peek_token(char *line, unsigned int pos)
 {
     char c;
-    int k=0;
+    unsigned int k=0;
     while(line[pos]==' ')
         ++pos;
 
@@ -670,7 +668,7 @@ int peek_token(char *line, int pos)
 
 void strcon(char *str1, const char* str2)
 {
-    int i,j;
+    unsigned int i,j;
     char c;
 
     for(i=0;str1[i]!='\0'&&i<BUFFERSIZE;++i) ;
@@ -681,9 +679,9 @@ void strcon(char *str1, const char* str2)
     str1[i]='\0';
 }
 
-int process_functions(char *line, int scanpos)
+unsigned int process_functions(char *line, unsigned int scanpos)
 {
-    int value;
+    unsigned int value;
     scanpos=get_token(line, scanpos);
     if(strcmp(token,"NO1")==0) {
         strcon(function_res,"noun1");
@@ -726,15 +724,64 @@ int process_functions(char *line, int scanpos)
 /*  Decisions */
 
 /** AT */
-int decision_at(FILE *f, char *line, int scanpos)
+unsigned int decision_at(FILE *f, char *line, unsigned int scanpos)
 {
+    boolean proc=false;
+    unsigned int sp;
+    boolean polarity=true;
+    char *arg1=NULL,*arg2=NULL;
+
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, "current_position==%s", function_res);
+    arg1=(char *) calloc(strlen(function_res)+1,sizeof(char));
+    if(arg1==NULL) {
+        printf("Error allocating memory!\n");
+        exit(1);
+    }
+    strcpy(arg1,function_res);
+    sp=peek_token(line, scanpos);
+    if(shortcuts==true&&(strcmp(next,"AND")==0)) {
+        sp=peek_token(line, sp);
+        if(strcmp(next,"SET?")==0||strcmp(next,"RES?")==0) {
+            if(strcmp(next,"RES?")==0)
+                polarity=false;
+            start_function();
+            sp=process_functions(line, sp);
+            arg2=(char *) calloc(strlen(function_res)+1,sizeof(char));
+            if(arg2==NULL) {
+                printf("Error allocating memory!\n");
+                exit(1);
+            }
+            strcpy(arg2,function_res);
+            sp=peek_token(line, sp);
+            if(strcmp(next,"THEN")==0) {
+                sp=peek_token(line, sp);
+                if(strcmp(next,"MESS")==0) {
+                    start_function();
+                    sp=process_functions(line, sp);
+                    peek_token(line, sp);
+                    if(strcmp(next,"ENDIF")==0) {
+                        scanpos=sp;
+                        proc=true;
+                        complete_shortcut=true;
+                        fprintf(f, 
+                            "1) amsm(%s,%s,%d,%s);",
+                            arg1,arg2,polarity,function_res);
+                    }
+                }
+            }
+        }
+    }
+    if(proc==false)
+        fprintf(f, "current_position==%s", arg1);
+    if(arg1!=NULL)
+        free(arg1);
+    if(arg2!=NULL)
+        free(arg2);
     return scanpos;
 }
 /** NOTAT */
-int decision_notat(FILE *f, char *line, int scanpos)
+unsigned int decision_notat(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
@@ -743,7 +790,7 @@ int decision_notat(FILE *f, char *line, int scanpos)
 }
 
 /** SET? */
-int decision_set(FILE *f, char *line, int scanpos)
+unsigned int decision_set(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
@@ -752,7 +799,7 @@ int decision_set(FILE *f, char *line, int scanpos)
 }
 
 /** RES? */
-int decision_res(FILE *f, char *line, int scanpos)
+unsigned int decision_res(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
@@ -760,7 +807,7 @@ int decision_res(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** ROOMGT */
-int decision_roomgt(FILE *f, char *line, int scanpos)
+unsigned int decision_roomgt(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
@@ -768,7 +815,7 @@ int decision_roomgt(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** ROOMLT */
-int decision_roomlt(FILE *f, char *line, int scanpos)
+unsigned int decision_roomlt(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
@@ -776,7 +823,7 @@ int decision_roomlt(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** CARR */
-int decision_carr(FILE *f, char *line, int scanpos)
+unsigned int decision_carr(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
@@ -784,10 +831,10 @@ int decision_carr(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** NOTIN */
-int decision_notin(FILE *f, char *line, int scanpos)
+unsigned int decision_notin(FILE *f, char *line, unsigned int scanpos)
 {
     char *arg1;
-    int l;
+    unsigned int l;
     start_function();
     scanpos=process_functions(line, scanpos);
     l=strlen(function_res);
@@ -806,10 +853,10 @@ int decision_notin(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** EQU? */
-int decision_equ(FILE *f, char *line, int scanpos)
+unsigned int decision_equ(FILE *f, char *line, unsigned int scanpos)
 {
     char *arg1;
-    int l;
+    unsigned int l;
     start_function();
     scanpos=process_functions(line, scanpos);
     l=strlen(function_res);
@@ -828,15 +875,14 @@ int decision_equ(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** VERB */
-int decision_verb(FILE *f, char *line, int scanpos)
+unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
 {
-    int sp,at;
-    int proc=false;
+    unsigned int sp,at;
+    boolean proc=false;
     char *arg1,*arg2;
     start_function();
     scanpos=process_functions(line, scanpos);
     sp=peek_token(line, scanpos);
-    
     if(shortcuts==true&&(strcmp(next,"AND")==0)) {
         sp=peek_token(line, sp);
         if(strcmp(next,"NOUN")==0) {
@@ -880,7 +926,7 @@ int decision_verb(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** VBNOGT */
-int decision_vbnogt(FILE *f, char *line, int scanpos)
+unsigned int decision_vbnogt(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
@@ -888,7 +934,7 @@ int decision_vbnogt(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** VBNOLT */
-int decision_vbnolt(FILE *f, char *line, int scanpos)
+unsigned int decision_vbnolt(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
@@ -896,15 +942,15 @@ int decision_vbnolt(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** NOUN */
-int decision_noun(FILE *f, char *line, int scanpos)
+unsigned int decision_noun(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, "noun1==%s||noun2==%s", function_res, function_res);
+    fprintf(f, "noun1==%s", function_res);
     return scanpos;
 }
 /** ADVE */
-int decision_adve(FILE *f, char *line, int scanpos)
+unsigned int decision_adve(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
@@ -912,7 +958,7 @@ int decision_adve(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** NO1EQ */
-int decision_no1eq(FILE *f, char *line, int scanpos)
+unsigned int decision_no1eq(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
@@ -920,9 +966,9 @@ int decision_no1eq(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** AVAI */
-int decision_avai(FILE *f, char *line, int scanpos)
+unsigned int decision_avai(FILE *f, char *line, unsigned int scanpos)
 {
-    int counter,value;
+    unsigned int counter,value;
     start_function();
     scanpos=process_functions(line, scanpos);
     fprintf(f, "(obj[search_object(%s)].position==current_position)||",
@@ -932,9 +978,9 @@ int decision_avai(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** NOTAVAI */
-int decision_notavai(FILE *f, char *line, int scanpos)
+unsigned int decision_notavai(FILE *f, char *line, unsigned int scanpos)
 {
-    int counter,value;
+    unsigned int counter,value;
     start_function();
     scanpos=process_functions(line, scanpos);
     fprintf(f, "(obj[search_object(%s)].position!=current_position)&&",
@@ -944,7 +990,7 @@ int decision_notavai(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** NO2EQ */
-int decision_no2eq(FILE *f, char *line, int scanpos)
+unsigned int decision_no2eq(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
@@ -952,7 +998,7 @@ int decision_no2eq(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** NOTCARR */
-int decision_notcarr(FILE *f, char *line, int scanpos)
+unsigned int decision_notcarr(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
@@ -960,7 +1006,7 @@ int decision_notcarr(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** NO1GT */
-int decision_no1gt(FILE *f, char *line, int scanpos)
+unsigned int decision_no1gt(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
@@ -968,7 +1014,7 @@ int decision_no1gt(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** NO1LT */
-int decision_no1lt(FILE *f, char *line, int scanpos)
+unsigned int decision_no1lt(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
@@ -976,7 +1022,7 @@ int decision_no1lt(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** NO2GT */
-int decision_no2gt(FILE *f, char *line, int scanpos)
+unsigned int decision_no2gt(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
@@ -984,10 +1030,10 @@ int decision_no2gt(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** CTRGT */
-int decision_ctrgt(FILE *f, char *line, int scanpos)
+unsigned int decision_ctrgt(FILE *f, char *line, unsigned int scanpos)
 {
     char *arg1;
-    int l;
+    unsigned int l;
     start_function();
     scanpos=process_functions(line, scanpos);
     l=strlen(function_res);
@@ -1006,10 +1052,10 @@ int decision_ctrgt(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** IN */
-int decision_in(FILE *f, char *line, int scanpos)
+unsigned int decision_in(FILE *f, char *line, unsigned int scanpos)
 {
     char *arg1;
-    int l;
+    unsigned int l;
     start_function();
     scanpos=process_functions(line, scanpos);
     l=strlen(function_res);
@@ -1028,7 +1074,7 @@ int decision_in(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** HERE */
-int decision_here(FILE *f, char *line, int scanpos)
+unsigned int decision_here(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
@@ -1037,7 +1083,7 @@ int decision_here(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** NOTHERE */
-int decision_nothere(FILE *f, char *line, int scanpos)
+unsigned int decision_nothere(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
@@ -1046,7 +1092,7 @@ int decision_nothere(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** PROB */
-int decision_prob(FILE *f, char *line, int scanpos)
+unsigned int decision_prob(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
@@ -1054,7 +1100,7 @@ int decision_prob(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** ISMOVABLE */
-int decision_ismovable(FILE *f, char *line, int scanpos)
+unsigned int decision_ismovable(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
@@ -1063,7 +1109,7 @@ int decision_ismovable(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** ISNOTMOVABLE */
-int decision_isnotmovable(FILE *f, char *line, int scanpos)
+unsigned int decision_isnotmovable(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
@@ -1072,28 +1118,28 @@ int decision_isnotmovable(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** ISWEARING */
-int decision_iswearing(FILE *f, char *line, int scanpos)
+unsigned int decision_iswearing(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, "obj[search_object(%s)].position==-2",
+    fprintf(f, "obj[search_object(%s)].position==WEARED",
         function_res);
     return scanpos;
 }
 /** ISNOTWEARING */
-int decision_isnotwearing(FILE *f, char *line, int scanpos)
+unsigned int decision_isnotwearing(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, "obj[search_object(%s)].position!=-2",
+    fprintf(f, "obj[search_object(%s)].position!=WEARED",
         function_res);
     return scanpos;
 }
 /** OBJLOCEQ */
-int decision_objloceq(FILE *f, char *line, int scanpos)
+unsigned int decision_objloceq(FILE *f, char *line, unsigned int scanpos)
 {
     char *arg1;
-    int l;
+    unsigned int l;
     start_function();
     scanpos=process_functions(line, scanpos);
     l=strlen(function_res);
@@ -1113,10 +1159,10 @@ int decision_objloceq(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** OBJLOCGT */
-int decision_objlocgt(FILE *f, char *line, int scanpos)
+unsigned int decision_objlocgt(FILE *f, char *line, unsigned int scanpos)
 {
     char *arg1;
-    int l;
+    unsigned int l;
     start_function();
     scanpos=process_functions(line, scanpos);
     l=strlen(function_res);
@@ -1136,7 +1182,7 @@ int decision_objlocgt(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** ACTOR */
-int decision_actor(FILE *f, char *line, int scanpos)
+unsigned int decision_actor(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
@@ -1144,7 +1190,7 @@ int decision_actor(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** ACTORGT */
-int decision_actorgt(FILE *f, char *line, int scanpos)
+unsigned int decision_actorgt(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
@@ -1152,7 +1198,7 @@ int decision_actorgt(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** ACTORLT */
-int decision_actorlt(FILE *f, char *line, int scanpos)
+unsigned int decision_actorlt(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
@@ -1160,7 +1206,7 @@ int decision_actorlt(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** ADJE */
-int decision_adje(FILE *f, char *line, int scanpos)
+unsigned int decision_adje(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
@@ -1168,7 +1214,7 @@ int decision_adje(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** ADJEGT */
-int decision_adjegt(FILE *f, char *line, int scanpos)
+unsigned int decision_adjegt(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
@@ -1176,7 +1222,7 @@ int decision_adjegt(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** ADJELT */
-int decision_adjelt(FILE *f, char *line, int scanpos)
+unsigned int decision_adjelt(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
@@ -1187,16 +1233,16 @@ int decision_adjelt(FILE *f, char *line, int scanpos)
 /* Actions */
 
 /** PRESSKEY */
-int action_presskey(FILE *f, char *line, int scanpos)
+unsigned int action_presskey(FILE *f, char *line, unsigned int scanpos)
 {
     fprintf(f, TAB TAB "waitkey();\n");
     return scanpos;
 }
 
 /** GOTO */
-int action_goto(FILE *f, char *line, int scanpos)
+unsigned int action_goto(FILE *f, char *line, unsigned int scanpos)
 {
-    int position;
+    unsigned int position;
     start_function();
     scanpos=process_functions(line, scanpos);
     fprintf(f, TAB TAB "jump(%s);\n",function_res);
@@ -1206,9 +1252,9 @@ int action_goto(FILE *f, char *line, int scanpos)
 }
 
 /** SET */
-int action_set(FILE *f, char *line, int scanpos)
+unsigned int action_set(FILE *f, char *line, unsigned int scanpos)
 {
-    int position;
+    unsigned int position;
     start_function();
     scanpos=process_functions(line, scanpos);
     fprintf(f, TAB TAB "marker[%s]=true;\n", function_res);
@@ -1216,9 +1262,9 @@ int action_set(FILE *f, char *line, int scanpos)
 }
 
 /** RESE */
-int action_rese(FILE *f, char *line, int scanpos)
+unsigned int action_rese(FILE *f, char *line, unsigned int scanpos)
 {
-    int position;
+    unsigned int position;
     start_function();
     scanpos=process_functions(line, scanpos);
     fprintf(f, TAB TAB "marker[%s]=false;\n", function_res);
@@ -1226,10 +1272,10 @@ int action_rese(FILE *f, char *line, int scanpos)
 }
 
 /** CSET */
-int action_cset(FILE *f, char *line, int scanpos)
+unsigned int action_cset(FILE *f, char *line, unsigned int scanpos)
 {
     char *arg1;
-    int l;
+    unsigned int l;
     start_function();
     scanpos=process_functions(line, scanpos);
     l=strlen(function_res);
@@ -1249,9 +1295,9 @@ int action_cset(FILE *f, char *line, int scanpos)
 }
 
 /** INCR */
-int action_incr(FILE *f, char *line, int scanpos)
+unsigned int action_incr(FILE *f, char *line, unsigned int scanpos)
 {
-    int position, value;
+    unsigned int position, value;
     start_function();
     scanpos=process_functions(line, scanpos);
     fprintf(f, TAB TAB "++counter[%s];\n", function_res);
@@ -1259,9 +1305,9 @@ int action_incr(FILE *f, char *line, int scanpos)
 }
 
 /** DECR */
-int action_decr(FILE *f, char *line, int scanpos)
+unsigned int action_decr(FILE *f, char *line, unsigned int scanpos)
 {
-    int position, value;
+    unsigned int position, value;
     start_function();
     scanpos=process_functions(line, scanpos);
     fprintf(f, TAB TAB "if(counter[%s]>0) --counter[%s];\n", function_res,
@@ -1270,7 +1316,7 @@ int action_decr(FILE *f, char *line, int scanpos)
 }
 
 /** MESS */
-int action_mess(FILE *f, char *line, int scanpos)
+unsigned int action_mess(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
@@ -1278,7 +1324,7 @@ int action_mess(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** MESSNOLF */
-int action_messnolf(FILE *f, char *line, int scanpos)
+unsigned int action_messnolf(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
@@ -1287,9 +1333,9 @@ int action_messnolf(FILE *f, char *line, int scanpos)
 }
 
 /** BRIN */
-int action_brin(FILE *f, char *line, int scanpos)
+unsigned int action_brin(FILE *f, char *line, unsigned int scanpos)
 {
-    int position, value;
+    unsigned int position, value;
     start_function();
     scanpos=process_functions(line, scanpos);
     fprintf(f, TAB TAB "obj[search_object(%s)].position=current_position;\n",
@@ -1298,41 +1344,41 @@ int action_brin(FILE *f, char *line, int scanpos)
 }
 
 /** QUIT */
-int action_exit(FILE *f, char *line, int scanpos)
+unsigned int action_exit(FILE *f, char *line, unsigned int scanpos)
 {
 
     fprintf(f, TAB TAB "leave(); exit(0);\n");
     return scanpos;
 }
 /** EXIT */
-int action_quit(FILE *f, char *line, int scanpos)
+unsigned int action_quit(FILE *f, char *line, unsigned int scanpos)
 {
     fprintf(f, TAB TAB "leave(); exit(0);\n");
     return scanpos;
 }
 /** INVE */
-int action_inve(FILE *f, char *line, int scanpos)
+unsigned int action_inve(FILE *f, char *line, unsigned int scanpos)
 {
     fprintf(f, TAB TAB "inventory();\n");
     return scanpos;
 }
 /** move */
-int action_move(FILE *f, char *line, int scanpos, int dir)
+unsigned int action_move(FILE *f, char *line, unsigned int scanpos, unsigned int dir)
 {
-    int position, value;
+    unsigned int position, value;
     /*fprintf(f, TAB TAB "if(move(%d)==1) return 1;\n", dir-1);*/
     /* This second version should work all the times. */
     fprintf(f, TAB TAB "move(%d);\n", dir-1);
     return scanpos;
 }
 /** LOOK */
-int action_look(FILE *f, char *line, int scanpos)
+unsigned int action_look(FILE *f, char *line, unsigned int scanpos)
 {
     fprintf(f, TAB TAB "marker[120]=false;\n");
     return scanpos;
 }
 /** DROP */
-int action_drop(FILE *f, char *line, int scanpos)
+unsigned int action_drop(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
@@ -1340,10 +1386,10 @@ int action_drop(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** TO */
-int action_to(FILE *f, char *line, int scanpos)
+unsigned int action_to(FILE *f, char *line, unsigned int scanpos)
 {
     char *arg1;
-    int l;
+    unsigned int l;
     start_function();
     scanpos=process_functions(line, scanpos);
     l=strlen(function_res);
@@ -1363,14 +1409,14 @@ int action_to(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** OKAY */
-int action_okay(FILE *f, char *line, int scanpos)
+unsigned int action_okay(FILE *f, char *line, unsigned int scanpos)
 {
     fprintf(f, TAB TAB "show_message(1000);\n");
     fprintf(f, TAB TAB "return 1;\n");
     return scanpos;
 }
 /** PRIN */
-int action_prin(FILE *f, char *line, int scanpos)
+unsigned int action_prin(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
@@ -1378,7 +1424,7 @@ int action_prin(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** PRINNOLF */
-int action_prinnolf(FILE *f, char *line, int scanpos)
+unsigned int action_prinnolf(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
@@ -1386,10 +1432,10 @@ int action_prinnolf(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** ADDC */
-int action_addc(FILE *f, char *line, int scanpos)
+unsigned int action_addc(FILE *f, char *line, unsigned int scanpos)
 {
     char *arg1;
-    int l;
+    unsigned int l;
     start_function();
     scanpos=process_functions(line, scanpos);
     l=strlen(function_res);
@@ -1408,25 +1454,24 @@ int action_addc(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** HOLD */
-int action_hold(FILE *f, char *line, int scanpos)
+unsigned int action_hold(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, TAB TAB "for(dummy=0; dummy<%s; ++dummy) wait1s();\n",
-        function_res);
+    fprintf(f, TAB TAB "hold(%s);\n",function_res);
     return scanpos;
 }
 /** GET */
-int action_get(FILE *f, char *line, int scanpos)
+unsigned int action_get(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, TAB TAB "if(get(%s)!=00) return -1;\n", function_res);
+    fprintf(f, TAB TAB "if(get(%s)!=00) return 1;\n", function_res);
 
     return scanpos;
 }
 /** GETALL */
-int action_getall(FILE *f, char *line, int scanpos)
+unsigned int action_getall(FILE *f, char *line, unsigned int scanpos)
 {
     fprintf(f, TAB TAB "for(dummy=0; dummy<OSIZE;++dummy)\n");
     fprintf(f, TAB TAB TAB "if(obj[dummy].position==current_position"
@@ -1440,7 +1485,7 @@ int action_getall(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** DROPALL */
-int action_dropall(FILE *f, char *line, int scanpos)
+unsigned int action_dropall(FILE *f, char *line, unsigned int scanpos)
 {
     fprintf(f, TAB TAB "for(dummy=0; dummy<OSIZE;++dummy)");
     fprintf(f, TAB TAB TAB
@@ -1456,10 +1501,10 @@ int action_dropall(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** SETCONN */
-int action_setconn(FILE *f, char *line, int scanpos)
+unsigned int action_setconn(FILE *f, char *line, unsigned int scanpos)
 {
     char *arg1, *arg2;
-    int l;
+    unsigned int l;
     start_function();
     scanpos=process_functions(line, scanpos);
     l=strlen(function_res);
@@ -1489,10 +1534,10 @@ int action_setconn(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** SWAP */
-int action_swap(FILE *f, char *line, int scanpos)
+unsigned int action_swap(FILE *f, char *line, unsigned int scanpos)
 {
     char *arg1;
-    int l;
+    unsigned int l;
     start_function();
     scanpos=process_functions(line, scanpos);
     l=strlen(function_res);
@@ -1516,19 +1561,19 @@ int action_swap(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** WAIT */
-int action_wait(FILE *f, char *line, int scanpos)
+unsigned int action_wait(FILE *f, char *line, unsigned int scanpos)
 {
     fprintf(f, TAB TAB "return 1;\n");
     return scanpos;
 }
 /** LF */
-int action_lf(FILE *f, char *line, int scanpos)
+unsigned int action_lf(FILE *f, char *line, unsigned int scanpos)
 {
     fprintf(f, TAB TAB "writeln(\"\");\n");
     return scanpos;
 }
 /** OBJ */
-int action_obj(FILE *f, char *line, int scanpos)
+unsigned int action_obj(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
@@ -1536,41 +1581,41 @@ int action_obj(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** WEAR */
-int action_wear(FILE *f, char *line, int scanpos)
+unsigned int action_wear(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
     fprintf(f, TAB TAB "dummy=search_object(%s);\n",function_res);
     fprintf(f, TAB TAB
         "if(obj[dummy].isnotwereable==false&&obj[dummy].position==CARRIED){\n");
-    fprintf(f, TAB TAB TAB"obj[dummy].position=-2;\n");
+    fprintf(f, TAB TAB TAB"obj[dummy].position=WEARED;\n");
     fprintf(f, TAB TAB TAB "++counter[118];\n");
-    fprintf(f, TAB TAB "} else if(obj[dummy].position==-2) {\n");
+    fprintf(f, TAB TAB "} else if(obj[dummy].position==WEARED) {\n");
     fprintf(f, TAB TAB TAB "show_message(1019);\n");
-    fprintf(f, TAB TAB TAB "return -1;\n");
+    fprintf(f, TAB TAB TAB "return 1;\n");
     fprintf(f, TAB TAB "} else {\n");
     fprintf(f, TAB TAB TAB "show_message(1010);\n");
-    fprintf(f, TAB TAB TAB "return -1;\n");
+    fprintf(f, TAB TAB TAB "return 1;\n");
     fprintf(f, TAB TAB "}\n");
     return scanpos;
 }
 /** UNWEAR */
-int action_unwear(FILE *f, char *line, int scanpos)
+unsigned int action_unwear(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
     fprintf(f, TAB TAB "dummy=search_object(%s);\n",function_res);
-    fprintf(f, TAB TAB "if(obj[dummy].position==-2){\n");
+    fprintf(f, TAB TAB "if(obj[dummy].position==WEARED){\n");
     fprintf(f, TAB TAB TAB "obj[dummy].position=CARRIED;\n");
     fprintf(f, TAB TAB TAB "--counter[118];\n");
     fprintf(f, TAB TAB "} else {\n");
     fprintf(f, TAB TAB TAB "show_message(1010);\n");
-    fprintf(f, TAB TAB TAB "return -1;\n");
+    fprintf(f, TAB TAB TAB "return 1;\n");
     fprintf(f, TAB TAB "}\n");
     return scanpos;
 }
 /** STRE */
-int action_stre(FILE *f, char *line, int scanpos)
+unsigned int action_stre(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
@@ -1578,7 +1623,7 @@ int action_stre(FILE *f, char *line, int scanpos)
     return scanpos;
 }
 /** DIMENS */
-int action_dimens(FILE *f, char *line, int scanpos)
+unsigned int action_dimens(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
@@ -1592,7 +1637,7 @@ int action_dimens(FILE *f, char *line, int scanpos)
 */
 void process_aws(FILE *f, char *line)
 {
-    int scanpos=0;
+    unsigned int scanpos=0;
     boolean atleastone=false;
     complete_shortcut=false;
     scanpos=get_token(line, scanpos);
@@ -1747,8 +1792,10 @@ void process_aws(FILE *f, char *line)
             scanpos=action_brin(f, line, scanpos);
         } else if(strcmp(token,"QUIT")==0) {
             scanpos=action_quit(f, line, scanpos);
+            break;
         } else if(strcmp(token,"EXIT")==0) {
             scanpos=action_exit(f, line, scanpos);
+            break;
         } else if(strcmp(token,"INVE")==0) {
             scanpos=action_inve(f, line, scanpos);
         } else if(strcmp(token,"NORD")==0) {
@@ -1852,18 +1899,19 @@ void output_header(FILE *of)
     fprintf(of,"#include\"aws.h\"\n\n");
     fprintf(of,"#include\"inout.h\"\n");
     fprintf(of,"#include\"systemdef.h\"\n\n");
-    fprintf(of,"extern int verb;\nextern int noun1;\nextern int noun2;\n"
-        "extern int adve;\nextern int actor;\nextern int adjective;\n");
-    fprintf(of, "int dummy;\n");
+    fprintf(of,"extern unsigned int verb;\nextern unsigned int noun1;\nextern unsigned int noun2;\n"
+        "extern unsigned int adve;\nextern unsigned int actor;\nextern unsigned int adjective;\n");
+    fprintf(of, "unsigned int dummy;\n");
     fprintf(of, "#define CARRIED 1500\n");
+    fprintf(of, "#define WEARED 1600\n");
     fprintf(of,"\n");
 
 }
 
 void output_utility_func(FILE *of)
 {
-    fprintf(of,"int current_position;\n");
-    fprintf(of,"int next_position;\n");
+    fprintf(of,"unsigned int current_position;\n");
+    fprintf(of,"unsigned int next_position;\n");
 
     fprintf(of,"boolean marker[129];\n");
     fprintf(of,"int counter[129];\n");
@@ -1872,22 +1920,22 @@ void output_utility_func(FILE *of)
         fprintf(of,"char decompress_b[B_SIZE];\n");
     }
 
-    fprintf(of,"int search_object(int o)\n{\n");
-    fprintf(of,TAB "int i;\n");
+    fprintf(of,"unsigned int search_object(unsigned int o)\n{\n");
+    fprintf(of,TAB "unsigned int i;\n");
     fprintf(of,TAB "for(i=0; i<OSIZE;++i)\n");
     fprintf(of,TAB TAB "if(obj[i].code==o)\n");
     fprintf(of,TAB TAB TAB "return i;\n");
-    fprintf(of,TAB "return -2;\n}\n\n");
+    fprintf(of,TAB "return 0;\n}\n\n");
 
-    fprintf(of,"int search_room(int r)\n{\n");
-    fprintf(of,TAB "int i;\n");
+    fprintf(of,"unsigned int search_room(unsigned int r)\n{\n");
+    fprintf(of,TAB "unsigned int i;\n");
     fprintf(of,TAB "for(i=0; i<RSIZE;++i)\n");
     fprintf(of,TAB TAB "if(world[i].code==r)\n");
     fprintf(of,TAB TAB TAB "return i;\n");
-    fprintf(of,TAB "return -2;\n}\n\n");
+    fprintf(of,TAB "return 0;\n}\n\n");
 
-    fprintf(of,"void show_messagenlf(int m)\n{\n");
-    fprintf(of,TAB "int i;\n");
+    fprintf(of,"void show_messagenlf(unsigned int m)\n{\n");
+    fprintf(of,TAB "unsigned int i;\n");
     fprintf(of,TAB "for(i=0; i<MSIZE;++i)\n");
     fprintf(of,TAB TAB "if(msg[i].code==m)\n");
     if(compress_messages==true) {
@@ -1898,13 +1946,13 @@ void output_utility_func(FILE *of)
     }
     fprintf(of, "}\n\n");
 
-    fprintf(of,"void show_message(int m)\n{\n");
+    fprintf(of,"void show_message(unsigned int m)\n{\n");
     fprintf(of,TAB "show_messagenlf(m);\n");
     fprintf(of,TAB "writeln(\"\");\n");
     fprintf(of, "}\n\n");
 
     fprintf(of,"void inventory(void)\n{\n");
-    fprintf(of,TAB "int i, gs=0;\n");
+    fprintf(of,TAB "unsigned int i, gs=0;\n");
     fprintf(of,TAB "show_message(1032);\n");
     fprintf(of,TAB "for(i = 0; i<OSIZE; ++i) {\n");
     fprintf(of,TAB TAB "if(obj[i].position==CARRIED) {\n");
@@ -1914,7 +1962,7 @@ void output_utility_func(FILE *of)
     fprintf(of,TAB "}\n");
     fprintf(of,TAB "if(gs==0) show_message(1033);\n}\n\n");
 
-    fprintf(of, "int move(int dir)\n");
+    fprintf(of, "unsigned int move(unsigned int dir)\n");
     fprintf(of, "{\n");
     fprintf(of, TAB
         "if(world[search_room(current_position)].directions[dir]!=0) {\n");
@@ -1926,23 +1974,23 @@ void output_utility_func(FILE *of)
     fprintf(of, TAB TAB "show_message(1008);\n");
     fprintf(of, TAB "return 0;\n}\n\n");
 
-    fprintf(of, "int get(int o)\n");
+    fprintf(of, "unsigned int get(unsigned int o)\n");
     fprintf(of, "{\n");
     fprintf(of, TAB "dummy=search_object(o);\n");
     fprintf(of, TAB "if(obj[dummy].position!=current_position) {\n");
     fprintf(of, TAB TAB "show_message(1006);\n");
-    fprintf(of, TAB TAB "return -1;\n");
+    fprintf(of, TAB TAB "return 1;\n");
     /* Euh... should not be isnotmovable==true here??? */
     fprintf(of, TAB "} else if(obj[dummy].isnotmovable==false) {\n");
     fprintf(of, TAB TAB "show_message(1005);\n");
-    fprintf(of, TAB TAB "return -1;\n");
+    fprintf(of, TAB TAB "return 1;\n");
     fprintf(of, TAB 
         "} else if(counter[120]+obj[dummy].weight>counter[122]){ \n");
     fprintf(of, TAB TAB "show_message(1003);\n");
-    fprintf(of, TAB TAB TAB "return -1;\n");
+    fprintf(of, TAB TAB TAB "return 1;\n");
     fprintf(of, TAB "} else if(counter[124]+obj[dummy].size>counter[121]) {\n");
     fprintf(of, TAB TAB "show_message(1004);\n");
-    fprintf(of, TAB TAB "return -1;\n");
+    fprintf(of, TAB TAB "return 1;\n");
     fprintf(of, TAB "} else {\n");
     fprintf(of, TAB TAB "obj[dummy].position=CARRIED;\n");
     fprintf(of, TAB TAB "++counter[119];\n");
@@ -1953,19 +2001,29 @@ void output_utility_func(FILE *of)
     fprintf(of, "}\n");
 
     /* Check for a name and noun */
-    fprintf(of, "int cvn(int v, int n)\n");
+    fprintf(of, "unsigned int cvn(unsigned int v, unsigned int n)\n");
     fprintf(of, "{\n");
-    fprintf(of, "    return verb==v&&(noun1==n||noun2==n);\n");
+    fprintf(of, "    return verb==v&&noun1==n;\n");
+    fprintf(of, "}\n");
+    
+     /* Check for a position and marker */
+    fprintf(of, 
+        "void amsm(unsigned int p, unsigned char c, boolean v, unsigned int m)\n");
+    fprintf(of, "{\n");
+    fprintf(of, 
+    "    if(current_position==p&&marker[c]==v) show_message(m);\n");
     fprintf(of, "}\n");
 
+
     /* If a name and a noun and avai conditions are given */
-    fprintf(of, "int cvna(int v, int n, int o)\n");
+    fprintf(of, 
+        "unsigned int cvna(unsigned int v, unsigned int n, unsigned int o)\n");
     fprintf(of, "{\n    dummy=obj[search_object(o)].position;\n");
-    fprintf(of, "    return (verb==v&&(noun1==n||noun2==n))&&"
+    fprintf(of, "    return verb==v&&noun1==n&&"
         "(o==current_position||o==CARRIED);\n");
     fprintf(of, "}\n");
     
-    fprintf(of, "void drop(int o)\n{\n");
+    fprintf(of, "void drop(unsigned int o)\n{\n");
     fprintf(of, TAB  "dummy=search_object(o);\n");
     fprintf(of, TAB  "if(obj[dummy].position==CARRIED){\n");
     fprintf(of, TAB TAB "obj[dummy].position=current_position;\n");
@@ -1974,20 +2032,24 @@ void output_utility_func(FILE *of)
     fprintf(of, TAB TAB "counter[124]-=obj[dummy].size;\n");
     fprintf(of, TAB "} else\n");
     fprintf(of, TAB TAB "show_message(1007);\n");
-    fprintf(of, "}\n");
+    fprintf(of, "}\n\n");
 
-    fprintf(of, "void jump(int p)\n{\n");
+    fprintf(of, "void jump(unsigned int p)\n{\n");
     fprintf(of, TAB "next_position=p;\n");
     fprintf(of, TAB "marker[120]=false;\n");
+    fprintf(of, "}\n\n");
+
+    fprintf(of, "void hold(unsigned int p)\n{\n");
+    fprintf(of, TAB "for(dummy=0; dummy<p; ++dummy) {wait1s();}\n");
     fprintf(of, "}\n");
 
 }
 
 /** Create the code for the dictionary in the output file.
 */
-void output_dictionary(FILE *of, word* dictionary, int dsize)
+void output_dictionary(FILE *of, word* dictionary, unsigned int dsize)
 {
-    int i, size_d;
+    unsigned int i, size_d;
     fprintf(of, "#define DSIZE %d\n",dsize);
 
     /*  I did a few tests and it seemed to me that it is not worth compressing
@@ -2007,12 +2069,12 @@ void output_dictionary(FILE *of, word* dictionary, int dsize)
 
 
 /** Create the code for the rooms' description in the output file. */
-void output_rooms(FILE *of, room* world, int rsize)
+void output_rooms(FILE *of, room* world, unsigned int rsize)
 {
-    int i,j;
+    unsigned int i,j;
     char *long_d;
     char *p;
-    int size_d=0;
+    unsigned int size_d=0;
     fprintf(of, "#define RSIZE %d\n",rsize);
     fprintf(of, "room world[RSIZE]={\n");
     for(i=0; i<rsize;++i) {
@@ -2055,10 +2117,10 @@ void output_rooms(FILE *of, room* world, int rsize)
 }
 
 /** Create the code for the messages in the output file. */
-void output_messages(FILE *of, message* msg, int msize)
+void output_messages(FILE *of, message* msg, unsigned int msize)
 {
-    int i,j;
-    int size_d=0;
+    unsigned int i,j;
+    unsigned int size_d=0;
     fprintf(of, "#define MSIZE %d\n",msize);
     fprintf(of, "message msg[MSIZE]={\n");
     for(i=0; i<msize;++i) {
@@ -2079,9 +2141,9 @@ void output_messages(FILE *of, message* msg, int msize)
 }
 
 /** Create the code for the objects in the output file. */
-void output_objects(FILE *of, object* obj, int osize)
+void output_objects(FILE *of, object* obj, unsigned int osize)
 {
-    int i,j;
+    unsigned int i,j;
     fprintf(of, "#define OSIZE %d\n",osize);
     fprintf(of, "object obj[OSIZE]={\n");
     for(i=0; i<osize;++i) {
@@ -2139,10 +2201,10 @@ void output_greetings(FILE *f, info *header)
 }
 
 /* Create code for HI conditions */
-void output_hicond(FILE *f, char **cond, int size)
+void output_hicond(FILE *f, char **cond, unsigned int size)
 {
-    int i;
-    fprintf(f,"int hi_cond(void)\n{\n");
+    unsigned int i;
+    fprintf(f,"unsigned int hi_cond(void)\n{\n");
     for(i=0; i<size; ++i) {
         process_aws(f,cond[i]);
     }
@@ -2151,10 +2213,10 @@ void output_hicond(FILE *f, char **cond, int size)
 }
 
 /* Create code for LOW conditions */
-void output_lowcond(FILE *f, char **cond, int size)
+void output_lowcond(FILE *f, char **cond, unsigned int size)
 {
-    int i;
-    fprintf(f,"int low_cond(void)\n{\n");
+    unsigned int i;
+    fprintf(f,"unsigned int low_cond(void)\n{\n");
     for(i=0; i<size; ++i) {
         process_aws(f,cond[i]);
     }
@@ -2163,12 +2225,12 @@ void output_lowcond(FILE *f, char **cond, int size)
 }
 
 /* Create code for LOCAL conditions */
-void output_local(FILE *f, localc* cond, int size)
+void output_local(FILE *f, localc* cond, unsigned int size)
 {
-    int i;
-    int oldroom=-1;
+    unsigned int i;
+    unsigned int oldroom=-1;
     boolean first=true;
-    fprintf(f,"int local_cond(void)\n{\n");
+    fprintf(f,"unsigned int local_cond(void)\n{\n");
     fprintf(f, TAB "switch(current_position) {\n");
     for(i=0; i<size; ++i) {
         if(oldroom!=cond[i].room) {
@@ -2191,7 +2253,7 @@ void output_local(FILE *f, localc* cond, int size)
 void output_gamecycle(FILE *f)
 {
     fprintf(f,"\nvoid game_cycle(void)\n{\n");
-    fprintf(f, TAB "int k;\n");
+    fprintf(f, TAB "unsigned int k;\n");
     fprintf(f, TAB "boolean ve,pa;\n");
     fprintf(f, TAB "while(1){\n");
     fprintf(f, TAB TAB "current_position=next_position;\n");
@@ -2217,7 +2279,7 @@ void output_gamecycle(FILE *f)
     fprintf(f, TAB TAB TAB TAB TAB "}\n");
     fprintf(f, TAB TAB TAB TAB TAB "writeln(obj[k].desc);\n");
     fprintf(f, TAB TAB TAB TAB "}\n");
-    fprintf(f, TAB TAB "if(marker[124]==true) {\n");
+    fprintf(f, TAB TAB TAB "if(marker[124]==true) {\n");
     fprintf(f, TAB TAB TAB TAB "pa=false;\n");
     if(use_6_directions)
         fprintf(f, TAB TAB TAB "for(k=0; k<6; ++k)\n");
@@ -2296,7 +2358,7 @@ void print_help(char *name)
 }
 
 /* Process options from the command line. */
-int process_options(char *arg, char *name)
+unsigned int process_options(char *arg, char *name)
 {
     if(strcmp(arg, "-h")==0) {
         print_help(name);
@@ -2330,23 +2392,23 @@ int main(int argc, char **argv)
 {
     FILE *f;
     FILE *of;
-    int dsize;
-    int rsize;
-    int osize;
-    int msize;
-    int i;
+    unsigned int dsize;
+    unsigned int rsize;
+    unsigned int osize;
+    unsigned int msize;
+    unsigned int i;
     info *header;
     word* dictionary;
     room* world;
     object* objects;
     message* msg;
     char **hicond;
-    int hicondsize;
+    unsigned int hicondsize;
     char **lowcond;
-    int lowcondsize;
+    unsigned int lowcondsize;
     localc* localcond;
-    int localcondsize;
-    int argumentr=1;
+    unsigned int localcondsize;
+    unsigned int argumentr=1;
 
     if(argc<3) {
         print_help(argv[0]);

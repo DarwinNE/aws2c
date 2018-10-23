@@ -1,7 +1,7 @@
 #ifndef _AWS_H_
 #define _AWS_H_
 
-typedef char boolean;
+typedef unsigned char boolean;
 
 #define true 1
 #define false 0
@@ -17,32 +17,32 @@ typedef unsigned char word_type;
 
 typedef struct info_d {
     char *version;
-    int textcolor;
-    int backcolor;
-    int textcolordark;
-    int backcolordark;
+    unsigned int textcolor;
+    unsigned int backcolor;
+    unsigned int textcolordark;
+    unsigned int backcolordark;
     char *name;
     char *author;
     char *date;
     char *description;
-    int code;
+    unsigned int code;
     char *fontname;
-    int charsize;
-    int fontstyle;
-    int startroom;
+    unsigned int charsize;
+    unsigned int fontstyle;
+    unsigned int startroom;
     boolean graphical;
-    int maxcarryingw;
-    int maxcarryings;
+    unsigned int maxcarryingw;
+    unsigned int maxcarryings;
 } info;
 
 typedef struct word_d {
     char *w;
-    int code;
+    unsigned int code;
     word_type t;
 } word;
 
 typedef struct room_d {
-    int code;
+    unsigned int code;
     char *long_d;
     char *s;
     char *short_d;
@@ -50,25 +50,25 @@ typedef struct room_d {
     #ifndef DIR_REDUCED
     // north, sud, east, west, up, down, north east, north west, south east,
     // south west
-    int directions[10];
+    unsigned int directions[10];
     #else
     // north, sud, east, west, up, down
-    int directions[6];
+    unsigned int directions[6];
     #endif
 } room;
 
 typedef struct message_d {
-    int code;
+    unsigned int code;
     char *txt;
 } message;
 
 typedef struct object_d {
-    int code;
+    unsigned int code;
     char *s;
     char *desc;
-    int weight;
-    int size;
-    int position;
+    unsigned int weight;
+    unsigned int size;
+    unsigned int position;
     boolean isnotmovable;
     boolean isnotwereable;
 } object;

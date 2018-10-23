@@ -17,15 +17,15 @@
 
 char playerInput[BUFFERSIZE];
 char wordbuffer[NCOL*2];
-int colc;
+unsigned int colc;
 
 
-int verb;
-int noun1;
-int noun2;
-int adve;
-int actor;
-int adjective;
+unsigned int verb;
+unsigned int noun1;
+unsigned int noun2;
+unsigned int adve;
+unsigned int actor;
+unsigned int adjective;
 
 extern word dictionary[];
 
@@ -34,21 +34,21 @@ extern word dictionary[];
 */
 void writesameln(char *line)
 {
-    int i=0;
+    unsigned int i=0;
     boolean flag=false;
     boolean norm=false;
     char c;
-    int pc=0;
+    unsigned int pc=0;
 
     while(1){
         c=line[i++];
-        if(c=='*' && flag==false) {
+/*        if(c=='*' && flag==false) {
             evidence2();
             flag=true;
         } else if(c=='*' && flag==true) {
             norm=true;
             flag=false;
-/*        } else if(c=='-' && flag==false) {
+/        } else if(c=='-' && flag==false) {
             evidence1();
             flag=true;*/
 /*        } else if(c=='-' && flag==true) {
@@ -57,8 +57,8 @@ void writesameln(char *line)
         } else if(c=='\b') {
             waitscreen();
         } else if(c=='\t') {
-            tab();*/
-        } else if(c==' ' || c=='\n'||c=='\0' || (c=='\\' && line[i]=='n')) {
+            tab();
+        } else */if(c==' ' || c=='\n'||c=='\0' || (c=='\\' && line[i]=='n')) {
             wordbuffer[pc]='\0';
             if(colc>=NCOL) {
                 printf("\n");
@@ -99,9 +99,9 @@ void writeln(char* line)
 
 /** Read a line of text and return the length of the line (remove the \n char).
 */
-int readln(void)
+unsigned int readln(void)
 {
-    int lc;
+    unsigned int lc;
     inputtxt();
     writesameln("> ");
     fgets(playerInput,BUFFERSIZE,stdin);
@@ -124,16 +124,16 @@ char s[BUFFERSIZE];
 
 /* The current position in the line */
 
-int ls, lc;
+unsigned int ls, lc;
 
 /** Main parser.
 */
-void interrogationAndAnalysis(int num_of_words)
+void interrogationAndAnalysis(unsigned int num_of_words)
 {
-    boolean search=true;
-    int i, k;
-    boolean found = false;
+    unsigned int i, k;
     char c;
+    boolean search=true;
+    boolean found = false;
     if(ls==0) {
         lc=readln();
     }
@@ -162,25 +162,26 @@ void interrogationAndAnalysis(int num_of_words)
         // if it is recognized or not.
         for(i=0;i<num_of_words; ++i) {
             if(strcmp(s,dictionary[i].w)==0) {
+                k=dictionary[i].code;
                 switch (dictionary[i].t) {
                     case VERB:
-                        verb=dictionary[i].code;
+                        verb=k;
                         break;
                     case NAME:
                         if(noun1==0) {
-                            noun1=dictionary[i].code;
+                            noun1=k;
                         } else {
-                            noun2=dictionary[i].code;
+                            noun2=k;
                         }
                         break;
                     case ADVERB:
-                        adve=dictionary[i].code;
+                        adve=k;
                         break;
                     case ACTOR:
-                        actor=dictionary[i].code;
+                        actor=k;
                         break;
                     case ADJECTIVE:
-                        adjective=dictionary[i].code;
+                        adjective=k;
                         break;
                     case SEPARATOR:
                         /*  The line is not finished but it can be executed. */
@@ -198,7 +199,7 @@ void interrogationAndAnalysis(int num_of_words)
 }
 
 /*  Check if all the line has been processed. */
-int line_finished(void)
+unsigned int line_finished(void)
 {
     return ls==0?true:false;
 }

@@ -1,4 +1,4 @@
-/* A simple Huffman compression tool. */
+/* A simple Huffman compression tool. D. Bucci 2018 */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,7 +8,7 @@ int pointer;
 int bitv;
 char *comp;
 
-typedef enum boolean_t {true=-1, false=0} boolean;
+typedef enum boolean_t {true=1, false=0} boolean;
 int num_nodes;
 
 compression stats[256];
@@ -188,7 +188,7 @@ node *create_tree(void)
 /*  Start a new analysis. */
 void init_analysis(void)
 {
-    int i;
+    unsigned int i;
     for(i=0; i<256;++i) {
         stats[i].c=(unsigned char)i;
         stats[i].tree=NULL;
@@ -204,11 +204,11 @@ void output_decoder(FILE *fout)
     node *np;
     fprintf(fout,"char *compressed;\n");
     fprintf(fout,"unsigned char bpointer;\n");
-    fprintf(fout,"int cpointer;\n");
+    fprintf(fout,"unsigned int cpointer;\n");
     fprintf(fout,"unsigned char currbyte;\n\n");
-    fprintf(fout,"int g_b(void)\n");
+    fprintf(fout,"unsigned char g_b(void)\n");
     fprintf(fout,"{\n");
-    fprintf(fout,"   int t;\n");
+    fprintf(fout,"   unsigned int t;\n");
     fprintf(fout,"   if(bpointer==0) {\n");
     fprintf(fout,"       currbyte=compressed[cpointer];\n");
     fprintf(fout,"   }\n");
@@ -237,9 +237,9 @@ void output_decoder(FILE *fout)
 
     fprintf(fout,"};\n\n");
 
-    fprintf(fout,"int hufget(void)\n");
+    fprintf(fout,"char hufget(void)\n");
     fprintf(fout,"{\n");
-    fprintf(fout,"    int i=NUM_NODES-1;\n");
+    fprintf(fout,"    unsigned int i=NUM_NODES-1;\n");
     fprintf(fout,"    while(1) {\n");
     fprintf(fout,"        if(huftree[i].c!=255)\n");
     fprintf(fout,"            return huftree[i].c;\n");
@@ -250,10 +250,11 @@ void output_decoder(FILE *fout)
     fprintf(fout,"        }\n");
     fprintf(fout,"    }\n");
     fprintf(fout,"    return 0;\n}\n\n");
-    fprintf(fout, "int decode(char *source, char* dest, int maxlen)\n");
+    fprintf(fout, 
+        "int decode(char *source, char* dest, unsigned int maxlen)\n");
     fprintf(fout,"{\n");
     fprintf(fout,"    char c;\n");
-    fprintf(fout,"    int k=0;\n");
+    fprintf(fout,"    unsigned int k=0;\n");
     fprintf(fout,"    cpointer=0;\n");
     fprintf(fout,"    bpointer=0;\n");
     fprintf(fout,"    compressed=source;\n");
