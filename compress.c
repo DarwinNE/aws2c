@@ -260,6 +260,7 @@ void output_decoder(FILE *fout)
     fprintf(fout,"    compressed=source;\n");
     fprintf(fout,"    do {\n");
     fprintf(fout,"        c=hufget();\n");
+    fprintf(fout,"        SHIFTPETSCII;\n");
     fprintf(fout,"        dest[k++]=c;\n");
     fprintf(fout,"    } while(c!='\\0'&&k<maxlen);\n");
     fprintf(fout,"    if(k>=maxlen)\n");
