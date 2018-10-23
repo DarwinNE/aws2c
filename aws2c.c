@@ -1937,13 +1937,15 @@ void output_utility_func(FILE *of)
     fprintf(of,"void show_messagenlf(unsigned int m)\n{\n");
     fprintf(of,TAB "unsigned int i;\n");
     fprintf(of,TAB "for(i=0; i<MSIZE;++i)\n");
-    fprintf(of,TAB TAB "if(msg[i].code==m)\n");
+    fprintf(of,TAB TAB "if(msg[i].code==m){\n");
     if(compress_messages==true) {
         fprintf(of,TAB TAB TAB "decode(msg[i].txt,decompress_b,B_SIZE);\n");
         fprintf(of,TAB TAB TAB "writesameln(decompress_b);\n");
     } else {
         fprintf(of,TAB TAB TAB "writesameln(msg[i].txt);\n");
     }
+    fprintf(of, TAB TAB TAB "break;\n");
+    fprintf(of, TAB TAB "}\n");
     fprintf(of, "}\n\n");
 
     fprintf(of,"void show_message(unsigned int m)\n{\n");
@@ -2020,7 +2022,7 @@ void output_utility_func(FILE *of)
         "unsigned int cvna(unsigned int v, unsigned int n, unsigned int o)\n");
     fprintf(of, "{\n    dummy=obj[search_object(o)].position;\n");
     fprintf(of, "    return verb==v&&noun1==n&&"
-        "(o==current_position||o==CARRIED);\n");
+        "(dummy==current_position||dummy==CARRIED);\n");
     fprintf(of, "}\n");
     
     fprintf(of, "void drop(unsigned int o)\n{\n");
