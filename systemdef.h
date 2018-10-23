@@ -16,6 +16,9 @@
 
 #define BUFFERSIZE 128
 
+#define SHIFTPETSCII \
+    if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20
+
 #define waitscreen()
 
 // The number of columns of the screen
@@ -34,28 +37,28 @@
 #define waitkey() cgetc()
 
 /* Define the style of the input text */
-#define inputtxt() cputs(green)
+#define inputtxt() printf(green)
 
 /* Define the style of the first evidenced text */
-#define evidence1() cputs(red)
+#define evidence1() printf(red)
 
 /* Define the style of the second evidenced text */
-#define evidence2() cputs(yellow)
+#define evidence2() printf(yellow)
 
 /* Define the style of the normal text */
-#define normaltxt() cputs(cyan)
+#define normaltxt() printf(cyan)
 
 /* Write a tabulation (it can be adapted to screen width). */
-#define tab() cputs("        ")
+#define tab() printf("        ")
 
 /* Wait for one second */
 #define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
     retTime);}
 
 /* Init the terminal */
+#define PT80COL 215
+#define PTFST 53296
 #define init_term() {\
-    #define PT80COL 215\
-    #define PTFST 53296;\
     if (*(char*)PT80COL==0) {\
         printf(switch80col);\
     }\
@@ -67,11 +70,14 @@
 /* Prepare the terminal to leave the program execution. */
 #define leave() printf(cyan)
 
-#elseif defined(C64)
+#elif defined(C64)
 
 #include<conio.h>
 
 #define BUFFERSIZE 128
+
+#define SHIFTPETSCII \
+    if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20
 
 #define waitscreen()
 
@@ -90,19 +96,19 @@
 #define waitkey() cgetc()
 
 /* Define the style of the input text */
-#define inputtxt() cputs(green)
+#define inputtxt() printf(green)
 
 /* Define the style of the first evidenced text */
-#define evidence1() cputs(red)
+#define evidence1() printf(red)
 
 /* Define the style of the second evidenced text */
-#define evidence2() cputs(yellow)
+#define evidence2() printf(yellow)
 
 /* Define the style of the normal text */
-#define normaltxt() cputs(cyan)
+#define normaltxt() printf(cyan)
 
 /* Write a tabulation (it can be adapted to screen width). */
-#define tab() cputs("    ")
+#define tab() printf("    ")
 
 /* Wait for one second */
 #define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
@@ -114,7 +120,7 @@
     *(char*)PTRBRD = 0x00;\
     #define PTRBRD 53281\
     *(char*)PTRBRD = 0x00;\
-    cputs(cls);\
+    printf(cls);\
     normaltxt();\
 }
 
@@ -125,6 +131,8 @@
 
 #define NCOL 80
 #define BUFFERSIZE 256
+
+#define SHIFTPETSCII 
 
 #define waitscreen()
 

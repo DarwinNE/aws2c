@@ -286,7 +286,7 @@ int compress(FILE *fout, char *txt)
             coded_v|=((val>>j)&0x1)<<shift;
             ++shift;
             if(shift==8) {
-                fprintf(fout,"\\x%X", (unsigned char)coded_v);
+                fprintf(fout,"0x%X,", (unsigned char)coded_v);
                 ++size;
                 shift=0;
                 coded_v=0;
@@ -294,7 +294,7 @@ int compress(FILE *fout, char *txt)
         }
         ++i;
     } while(c!='\0');
-    fprintf(fout,"\\x%X", (unsigned char)coded_v);
+    fprintf(fout,"0x%X", (unsigned char)coded_v);
     ++size;
     shift=0;
     coded_v=0;

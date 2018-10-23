@@ -42,23 +42,7 @@ void writesameln(char *line)
 
     while(1){
         c=line[i++];
-/*        if(c=='*' && flag==false) {
-            evidence2();
-            flag=true;
-        } else if(c=='*' && flag==true) {
-            norm=true;
-            flag=false;
-/        } else if(c=='-' && flag==false) {
-            evidence1();
-            flag=true;*/
-/*        } else if(c=='-' && flag==true) {
-            norm=true;
-            flag=false;
-        } else if(c=='\b') {
-            waitscreen();
-        } else if(c=='\t') {
-            tab();
-        } else */if(c==' ' || c=='\n'||c=='\0' || (c=='\\' && line[i]=='n')) {
+        if(c==' ' || c=='\n'||c=='\0' || (c=='\\' && line[i]=='n')) {
             wordbuffer[pc]='\0';
             if(colc>=NCOL) {
                 printf("\n");
@@ -132,7 +116,7 @@ void interrogationAndAnalysis(unsigned int num_of_words)
 {
     unsigned int i, k;
     char c;
-    boolean search=true;
+    boolean search = true;
     boolean found = false;
     if(ls==0) {
         lc=readln();
@@ -145,8 +129,7 @@ void interrogationAndAnalysis(unsigned int num_of_words)
     adjective=0;
 
     while(ls<lc) {
-        k=0;
-        for(; ls<lc && k<BUFFERSIZE; ++ls) {
+        for(k=0; ls<lc && k<BUFFERSIZE; ++ls) {
             c=playerInput[ls];
             if(c==' ' || c=='\'') {
                 ls++;
@@ -194,7 +177,6 @@ void interrogationAndAnalysis(unsigned int num_of_words)
     }
     /*  The scanning has finished because the line is complete. Read a new line
         the next time the function is called */
-    
     ls=0;
 }
 

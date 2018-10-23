@@ -2077,6 +2077,19 @@ void output_rooms(FILE *of, room* world, unsigned int rsize)
     char *long_d;
     char *p;
     unsigned int size_d=0;
+    if(compress_messages==true) {
+        for(i=0; i<rsize;++i) {
+            fprintf(of, "char long_d%d[]={",world[i].code);
+            compress(of, encodechar(world[i].long_d));
+            fprintf(of, "};\n");
+            fprintf(of, "char s_desc%d[]={",world[i].code);
+            compress(of, encodechar(world[i].s));
+            fprintf(of, "};\n");
+            fprintf(of, "char short_d%d[]={",world[i].code);
+            compress(of, encodechar(world[i].short_d));
+            fprintf(of, "};\n");
+        }
+    }
     fprintf(of, "#define RSIZE %d\n",rsize);
     fprintf(of, "room world[RSIZE]={\n");
     for(i=0; i<rsize;++i) {
@@ -2084,25 +2097,25 @@ void output_rooms(FILE *of, room* world, unsigned int rsize)
         long_d = (char*) calloc(strlen(p)+1, sizeof(char));
         strcpy(long_d,p);
 
-        fprintf(of, TAB "{%d,\"",world[i].code);
+        fprintf(of, TAB "{%d,",world[i].code);
         if(compress_messages==true) {
-            size_d=compress(of, encodechar(long_d));
+            fprintf(of, "long_d%d",world[i].code);
         } else {
-            fprintf(of, "%s", long_d);
+            fprintf(of, "\"%s\"", long_d);
         }
-        fprintf(of, "\",\"");
+        fprintf(of, ",");
         if(compress_messages==true) {
-            size_d=compress(of, encodechar(world[i].s));
+            fprintf(of, "s_desc%d",world[i].code);
         } else {
-            fprintf(of, "%s", encodechar(world[i].s));
+            fprintf(of, "\"%s\"", encodechar(world[i].s));
         }
-        fprintf(of, "\",\"");
+        fprintf(of, ",");
         if(compress_messages==true) {
-            size_d=compress(of, encodechar(world[i].short_d));
+            fprintf(of, "short_d%d",world[i].code);
         } else {
-            fprintf(of, "%s", world[i].short_d);
+            fprintf(of, "\"%s\"", world[i].short_d);
         }
-        fprintf(of, "\",");
+        fprintf(of, ",");
         free(long_d);
         fprintf(of, "{");
         for(j=0; use_6_directions==true?j<6:j<10;++j) {
@@ -2123,13 +2136,19 @@ void output_messages(FILE *of, message* msg, unsigned int msize)
 {
     unsigned int i,j;
     unsigned int size_d=0;
+    if(compress_messages==true) {
+        for(i=0; i<msize;++i) {
+            fprintf(of, "char message%d[]={",msg[i].code);
+            compress(of, encodechar(msg[i].txt));
+            fprintf(of, "};\n");
+
+        }
+    }
     fprintf(of, "#define MSIZE %d\n",msize);
     fprintf(of, "message msg[MSIZE]={\n");
     for(i=0; i<msize;++i) {
         if(compress_messages==true) {
-            fprintf(of, TAB "{%d,\"", msg[i].code);
-            size_d=compress(of, encodechar(msg[i].txt));
-            fprintf(of, "\"}");
+            fprintf(of, TAB "{%d,message%d}",msg[i].code,msg[i].code);
         } else {
             fprintf(of, TAB "{%d,\"%s\"}", msg[i].code,
                 encodechar(msg[i].txt));
