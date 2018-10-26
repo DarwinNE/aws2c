@@ -59,6 +59,7 @@ boolean compress_messages=false;
 boolean compress_descriptions=false;
 boolean use_6_directions=false;
 boolean shortcuts=true;
+boolean hardcoded_messages=false;
 
 boolean complete_shortcut=false;
 
@@ -383,6 +384,8 @@ object* read_objects(FILE *f, unsigned int size)
         getlinep(f);
         obj[i].desc=calloc(strlen(buffer)+1,sizeof(char));
         strcpy(obj[i].desc,buffer);
+        if(compress_descriptions==true)
+            analyze(encodechar(obj[i].desc));
 
         getlinep(f);
         sscanf(buffer, "%d",&(obj[i].weight));
@@ -764,9 +767,12 @@ unsigned int decision_at(FILE *f, char *line, unsigned int scanpos)
                         scanpos=sp;
                         proc=true;
                         complete_shortcut=true;
-                        fprintf(f, 
-                            "1) amsm(%s,%s,%d,%s);",
-                            arg1,arg2,polarity,function_res);
+                        if(hardcoded_messages==false)
+                            fprintf(f, "1) amsm(%s,%s,%d,%s);",
+                                arg1,arg2,polarity,function_res);
+                        else
+                            fprintf(f, "1) amsm(%s,%s,%d,message%s);",
+                                arg1,arg2,polarity,function_res);
                     }
                 }
             }
@@ -1320,7 +1326,11 @@ unsigned int action_mess(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, TAB TAB "show_message(%s);\n",  function_res);
+    if(hardcoded_messages==false)
+        fprintf(f, TAB TAB "show_message(%s);\n",  function_res);
+    else
+        fprintf(f, TAB TAB "show_message(message%s);\n",  function_res);
+
     return scanpos;
 }
 /** MESSNOLF */
@@ -1328,7 +1338,10 @@ unsigned int action_messnolf(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, TAB TAB "show_messagenlf(%s);\n",  function_res);
+    if(hardcoded_messages==false)
+        fprintf(f, TAB TAB "show_messagenlf(%s);\n",  function_res);
+    else
+        fprintf(f, TAB TAB "show_messagenlf(message%s);\n",  function_res);
     return scanpos;
 }
 
@@ -1411,7 +1424,10 @@ unsigned int action_to(FILE *f, char *line, unsigned int scanpos)
 /** OKAY */
 unsigned int action_okay(FILE *f, char *line, unsigned int scanpos)
 {
-    fprintf(f, TAB TAB "show_message(1000);\n");
+    if(hardcoded_messages==false)
+        fprintf(f, TAB TAB "show_message(1000);\n");
+    else
+        fprintf(f, TAB TAB "show_message(message1000);\n");
     fprintf(f, TAB TAB "return 1;\n");
     return scanpos;
 }
@@ -1577,7 +1593,15 @@ unsigned int action_obj(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, TAB TAB "writeln(obj[search_object(%s)].desc);",function_res);
+    if(compress_messages==true) {
+        fprintf(f,TAB TAB TAB
+            "decode(obj[search_object(%s)].desc,"
+            "decompress_b,B_SIZE);\n",function_res);
+        fprintf(f, TAB TAB "writeln(decompress_b);");
+    } else {
+        fprintf(f, TAB TAB "writeln(obj[search_object(%s)].desc);",
+            function_res);
+    }
     return scanpos;
 }
 /** WEAR */
@@ -1591,10 +1615,16 @@ unsigned int action_wear(FILE *f, char *line, unsigned int scanpos)
     fprintf(f, TAB TAB TAB"obj[dummy].position=WEARED;\n");
     fprintf(f, TAB TAB TAB "++counter[118];\n");
     fprintf(f, TAB TAB "} else if(obj[dummy].position==WEARED) {\n");
-    fprintf(f, TAB TAB TAB "show_message(1019);\n");
+    if(hardcoded_messages==false)
+        fprintf(f, TAB TAB TAB "show_message(1019);\n");
+    else
+        fprintf(f, TAB TAB TAB "show_message(message1019);\n");
     fprintf(f, TAB TAB TAB "return 1;\n");
     fprintf(f, TAB TAB "} else {\n");
-    fprintf(f, TAB TAB TAB "show_message(1010);\n");
+    if(hardcoded_messages==false)
+        fprintf(f, TAB TAB TAB "show_message(1010);\n");
+    else
+        fprintf(f, TAB TAB TAB "show_message(message1010);\n");
     fprintf(f, TAB TAB TAB "return 1;\n");
     fprintf(f, TAB TAB "}\n");
     return scanpos;
@@ -1609,7 +1639,10 @@ unsigned int action_unwear(FILE *f, char *line, unsigned int scanpos)
     fprintf(f, TAB TAB TAB "obj[dummy].position=CARRIED;\n");
     fprintf(f, TAB TAB TAB "--counter[118];\n");
     fprintf(f, TAB TAB "} else {\n");
-    fprintf(f, TAB TAB TAB "show_message(1010);\n");
+    if(hardcoded_messages==false)
+        fprintf(f, TAB TAB TAB "show_message(1010);\n");
+    else
+        fprintf(f, TAB TAB TAB "show_message(message1010);\n");
     fprintf(f, TAB TAB TAB "return 1;\n");
     fprintf(f, TAB TAB "}\n");
     return scanpos;
@@ -1934,35 +1967,61 @@ void output_utility_func(FILE *of)
     fprintf(of,TAB TAB TAB "return i;\n");
     fprintf(of,TAB "return 0;\n}\n\n");
 
-    fprintf(of,"void show_messagenlf(unsigned int m)\n{\n");
-    fprintf(of,TAB "unsigned int i;\n");
-    fprintf(of,TAB "for(i=0; i<MSIZE;++i)\n");
-    fprintf(of,TAB TAB "if(msg[i].code==m){\n");
-    if(compress_messages==true) {
-        fprintf(of,TAB TAB TAB "decode(msg[i].txt,decompress_b,B_SIZE);\n");
-        fprintf(of,TAB TAB TAB "writesameln(decompress_b);\n");
+    if(hardcoded_messages==false) {
+        fprintf(of,"void show_messagenlf(unsigned int m)\n{\n");
+        fprintf(of,TAB "unsigned int i;\n");
+        fprintf(of,TAB "for(i=0; i<MSIZE;++i)\n");
+        fprintf(of,TAB TAB "if(msg[i].code==m){\n");
+        if(compress_messages==true) {
+            fprintf(of,TAB TAB TAB "decode(msg[i].txt,decompress_b,B_SIZE);\n");
+            fprintf(of,TAB TAB TAB "writesameln(decompress_b);\n");
+        } else {
+            fprintf(of,TAB TAB TAB "writesameln(msg[i].txt);\n");
+        }
+        fprintf(of, TAB TAB TAB "break;\n");
+        fprintf(of, TAB TAB "}\n");
+        fprintf(of, "}\n\n");
+
+        fprintf(of,"void show_message(unsigned int m)\n{\n");
+        fprintf(of,TAB "show_messagenlf(m);\n");
+        fprintf(of,TAB "writeln(\"\");\n");
+        fprintf(of, "}\n\n");
     } else {
-        fprintf(of,TAB TAB TAB "writesameln(msg[i].txt);\n");
+        fprintf(of,"void show_messagenlf(char *m)\n{\n");
+        if(compress_messages==true) {
+            fprintf(of,TAB "decode(m,decompress_b,B_SIZE);\n");
+            fprintf(of,TAB "writesameln(decompress_b);\n");
+        } else {
+            fprintf(of,TAB "writesameln(m);\n");
+        }
+        fprintf(of, "}\n\n");
+
+        fprintf(of,"void show_message(char *m)\n{\n");
+        fprintf(of,TAB "show_messagenlf(m);\n");
+        fprintf(of,TAB "writeln(\"\");\n");
+        fprintf(of, "}\n\n");
     }
-    fprintf(of, TAB TAB TAB "break;\n");
-    fprintf(of, TAB TAB "}\n");
-    fprintf(of, "}\n\n");
-
-    fprintf(of,"void show_message(unsigned int m)\n{\n");
-    fprintf(of,TAB "show_messagenlf(m);\n");
-    fprintf(of,TAB "writeln(\"\");\n");
-    fprintf(of, "}\n\n");
-
     fprintf(of,"void inventory(void)\n{\n");
     fprintf(of,TAB "unsigned int i, gs=0;\n");
-    fprintf(of,TAB "show_message(1032);\n");
+    if(hardcoded_messages==false)
+        fprintf(of,TAB "show_message(1032);\n");
+    else 
+        fprintf(of,TAB "show_message(message1032);\n");
     fprintf(of,TAB "for(i = 0; i<OSIZE; ++i) {\n");
     fprintf(of,TAB TAB "if(obj[i].position==CARRIED) {\n");
     fprintf(of,TAB TAB TAB "++gs;\n");
-    fprintf(of,TAB TAB TAB "writeln(obj[i].desc);\n");
+    if(compress_messages==true) {
+        fprintf(of,TAB "decode(obj[i].desc,decompress_b,B_SIZE);\n");
+        fprintf(of,TAB TAB TAB "writeln(decompress_b);\n");
+    } else {
+        fprintf(of,TAB TAB TAB "writeln(obj[i].desc);\n");
+    }
     fprintf(of,TAB TAB "}\n");
     fprintf(of,TAB "}\n");
-    fprintf(of,TAB "if(gs==0) show_message(1033);\n}\n\n");
+    if(hardcoded_messages==false)
+        fprintf(of,TAB "if(gs==0) show_message(1033);\n}\n\n");
+    else
+        fprintf(of,TAB "if(gs==0) show_message(message1033);\n}\n\n");
 
     fprintf(of, "unsigned int move(unsigned int dir)\n");
     fprintf(of, "{\n");
@@ -1973,25 +2032,40 @@ void output_utility_func(FILE *of)
     fprintf(of, TAB TAB "marker[120]=false;\n");
     fprintf(of, TAB TAB "return 1;\n");
     fprintf(of, TAB "} else \n");
-    fprintf(of, TAB TAB "show_message(1008);\n");
+    if(hardcoded_messages==false)
+        fprintf(of, TAB TAB "show_message(1008);\n");
+    else
+        fprintf(of, TAB TAB "show_message(message1008);\n");
     fprintf(of, TAB "return 0;\n}\n\n");
 
     fprintf(of, "unsigned int get(unsigned int o)\n");
     fprintf(of, "{\n");
     fprintf(of, TAB "dummy=search_object(o);\n");
     fprintf(of, TAB "if(obj[dummy].position!=current_position) {\n");
-    fprintf(of, TAB TAB "show_message(1006);\n");
+    if(hardcoded_messages==false)
+        fprintf(of, TAB TAB "show_message(1006);\n");
+    else
+        fprintf(of, TAB TAB "show_message(message1006);\n");
     fprintf(of, TAB TAB "return 1;\n");
     /* Euh... should not be isnotmovable==true here??? */
     fprintf(of, TAB "} else if(obj[dummy].isnotmovable==false) {\n");
-    fprintf(of, TAB TAB "show_message(1005);\n");
+    if(hardcoded_messages==false)
+        fprintf(of, TAB TAB "show_message(1005);\n");
+    else
+        fprintf(of, TAB TAB "show_message(message1005);\n");
     fprintf(of, TAB TAB "return 1;\n");
     fprintf(of, TAB 
         "} else if(counter[120]+obj[dummy].weight>counter[122]){ \n");
-    fprintf(of, TAB TAB "show_message(1003);\n");
+    if(hardcoded_messages==false)
+        fprintf(of, TAB TAB "show_message(1003);\n");
+    else
+        fprintf(of, TAB TAB "show_message(message1003);\n");
     fprintf(of, TAB TAB TAB "return 1;\n");
     fprintf(of, TAB "} else if(counter[124]+obj[dummy].size>counter[121]) {\n");
-    fprintf(of, TAB TAB "show_message(1004);\n");
+    if(hardcoded_messages==false)
+        fprintf(of, TAB TAB "show_message(1004);\n");
+    else
+        fprintf(of, TAB TAB "show_message(message1004);\n");
     fprintf(of, TAB TAB "return 1;\n");
     fprintf(of, TAB "} else {\n");
     fprintf(of, TAB TAB "obj[dummy].position=CARRIED;\n");
@@ -2009,11 +2083,21 @@ void output_utility_func(FILE *of)
     fprintf(of, "}\n");
     
      /* Check for a position and marker */
-    fprintf(of, 
-        "void amsm(unsigned int p, unsigned char c, boolean v, unsigned int m)\n");
+    
+    if(hardcoded_messages==false) {
+        fprintf(of, 
+            "void amsm(unsigned int p, unsigned char c, boolean v,"
+            " unsigned int m)\n");
+        
+    } else {
+        fprintf(of, 
+            "void amsm(unsigned int p, unsigned char c, boolean v,"
+            " char *m)\n");
+    }
+    
     fprintf(of, "{\n");
     fprintf(of, 
-    "    if(current_position==p&&marker[c]==v) show_message(m);\n");
+        "    if(current_position==p&&marker[c]==v) show_message(m);\n");
     fprintf(of, "}\n");
 
 
@@ -2033,7 +2117,10 @@ void output_utility_func(FILE *of)
     fprintf(of, TAB TAB "counter[120]-=obj[dummy].weight;\n");
     fprintf(of, TAB TAB "counter[124]-=obj[dummy].size;\n");
     fprintf(of, TAB "} else\n");
-    fprintf(of, TAB TAB "show_message(1007);\n");
+    if(hardcoded_messages==false)
+        fprintf(of, TAB TAB "show_message(1007);\n");
+    else
+        fprintf(of, TAB TAB "show_message(message1007);\n");
     fprintf(of, "}\n\n");
 
     fprintf(of, "void jump(unsigned int p)\n{\n");
@@ -2136,40 +2223,77 @@ void output_messages(FILE *of, message* msg, unsigned int msize)
 {
     unsigned int i,j;
     unsigned int size_d=0;
-    if(compress_messages==true) {
+    if(compress_messages==true||hardcoded_messages==true) {
         for(i=0; i<msize;++i) {
-            fprintf(of, "char message%d[]={",msg[i].code);
-            compress(of, encodechar(msg[i].txt));
-            fprintf(of, "};\n");
+            fprintf(of, "char message%d[]=",msg[i].code);
+            if(compress_messages==true) {
+                fprintf(of,"{");
+                compress(of, encodechar(msg[i].txt));
+                fprintf(of,"}");
+            } else {
+                fprintf(of,"\"%s\"",encodechar(msg[i].txt));
+            }
+            fprintf(of, ";\n");
 
         }
     }
-    fprintf(of, "#define MSIZE %d\n",msize);
-    fprintf(of, "message msg[MSIZE]={\n");
-    for(i=0; i<msize;++i) {
-        if(compress_messages==true) {
-            fprintf(of, TAB "{%d,message%d}",msg[i].code,msg[i].code);
+    if(hardcoded_messages==false) {
+        fprintf(of, "#define MSIZE %d\n",msize);
+        fprintf(of, "message msg[MSIZE]={\n");
+        for(i=0; i<msize;++i) {
+            if(compress_messages==true) {
+                fprintf(of, TAB "{%d,message%d}",msg[i].code,msg[i].code);
+            } else {
+                fprintf(of, TAB "{%d,\"%s\"}", msg[i].code,
+                    encodechar(msg[i].txt));
+            }
+            if(i<msize-1) {
+                fprintf(of,",");
+            }
+            fprintf(of,"\n");
+        }
+        fprintf(of,"};\n\n");
+    } else {
+        if(use_6_directions) {
+            fprintf(of, "char* dir[6]={\n");
+            j=6;
         } else {
-            fprintf(of, TAB "{%d,\"%s\"}", msg[i].code,
-                encodechar(msg[i].txt));
+            fprintf(of, "char* dir[10]={\n");
+            j=10;
         }
-        if(i<msize-1) {
-            fprintf(of,",");
+        for(i=0;i<j;++i) {
+            fprintf(of, TAB "message%d",1021+i);
+            if(i<j-1)
+                fprintf(of, ",\n");
         }
-        fprintf(of,"\n");
+        fprintf(of, "};\n\n");
     }
-    fprintf(of,"};\n\n");
 }
 
 /** Create the code for the objects in the output file. */
 void output_objects(FILE *of, object* obj, unsigned int osize)
 {
     unsigned int i,j;
+    if(compress_messages==true) {
+        for(i=0; i<osize;++i) {
+            fprintf(of, "char desc_l%d[]=",obj[i].code);
+            fprintf(of,"{");
+            compress(of, encodechar(obj[i].desc));
+            fprintf(of,"}");
+            fprintf(of, ";\n");
+
+        }
+    }
     fprintf(of, "#define OSIZE %d\n",osize);
     fprintf(of, "object obj[OSIZE]={\n");
     for(i=0; i<osize;++i) {
-        fprintf(of, TAB "{%d,\"%s\",\"%s\",",obj[i].code,obj[i].s,
-            encodechar(obj[i].desc));
+        if(compress_messages==true) {
+                fprintf(of, TAB "{%d,\"%s\",desc_l%d,",obj[i].code,
+                    obj[i].s,obj[i].code);
+            } else {
+                fprintf(of, TAB "{%d,\"%s\",\"%s\",",obj[i].code,obj[i].s,
+                    encodechar(obj[i].desc));
+            }
         fprintf(of, "%d,%d,%d,",obj[i].weight,obj[i].size,obj[i].position);
         if(obj[i].isnotmovable==true)
             fprintf(of, "true,");
@@ -2295,10 +2419,19 @@ void output_gamecycle(FILE *f)
     fprintf(f, TAB TAB TAB "for(k=0;k<OSIZE;++k)\n");
     fprintf(f, TAB TAB TAB TAB "if(obj[k].position==current_position) {\n");
     fprintf(f, TAB TAB TAB TAB TAB "if(ve==false) {\n");
-    fprintf(f, TAB TAB TAB TAB TAB TAB "show_message(1031);\n");
+    if(hardcoded_messages==false)
+        fprintf(f, TAB TAB TAB TAB TAB TAB "show_message(1031);\n");
+    else
+        fprintf(f, TAB TAB TAB TAB TAB TAB "show_message(message1031);\n");
     fprintf(f, TAB TAB TAB TAB TAB TAB "ve=true;\n");
     fprintf(f, TAB TAB TAB TAB TAB "}\n");
-    fprintf(f, TAB TAB TAB TAB TAB "writeln(obj[k].desc);\n");
+    if(compress_messages==true) {
+        fprintf(f, TAB TAB TAB TAB TAB
+            "decode(obj[k].desc,decompress_b,B_SIZE);\n");
+        fprintf(f, TAB TAB TAB TAB TAB "writeln(decompress_b);\n");
+    } else {
+        fprintf(f, TAB TAB TAB TAB TAB "writeln(obj[k].desc);\n");
+    }
     fprintf(f, TAB TAB TAB TAB "}\n");
     fprintf(f, TAB TAB TAB "if(marker[124]==true) {\n");
     fprintf(f, TAB TAB TAB TAB "pa=false;\n");
@@ -2310,10 +2443,16 @@ void output_gamecycle(FILE *f)
     fprintf(f, TAB TAB TAB TAB
         "if(world[search_room(current_position)].directions[k]!=0) {\n");
     fprintf(f, TAB TAB TAB TAB TAB "if(pa==false) {\n");
-    fprintf(f, TAB TAB TAB TAB TAB TAB "show_messagenlf(1020);\n");
+    if(hardcoded_messages==false)
+        fprintf(f, TAB TAB TAB TAB TAB TAB "show_messagenlf(1020);\n");
+    else
+        fprintf(f, TAB TAB TAB TAB TAB TAB "show_messagenlf(message1020);\n");
     fprintf(f, TAB TAB TAB TAB TAB TAB "pa=true;\n");
     fprintf(f, TAB TAB TAB TAB TAB "}\n");
-    fprintf(f, TAB TAB TAB TAB TAB "show_messagenlf(1021+k);\n");
+    if(hardcoded_messages==false)
+        fprintf(f, TAB TAB TAB TAB TAB "show_messagenlf(1021+k);\n");
+    else
+        fprintf(f, TAB TAB TAB TAB TAB "show_messagenlf(dir[k]);\n");
     fprintf(f, TAB TAB TAB TAB TAB "writesameln(\" \");\n");
     fprintf(f, TAB TAB TAB TAB "}\n");
     fprintf(f, TAB TAB TAB TAB "writeln(\"\");\n");
@@ -2324,11 +2463,18 @@ void output_gamecycle(FILE *f)
     fprintf(f, TAB TAB "--counter[128];\n");
 
     fprintf(f, TAB TAB "if(hi_cond()!=0) continue;\n");
-    fprintf(f, TAB TAB "if(line_finished()==true) show_message(1012);\n");
+    if(hardcoded_messages==false)
+        fprintf(f, TAB TAB "if(line_finished()==true) show_message(1012);\n");
+    else
+        fprintf(f, TAB TAB "if(line_finished()==true) "
+            "show_message(message1012);\n");
     fprintf(f, TAB TAB "interrogationAndAnalysis(DSIZE);\n");
     fprintf(f, TAB TAB "if(local_cond()!=0) continue;\n");
     fprintf(f, TAB TAB "if(low_cond()!=0) continue;\n");
-    fprintf(f, TAB TAB "show_message(verb==0?1009:1010);\n");
+    if(hardcoded_messages==false)
+        fprintf(f, TAB TAB "show_message(verb==0?1009:1010);\n");
+    else
+        fprintf(f, TAB TAB "show_message(verb==0?message1009:message1010);\n");
     fprintf(f, TAB "}\n");
     fprintf(f, "}\n");
 }
@@ -2362,7 +2508,7 @@ void print_help(char *name)
     printf("Davide Bucci 2018\n\n");
     printf("Usage: %s [options] inputfile.aws outputfile\n\n",name);
     printf( "then compile (along with file inout.c) using your favourite "
-        "compiler.\n\n");
+        "C compiler.\n\n");
 
     printf("Available options:\n"
            " -h  this help\n"
@@ -2373,7 +2519,8 @@ void print_help(char *name)
            " -s  same as -u, but only employs the single accent '.\n"
            "        é -> e'  è -> e'\n"
            " -c  compress text with Huffman algorithm.\n"
-           " -d  employ 6 directions instead of 10.\n");
+           " -d  employ 6 directions instead of 10.\n"
+           " -m  employ hardcoded messages instead of an array.\n");
 
     printf("\n");
 }
@@ -2403,6 +2550,9 @@ unsigned int process_options(char *arg, char *name)
     } else if (strcmp(arg, "-c")==0) {
         compress_messages=true;
         compress_descriptions=true;
+        return 1;
+    } else if (strcmp(arg, "-m")==0) {
+        hardcoded_messages=true;
         return 1;
     }
     return 0;
