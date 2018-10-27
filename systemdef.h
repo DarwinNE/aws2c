@@ -118,7 +118,7 @@
 #define init_term() {\
     *(char*)PTRBRD = 0x00;\
     *(char*)PTRCLR = 0x00;\
-    printf(cls);\
+    clrscr();\
     normaltxt();\
 }
 

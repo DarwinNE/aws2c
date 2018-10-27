@@ -206,7 +206,7 @@ void output_decoder(FILE *fout)
     fprintf(fout,"unsigned char bpointer;\n");
     fprintf(fout,"unsigned int cpointer;\n");
     fprintf(fout,"#define B_SIZE 200\n");
-    fprintf(fout,"char decompress_b[B_SIZE];\n");
+    fprintf(fout,"char decompress_b[B_SIZE+1];\n");
     fprintf(fout,"unsigned char currbyte;\n\n");
     fprintf(fout,"unsigned char g_b(void)\n");
     fprintf(fout,"{\n");
@@ -269,8 +269,10 @@ void output_decoder(FILE *fout)
     fprintf(fout,"        SHIFTPETSCII;\n");
     fprintf(fout,"        decompress_b[k++]=c;\n");
     fprintf(fout,"    } while(c!='\\0'&&k<B_SIZE);\n");
-    fprintf(fout,"    if(k>=B_SIZE)\n");
+    fprintf(fout,"    if(k>=B_SIZE) {\n");
+    fprintf(fout,"        decompress_b[k]='\\0';\n");
     fprintf(fout,"        return 1;\n");
+    fprintf(fout,"    }\n");
     fprintf(fout,"    return 0;\n");
     fprintf(fout,"}\n");
 }

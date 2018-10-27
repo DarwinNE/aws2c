@@ -65,7 +65,7 @@ boolean complete_shortcut=false;
 
 typedef struct conv_t {
     char *orig;
-    char conv;
+    char *conv;
     char accent;
     char accent_alt;
 } conv;
@@ -74,70 +74,42 @@ typedef struct conv_t {
    (at least). It is used to the conversion between UTF-8 chars and standard
    ASCII characters, plus the accents. */
 
-#define CONVSIZE 35
+#define CONVSIZE 25
 
-char apex1[]={0x99,0x61};
-char apex2[]={0x99,0x20};
-char apex3[]={0x99,0x75};
-char apex4[]={0x99,0x65};
-char apex5[]={0x99,0x38};
-char apex6[]={0x99,0xC3};
-char apex7[]={0x99,0x68};
-char apex8[]={0x99,0x41};
-
-char dots1[]={0xA6,0x00};
-char dots2[]={0xA6,0x0D};
-char dots3[]={0xA6,0x20};
-
-char egrave1[]={0xA8,0x20};
-
-char lquote1[]={0x9C, 0x74};
-char rquote1[]={0x9D, 0x20};
+char apostrophe[]={0xE2, 0x80, 0x99,0x0};
+char ellips[]={0xE2, 0x80, 0xA6,0x0};
+char quotel[]={0xE2, 0x80, 0x9C,0x0};
+char quoter[]={0xE2, 0x80, 0x9D,0x0};
 
 
 conv conversion[CONVSIZE] = {
-    {"à",'a','`','\''},
-    {"è",'e','`','\''},
-    {"ì",'i','`','\''},
-    {"ò",'o','`','\''},
-    {"ù",'u','`','\''},
-    {"á",'a','\'','\''},
-    {"é",'e','\'','\''},
-    {"í",'i','\'','\''},
-    {"ó",'o','\'','\''},
-    {"ú",'u','\'','\''},
+    {"à","a",'`','\''},
+    {"è","e",'`','\''},
+    {"ì","i",'`','\''},
+    {"ò","o",'`','\''},
+    {"ù","u",'`','\''},
+    {"á","a",'\'','\''},
+    {"é","e",'\'','\''},
+    {"í","i",'\'','\''},
+    {"ó","o",'\'','\''},
+    {"ú","u",'\'','\''},
 
-    {"À",'A','`','\''},
-    {"È",'E','`','\''},
-    {"Ì",'I','`','\''},
-    {"Ò",'O','`','\''},
-    {"Ù",'U','`','\''},
-    {"Á",'A','\'','\''},
-    {"É",'E','\'','\''},
-    {"Í",'I','\'','\''},
-    {"Ó",'O','\'','\''},
-    {"Ú",'U','\'','\''},
+    {"À","A",'`','\''},
+    {"È","E",'`','\''},
+    {"Ì","I",'`','\''},
+    {"Ò","O",'`','\''},
+    {"Ù","U",'`','\''},
+    {"Á","A",'\'','\''},
+    {"É","E",'\'','\''},
+    {"Í","I",'\'','\''},
+    {"Ó","O",'\'','\''},
+    {"Ú","U",'\'','\''},
 
-    {apex1,'\'','\'','\''},
-    {apex2,'\'','\'','\''},
-    {apex3,'\'','\'','\''},
-    {apex4,'\'','\'','\''},
-    {apex5,'\'','\'','\''},
-    {apex6,'\'','\'','\''},
-    {apex7,'\'','\'','\''},
-    {apex8,'\'','\'','\''},
-
-    {egrave1,'e','\'','\''},
-
-    {lquote1,'"',' ',' '},
-    {rquote1,'"',' ',' '},
-
-    {dots1,'.','.','.'},
-    {dots2,'.','.','.'},
-    {dots3,'.','.','.'},
-
-
-    {"’",'\'','\'','\''}
+    {"’","\'",'\0','\0'},
+    {apostrophe,"\'",'\0','\0'},
+    {quotel,"\'",'\0','\0'},
+    {quoter,"\'",'\0','\0'},
+    {ellips,"...",'\0','\0'}
 };
 
 /** Change and encode characters that may create troubles when output, such
@@ -146,41 +118,50 @@ conv conversion[CONVSIZE] = {
 */
 char *encodechar(char *input)
 {
-    unsigned int i,j,k;
-    char c;
-    boolean byte3;
+    unsigned int i,j,k,t;
+    char c,v;
+    boolean byte3, found;
     char notshown[4];
+    byte3=false;
 
     for(i=0; (c=input[i])!='\0' && i<BUFFERSIZE-1;++i) {
-        byte3=false;
-        if(c=='\"') {
+        if((c=='\"')&&(compress_messages==false)) {
             buffer[k++]='\\';
         } else if(c==-25) {     // 0xE7
-           c=','; // Comma is translated in AWS files!
+            c=','; // Comma is translated in AWS files!
         } else if(c=='^' && input[i+1]=='M') {
-           buffer[k++]='\\';
-           c='n';
-           ++i;
-        } else if(c<0 && convert_utf8==true) {
-            if(c==-1) {
-                c=input[i++];
-                byte3=true;
+            if(compress_messages==false) {
+                buffer[k++]='\\';
+                c='n';
+            } else {
+                c='\n';
             }
+            ++i;
+        } else if(c&'\x80' && convert_utf8==true) {
             for(j=0; j<CONVSIZE;++j) {
-                if(c==conversion[j].orig[0]&&
-                    input[i+1]==conversion[j].orig[1])
-                {
-                    if(convert_accents==true) {
-                        buffer[k++]=conversion[j].conv;
-                        if(convert_accent_alt==true)
-                            c=conversion[j].accent_alt;
-                        else
-                            c=conversion[j].accent;
-                    } else {
-                        c=conversion[j].conv;
+                found=true;
+                for(t=0;(v=conversion[j].orig[t])!='\0';++t) {
+                    if(input[i+t]!=v) {
+                        found=false;
+                        break;
                     }
-                    ++i;
-                    break;
+                }
+                if(found==true){
+                    if(convert_accents==true) {
+                        for(t=0;(v=conversion[j].conv[t])!='\0';++t)
+                            buffer[k++]=v;
+                        if(conversion[j].accent!='\0') {
+                            if(convert_accent_alt==true)
+                                buffer[k++]=conversion[j].accent_alt;
+                            else
+                                buffer[k++]=conversion[j].accent;
+                        }
+                    } else {
+                        for(t=0;(v=conversion[j].conv[t])!='\0';++t)
+                            buffer[k++]=v;
+                    }
+                    i+=strlen(conversion[j].orig)-1;
+                    goto cont;
                 }
             }
             if(j==CONVSIZE) {
@@ -194,7 +175,7 @@ char *encodechar(char *input)
                         notshown, (unsigned int) c, (unsigned int) input[i+1],
                         input);
                 } else {
-                    notshown[0]=-1;
+                    notshown[0]='\x80';
                     notshown[1]=c;
                     notshown[2]=input[i+1];
                     notshown[3]='\0';
@@ -204,12 +185,10 @@ char *encodechar(char *input)
                         notshown, (unsigned int) c, (unsigned int) input[i+1],
                         input);
                 }
-                
-                buffer[k++]=c;
-                c=input[++i];
             }
         }
         buffer[k++]=c;
+cont:   t++;
     }
     buffer[k++]='\0';
     return buffer;
@@ -2093,13 +2072,26 @@ void output_utility_func(FILE *of)
     fprintf(of,TAB "return 0;\n}\n\n");
 
     if(hardcoded_messages==false) {
+        if(compress_messages==true) {
+            fprintf(of,"void write_textsl(char *m)\n{\n");
+            fprintf(of,TAB "char r;\n");
+            fprintf(of,TAB "decode_start(m);\n");
+            fprintf(of,TAB "do {\n");
+            fprintf(of,TAB TAB "r=decode();\n");
+            fprintf(of,TAB TAB "writesameln(decompress_b);\n");
+            fprintf(of,TAB "} while(r!=0);\n");
+            fprintf(of, "}\n");
+            fprintf(of,"void write_text(char *m)\n{\n");
+            fprintf(of,TAB "write_textsl(m);\n");
+            fprintf(of,TAB "writeln(\"\");\n");
+            fprintf(of, "}\n");
+        }
         fprintf(of,"void show_messagenlf(unsigned int m)\n{\n");
         fprintf(of,TAB "unsigned int i;\n");
         fprintf(of,TAB "for(i=0; i<MSIZE;++i)\n");
         fprintf(of,TAB TAB "if(msg[i].code==m){\n");
         if(compress_messages==true) {
-            fprintf(of,TAB TAB TAB"decode(msg[i].txt,decompress_b,B_SIZE);\n");
-            fprintf(of,TAB TAB TAB "writesameln(decompress_b);\n");
+            fprintf(of,TAB TAB TAB "write_textsl(msg[i].txt);\n");
         } else {
             fprintf(of,TAB TAB TAB "writesameln(msg[i].txt);\n");
         }
@@ -2142,9 +2134,7 @@ void output_utility_func(FILE *of)
     fprintf(of,TAB TAB TAB "++gs;\n");
     if(compress_messages==true) {
         if(hardcoded_messages==false) {
-            fprintf(of,TAB TAB TAB 
-                "decode(obj[i].desc,decompress_b,B_SIZE);\n");
-            fprintf(of,TAB TAB TAB "writeln(decompress_b);\n");
+            fprintf(of,TAB TAB TAB "write_text(obj[i].desc);\n");
         } else {
             fprintf(of,TAB TAB TAB "show_message(obj[i].desc);\n");
         }
@@ -2502,30 +2492,16 @@ void output_objects(FILE *of, object* obj, unsigned int osize)
 void output_greetings(FILE *f, info *header)
 {
     fprintf(f, "\nvoid greetings(void)\n{\n");
-    fprintf(f, TAB "writesameln(\"Avventura:   \");\n");
-    fprintf(f, TAB "evidence1();\n");
-    fprintf(f, TAB "writeln(\"%s\");\n", encodechar(header->name));
-    fprintf(f, TAB "normaltxt();\n");
-    fprintf(f, TAB "writesameln(\"Autore:      \");\n");
-
-    fprintf(f, TAB "evidence1();\n");
-    fprintf(f, TAB "writeln(\"%s\");\n", encodechar(header->author));
-    fprintf(f, TAB "normaltxt();\n");
-    fprintf(f, TAB "writesameln(\"Data:        \");\n");
-
-    fprintf(f, TAB "evidence1();\n");
-    fprintf(f, TAB "writeln(\"%s\");\n", encodechar(header->date));
+    fprintf(f, TAB "evidence2();\n");
+    fprintf(f, TAB "writeln(\"%s\\n\");\n", encodechar(header->name));
+    fprintf(f, TAB "writesameln(\"%s\");\n", encodechar(header->author));
+    fprintf(f, TAB "writeln(\"  %s\\n\");\n", encodechar(header->date));
+    fprintf(f, TAB "writeln(\"%s\\n\");\n", encodechar(header->description));
     fprintf(f, TAB "normaltxt();\n");
 
-    fprintf(f, TAB "writesameln(\"Descrizione: \");\n");
-    fprintf(f, TAB "evidence1();\n");
-
-    fprintf(f, TAB "writeln(\"%s\");\n", encodechar(header->description));
-    fprintf(f, TAB "normaltxt();\n");
-
-    fprintf(f, TAB "writesameln(\"AWS version: \");\n");
-    fprintf(f, TAB "evidence1();\n");
-    fprintf(f, TAB "writeln(\"%s\\n\");\n", encodechar(header->version));
+    fprintf(f, TAB "writesameln(\"AWS \");\n");
+    fprintf(f, TAB "evidence2();\n");
+    fprintf(f, TAB "writeln(\"%s\");\n", encodechar(header->version));
     fprintf(f, TAB "normaltxt();\n");
 
     fprintf(f, "}\n");
@@ -2605,15 +2581,13 @@ void output_gamecycle(FILE *f)
         "if(marker[120]==false&&(marker[121]==true||marker[122]==true)) {\n");
     if(compress_messages==true) {
         if(hardcoded_messages==true) {
-            fprintf(f,TAB TAB 
+            fprintf(f,TAB TAB
                 "show_message(world[search_room(current_position)]."
                 "long_d);\n");
         } else {
             fprintf(f,TAB TAB TAB
                 "write_text(world[search_room(current_position)]."
                 "long_d);\n");
-        
-            fprintf(f,TAB TAB TAB "writesameln(decompress_b);\n");
         }
     } else {
         fprintf(f, TAB TAB TAB
@@ -2633,10 +2607,9 @@ void output_gamecycle(FILE *f)
     fprintf(f, TAB TAB TAB TAB TAB "}\n");
     if(compress_messages==true) {
         if(hardcoded_messages==true) {
-            fprintf(f,TAB TAB "show_message(obj[k].desc);\n");
+            fprintf(f, TAB TAB TAB TAB TAB "show_message(obj[k].desc);\n");
         } else {
-            fprintf(f, TAB TAB TAB TAB TAB
-                "write_text(obj[k].desc);\n");
+            fprintf(f, TAB TAB TAB TAB TAB "write_textsl(obj[k].desc);\n");
         }
     } else {
         fprintf(f, TAB TAB TAB TAB TAB "writeln(obj[k].desc);\n");
