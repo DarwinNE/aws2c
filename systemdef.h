@@ -29,6 +29,8 @@
 #define cyan        "\x9F"
 #define blue        "\x1F"
 #define yellow      "\x9E"
+#define pink        "\x96"
+
 #define cls         "\x93"
 
 #define switch80col "\x1Bx\x0E"
@@ -44,6 +46,9 @@
 
 /* Define the style of the second evidenced text */
 #define evidence2() printf(yellow)
+
+/* Define the style of the third evidenced text */
+#define evidence3() printf(pink)
 
 /* Define the style of the normal text */
 #define normaltxt() printf(cyan)
@@ -89,6 +94,8 @@
 #define cyan        "\x9F"
 #define blue        "\x1F"
 #define yellow      "\x9E"
+#define pink        "\x96"
+
 #define cls         "\x93"
 
 
@@ -103,6 +110,9 @@
 
 /* Define the style of the second evidenced text */
 #define evidence2() printf(yellow)
+
+/* Define the style of the third evidenced text */
+#define evidence3() printf(pink)
 
 /* Define the style of the normal text */
 #define normaltxt() printf(cyan)
@@ -194,6 +204,8 @@
 #define inputtxt() printf("\033[1m\x1b[32m\33[40m")
 #define evidence1() printf("\033[1m\x1b[31m\33[40m")
 #define evidence2() printf("\033[0m\x1b[93m\33[40m")
+#define evidence3() printf("\033[0m\x1b[95m\33[40m")
+
 #define normaltxt() printf("\033[0m\x1b[36m\33[40m")
 #define tab() printf("\t")
 #define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < retTime);}

@@ -2579,6 +2579,24 @@ void output_gamecycle(FILE *f)
     fprintf(f, TAB TAB "current_position=next_position;\n");
     fprintf(f, TAB TAB
         "if(marker[120]==false&&(marker[121]==true||marker[122]==true)) {\n");
+    fprintf(f,TAB TAB "evidence1();\n");
+    if(compress_messages==true) {
+        if(hardcoded_messages==true) {
+            fprintf(f,TAB TAB
+                "show_messagenlf(world[search_room(current_position)]."
+                "short_d);\n");
+        } else {
+            fprintf(f,TAB TAB TAB
+                "write_textsl(world[search_room(current_position)]."
+                "short_d);\n");
+        }
+    } else {
+        fprintf(f, TAB TAB TAB
+            "writesameln(world[search_room(current_position)].long_d);\n");
+    }
+    fprintf(f,TAB TAB "writesameln(\"  \");\n");
+    fprintf(f,TAB TAB "normaltxt();\n");
+
     if(compress_messages==true) {
         if(hardcoded_messages==true) {
             fprintf(f,TAB TAB
@@ -2629,14 +2647,18 @@ void output_gamecycle(FILE *f)
         fprintf(f, TAB TAB TAB TAB TAB TAB "show_messagenlf(1020);\n");
     else
         fprintf(f, TAB TAB TAB TAB TAB TAB "show_messagenlf(message1020);\n");
+
     fprintf(f, TAB TAB TAB TAB TAB TAB "pa=true;\n");
     fprintf(f, TAB TAB TAB TAB TAB "}\n");
+    fprintf(f, TAB TAB TAB TAB TAB "evidence3();\n");
+
     if(hardcoded_messages==false)
         fprintf(f, TAB TAB TAB TAB TAB "show_messagenlf(1021+k);\n");
     else
         fprintf(f, TAB TAB TAB TAB TAB "show_messagenlf(dir[k]);\n");
     fprintf(f, TAB TAB TAB TAB TAB "writesameln(\" \");\n");
     fprintf(f, TAB TAB TAB TAB "}\n");
+    fprintf(f, TAB TAB TAB TAB "normaltxt();\n");
     fprintf(f, TAB TAB TAB TAB "writeln(\"\");\n");
     fprintf(f, TAB TAB "}}\n");
     fprintf(f, TAB TAB "++counter[125];\n");
