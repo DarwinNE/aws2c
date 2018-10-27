@@ -29,6 +29,10 @@ unsigned int adjective;
 
 extern word dictionary[];
 
+/* The current position in the line */
+
+unsigned int ls, lc;
+
 /** Write a string without adding a newline. Process some codes to put in
     evidence the text and handle the word wrapping.
 */
@@ -46,7 +50,7 @@ void writesameln(char *line)
             wordbuffer[pc]='\0';
             if(colc>=NCOL) {
                 printf("\n");
-                colc=strlen(wordbuffer);
+                colc=pc;
             }
             printf("%s",wordbuffer);
             if(norm==true) {
@@ -106,9 +110,7 @@ unsigned int readln(void)
    
 char s[BUFFERSIZE];
 
-/* The current position in the line */
 
-unsigned int ls, lc;
 
 /** Main parser.
 */
@@ -132,7 +134,7 @@ void interrogationAndAnalysis(unsigned int num_of_words)
         for(k=0; ls<lc && k<BUFFERSIZE; ++ls) {
             c=playerInput[ls];
             if(c==' ' || c=='\'') {
-                ls++;
+                ++ls;
                 break;
             }
             if(c>='a' && c<='z')
@@ -178,10 +180,4 @@ void interrogationAndAnalysis(unsigned int num_of_words)
     /*  The scanning has finished because the line is complete. Read a new line
         the next time the function is called */
     ls=0;
-}
-
-/*  Check if all the line has been processed. */
-unsigned int line_finished(void)
-{
-    return ls==0?true:false;
 }

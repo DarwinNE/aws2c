@@ -111,8 +111,7 @@
 #define tab() printf("    ")
 
 /* Wait for one second */
-#define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
-    retTime);}
+#define wait1s()    {}
 #define PTRBRD 53280
 #define PTRCLR 53281
 /* Init the terminal */

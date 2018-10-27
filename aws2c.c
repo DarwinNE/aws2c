@@ -70,11 +70,31 @@ typedef struct conv_t {
     char accent_alt;
 } conv;
 
-/* This is a minimal conversion that should work for the Italian language 
+/* This is a minimal conversion that should work for the Italian language
    (at least). It is used to the conversion between UTF-8 chars and standard
    ASCII characters, plus the accents. */
 
-#define CONVSIZE 20
+#define CONVSIZE 35
+
+char apex1[]={0x99,0x61};
+char apex2[]={0x99,0x20};
+char apex3[]={0x99,0x75};
+char apex4[]={0x99,0x65};
+char apex5[]={0x99,0x38};
+char apex6[]={0x99,0xC3};
+char apex7[]={0x99,0x68};
+char apex8[]={0x99,0x41};
+
+char dots1[]={0xA6,0x00};
+char dots2[]={0xA6,0x0D};
+char dots3[]={0xA6,0x20};
+
+char egrave1[]={0xA8,0x20};
+
+char lquote1[]={0x9C, 0x74};
+char rquote1[]={0x9D, 0x20};
+
+
 conv conversion[CONVSIZE] = {
     {"à",'a','`','\''},
     {"è",'e','`','\''},
@@ -96,7 +116,28 @@ conv conversion[CONVSIZE] = {
     {"É",'E','\'','\''},
     {"Í",'I','\'','\''},
     {"Ó",'O','\'','\''},
-    {"Ú",'U','\'','\''}
+    {"Ú",'U','\'','\''},
+
+    {apex1,'\'','\'','\''},
+    {apex2,'\'','\'','\''},
+    {apex3,'\'','\'','\''},
+    {apex4,'\'','\'','\''},
+    {apex5,'\'','\'','\''},
+    {apex6,'\'','\'','\''},
+    {apex7,'\'','\'','\''},
+    {apex8,'\'','\'','\''},
+
+    {egrave1,'e','\'','\''},
+
+    {lquote1,'"',' ',' '},
+    {rquote1,'"',' ',' '},
+
+    {dots1,'.','.','.'},
+    {dots2,'.','.','.'},
+    {dots3,'.','.','.'},
+
+
+    {"’",'\'','\'','\''}
 };
 
 /** Change and encode characters that may create troubles when output, such
@@ -107,7 +148,11 @@ char *encodechar(char *input)
 {
     unsigned int i,j,k;
     char c;
+    boolean byte3;
+    char notshown[4];
+
     for(i=0; (c=input[i])!='\0' && i<BUFFERSIZE-1;++i) {
+        byte3=false;
         if(c=='\"') {
             buffer[k++]='\\';
         } else if(c==-25) {     // 0xE7
@@ -117,6 +162,10 @@ char *encodechar(char *input)
            c='n';
            ++i;
         } else if(c<0 && convert_utf8==true) {
+            if(c==-1) {
+                c=input[i++];
+                byte3=true;
+            }
             for(j=0; j<CONVSIZE;++j) {
                 if(c==conversion[j].orig[0]&&
                     input[i+1]==conversion[j].orig[1])
@@ -135,9 +184,27 @@ char *encodechar(char *input)
                 }
             }
             if(j==CONVSIZE) {
-                fprintf(stderr,
-                    "WARNING: UTF-8 character %c%c has not been converted.\n",
-                    c, input[i+1]);
+                if(byte3==false) {
+                    notshown[0]=c;
+                    notshown[1]=input[i+1];
+                    notshown[2]='\0';
+                    fprintf(stderr,
+                        "WARNING: UTF-8 character %s (0x%X 0x%X)"
+                        " has not been converted in \"%s\".\n",
+                        notshown, (unsigned int) c, (unsigned int) input[i+1],
+                        input);
+                } else {
+                    notshown[0]=-1;
+                    notshown[1]=c;
+                    notshown[2]=input[i+1];
+                    notshown[3]='\0';
+                    fprintf(stderr,
+                        "WARNING: UTF-8 character %s (0x80 0x%X 0x%X)"
+                        " has not been converted in \"%s\".\n",
+                        notshown, (unsigned int) c, (unsigned int) input[i+1],
+                        input);
+                }
+                
                 buffer[k++]=c;
                 c=input[++i];
             }
@@ -833,7 +900,7 @@ unsigned int decision_carr(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, "get_object_position(%s)==CARRIED", function_res);
+    fprintf(f, "object_is_carried(%s)", function_res);
     return scanpos;
 }
 /** NOTIN */
@@ -926,6 +993,41 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
         } else {
             fprintf(f, "verb==%s", function_res);
         }
+    } else if(shortcuts==true&&(strcmp(next,"OR")==0)) {
+        sp=peek_token(line, sp);
+        if(strcmp(next,"VERB")==0||strcmp(next,"VBNOEQ")==0) {
+            arg1=(char *) calloc(strlen(function_res)+1,sizeof(char));
+            if(arg1==NULL) {
+                printf("Error allocating memory!\n");
+                exit(1);
+            }
+            strcpy(arg1,function_res);
+            scanpos=sp;
+            start_function();
+            scanpos=process_functions(line, scanpos);
+            arg2=(char *) calloc(strlen(function_res)+1,sizeof(char));
+            if(arg2==NULL) {
+                printf("Error allocating memory!\n");
+                exit(1);
+            }
+            strcpy(arg2,function_res);
+            sp=peek_token(line, scanpos);
+            if(strcmp(next,"AND")==0) {
+                sp=peek_token(line, sp);
+                if(strcmp(next,"NOUN")==0) {
+                    proc=true;
+                    scanpos=sp;
+                    start_function();
+                    scanpos=process_functions(line, scanpos);
+                    fprintf(f,"vovn(%s,%s,%s)", arg1, arg2,function_res);
+                }
+            }
+            if(proc==false) {
+                fprintf(f,"vov(%s,%s)", arg1, arg2);
+            }
+            free(arg1);
+            free(arg2);
+        }
     } else {
         fprintf(f, "verb==%s", function_res);
     }
@@ -950,9 +1052,30 @@ unsigned int decision_vbnolt(FILE *f, char *line, unsigned int scanpos)
 /** NOUN */
 unsigned int decision_noun(FILE *f, char *line, unsigned int scanpos)
 {
+    char *arg1;
+    unsigned int sp,at;
+
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, "noun1==%s", function_res);
+    sp=peek_token(line, scanpos);
+    if(shortcuts==true&&(strcmp(next,"OR")==0)) {
+        sp=peek_token(line, sp);
+        if(strcmp(next,"NOUN")==0) {
+            arg1=(char *) calloc(strlen(function_res)+1,sizeof(char));
+            if(arg1==NULL) {
+                printf("Error allocating memory!\n");
+                exit(1);
+            }
+            strcpy(arg1,function_res);
+            scanpos=sp;
+            start_function();
+            scanpos=process_functions(line, scanpos);
+            fprintf(f,"non1(%s,%s)", arg1, function_res);
+            free(arg1);
+        }
+    } else {
+        fprintf(f, "noun1==%s", function_res);
+    }
     return scanpos;
 }
 /** ADVE */
@@ -977,10 +1100,7 @@ unsigned int decision_avai(FILE *f, char *line, unsigned int scanpos)
     unsigned int counter,value;
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, "(object_is_here(%s))||",
-        function_res);
-    fprintf(f, "(get_object_position(%s)==CARRIED)", function_res);
-
+    fprintf(f, "object_is_available(%s)",function_res);
     return scanpos;
 }
 /** NOTAVAI */
@@ -991,7 +1111,7 @@ unsigned int decision_notavai(FILE *f, char *line, unsigned int scanpos)
     scanpos=process_functions(line, scanpos);
     fprintf(f, "(get_object_position(%s)!=current_position)&&",
         function_res);
-    fprintf(f, "(get_object_position(%s)!=CARRIED)", function_res);
+    fprintf(f, "(object_is_carried(%s)==false)", function_res);
 
     return scanpos;
 }
@@ -1008,7 +1128,7 @@ unsigned int decision_notcarr(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, "get_object_position(%s)!=CARRIED", function_res);
+    fprintf(f, "object_is_carried(%s)==false", function_res);
     return scanpos;
 }
 /** NO1GT */
@@ -1093,7 +1213,7 @@ unsigned int decision_nothere(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, "get_object_position(%s)!=current_position",
+    fprintf(f, "object_is_here(%s)==false",
         function_res);
     return scanpos;
 }
@@ -1252,8 +1372,8 @@ unsigned int action_goto(FILE *f, char *line, unsigned int scanpos)
     start_function();
     scanpos=process_functions(line, scanpos);
     fprintf(f, TAB TAB "jump(%s);\n",function_res);
-    fprintf(f, TAB TAB "return 1;\n");
-
+    //fprintf(f, TAB TAB "return 1;\n");
+    fprintf(f, TAB TAB "goto return1;\n");
     return scanpos;
 }
 
@@ -1428,7 +1548,8 @@ unsigned int action_okay(FILE *f, char *line, unsigned int scanpos)
         fprintf(f, TAB TAB "show_message(1000);\n");
     else
         fprintf(f, TAB TAB "show_message(message1000);\n");
-    fprintf(f, TAB TAB "return 1;\n");
+    //fprintf(f, TAB TAB "return 1;\n");
+    fprintf(f, TAB TAB "goto return1;\n");
     return scanpos;
 }
 /** PRIN */
@@ -1482,7 +1603,7 @@ unsigned int action_get(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, TAB TAB "if(get(%s)!=00) return 1;\n", function_res);
+    fprintf(f, TAB TAB "if(get(%s)!=0) goto return1;\n", function_res);
 
     return scanpos;
 }
@@ -1504,7 +1625,7 @@ unsigned int action_getall(FILE *f, char *line, unsigned int scanpos)
 /** DROPALL */
 unsigned int action_dropall(FILE *f, char *line, unsigned int scanpos)
 {
-    fprintf(f, TAB TAB "for(dummy=0; dummy<OSIZE;++dummy)");
+    fprintf(f, TAB TAB "for(dummy=0; dummy<OSIZE;++dummy)\n");
     fprintf(f, TAB TAB TAB "odummy=&obj[dummy];\n");
     fprintf(f, TAB TAB TAB
         "if(odummy->position==CARRIED) {\n");
@@ -1581,7 +1702,7 @@ unsigned int action_swap(FILE *f, char *line, unsigned int scanpos)
 /** WAIT */
 unsigned int action_wait(FILE *f, char *line, unsigned int scanpos)
 {
-    fprintf(f, TAB TAB "return 1;\n");
+    fprintf(f, TAB TAB "goto return1;\n");
     return scanpos;
 }
 /** LF */
@@ -1596,10 +1717,13 @@ unsigned int action_obj(FILE *f, char *line, unsigned int scanpos)
     start_function();
     scanpos=process_functions(line, scanpos);
     if(compress_messages==true) {
-        fprintf(f,TAB TAB TAB
-            "decode(obj[search_object(%s)].desc,"
-            "decompress_b,B_SIZE);\n",function_res);
-        fprintf(f, TAB TAB "writeln(decompress_b);");
+        if(hardcoded_messages==false) {
+            fprintf(f,TAB TAB "write_text(obj[search_object(%s)].desc);\n",
+                function_res);
+        } else {
+            fprintf(f,TAB TAB "show_message(obj[search_object(%s)].desc);\n",
+                function_res);
+        }
     } else {
         fprintf(f, TAB TAB "writeln(obj[search_object(%s)].desc);",
             function_res);
@@ -1623,13 +1747,13 @@ unsigned int action_wear(FILE *f, char *line, unsigned int scanpos)
         fprintf(f, TAB TAB TAB "show_message(1019);\n");
     else
         fprintf(f, TAB TAB TAB "show_message(message1019);\n");
-    fprintf(f, TAB TAB TAB "return 1;\n");
+    fprintf(f, TAB TAB TAB "goto return1;\n");
     fprintf(f, TAB TAB "} else {\n");
     if(hardcoded_messages==false)
         fprintf(f, TAB TAB TAB "show_message(1010);\n");
     else
         fprintf(f, TAB TAB TAB "show_message(message1010);\n");
-    fprintf(f, TAB TAB TAB "return 1;\n");
+    fprintf(f, TAB TAB TAB "goto return1;\n");
     fprintf(f, TAB TAB "}\n");
     return scanpos;
 }
@@ -1649,7 +1773,7 @@ unsigned int action_unwear(FILE *f, char *line, unsigned int scanpos)
         fprintf(f, TAB TAB TAB "show_message(1010);\n");
     else
         fprintf(f, TAB TAB TAB "show_message(message1010);\n");
-    fprintf(f, TAB TAB TAB "return 1;\n");
+    fprintf(f, TAB TAB TAB "goto return1;\n");
     fprintf(f, TAB TAB "}\n");
     return scanpos;
 }
@@ -1669,8 +1793,6 @@ unsigned int action_dimens(FILE *f, char *line, unsigned int scanpos)
     fprintf(f, TAB TAB "counter[121]=%s;\n",function_res);
     return scanpos;
 }
-
-
 
 /** Main processing function. Exploits buffer.
 */
@@ -1781,7 +1903,7 @@ void process_aws(FILE *f, char *line)
         } else if(strcmp(token,"ADJELT")==0) {
             scanpos=decision_adjelt(f, line, scanpos);
         } else if(strcmp(token,"OR")==0) {
-            shortcuts=false;
+            //shortcuts=false;
             fprintf(f,"||");
         } else if(strcmp(token,"AND")==0) {
             shortcuts=true;
@@ -1802,7 +1924,7 @@ void process_aws(FILE *f, char *line)
         atleastone=true;
     }
 
-    
+
     fprintf(f,") {\n");  // ACTIONS
     while(1) {
         scanpos=get_token(line, scanpos);
@@ -1951,14 +2073,10 @@ void output_utility_func(FILE *of)
 {
     fprintf(of,"unsigned int current_position;\n");
     fprintf(of,"unsigned int next_position;\n");
-
+    fprintf(of,"extern unsigned int ls;\n");
     fprintf(of,"boolean marker[129];\n");
     fprintf(of,"int counter[129];\n");
     fprintf(of,"object *odummy;\n\n");
-    if(compress_messages==true) {
-        fprintf(of,"#define B_SIZE %d\n", get_max_len()+1);
-        fprintf(of,"char decompress_b[B_SIZE];\n");
-    }
 
     fprintf(of,"unsigned int search_object(unsigned int o)\n{\n");
     fprintf(of,TAB "unsigned int i;\n");
@@ -1980,7 +2098,7 @@ void output_utility_func(FILE *of)
         fprintf(of,TAB "for(i=0; i<MSIZE;++i)\n");
         fprintf(of,TAB TAB "if(msg[i].code==m){\n");
         if(compress_messages==true) {
-            fprintf(of,TAB TAB TAB "decode(msg[i].txt,decompress_b,B_SIZE);\n");
+            fprintf(of,TAB TAB TAB"decode(msg[i].txt,decompress_b,B_SIZE);\n");
             fprintf(of,TAB TAB TAB "writesameln(decompress_b);\n");
         } else {
             fprintf(of,TAB TAB TAB "writesameln(msg[i].txt);\n");
@@ -1994,10 +2112,15 @@ void output_utility_func(FILE *of)
         fprintf(of,TAB "writeln(\"\");\n");
         fprintf(of, "}\n\n");
     } else {
+
         fprintf(of,"void show_messagenlf(char *m)\n{\n");
         if(compress_messages==true) {
-            fprintf(of,TAB "decode(m,decompress_b,B_SIZE);\n");
-            fprintf(of,TAB "writesameln(decompress_b);\n");
+            fprintf(of,TAB "char r;\n");
+            fprintf(of,TAB "decode_start(m);\n");
+            fprintf(of,TAB "do {\n");
+            fprintf(of,TAB TAB "r=decode();\n");
+            fprintf(of,TAB TAB "writesameln(decompress_b);\n");
+            fprintf(of,TAB "} while(r!=0);\n");
         } else {
             fprintf(of,TAB "writesameln(m);\n");
         }
@@ -2012,14 +2135,19 @@ void output_utility_func(FILE *of)
     fprintf(of,TAB "unsigned int i, gs=0;\n");
     if(hardcoded_messages==false)
         fprintf(of,TAB "show_message(1032);\n");
-    else 
+    else
         fprintf(of,TAB "show_message(message1032);\n");
     fprintf(of,TAB "for(i = 0; i<OSIZE; ++i) {\n");
     fprintf(of,TAB TAB "if(obj[i].position==CARRIED) {\n");
     fprintf(of,TAB TAB TAB "++gs;\n");
     if(compress_messages==true) {
-        fprintf(of,TAB "decode(obj[i].desc,decompress_b,B_SIZE);\n");
-        fprintf(of,TAB TAB TAB "writeln(decompress_b);\n");
+        if(hardcoded_messages==false) {
+            fprintf(of,TAB TAB TAB 
+                "decode(obj[i].desc,decompress_b,B_SIZE);\n");
+            fprintf(of,TAB TAB TAB "writeln(decompress_b);\n");
+        } else {
+            fprintf(of,TAB TAB TAB "show_message(obj[i].desc);\n");
+        }
     } else {
         fprintf(of,TAB TAB TAB "writeln(obj[i].desc);\n");
     }
@@ -2063,7 +2191,7 @@ void output_utility_func(FILE *of)
     else
         fprintf(of, TAB TAB "show_message(message1005);\n");
     fprintf(of, TAB TAB "return 1;\n");
-    fprintf(of, TAB 
+    fprintf(of, TAB
         "} else if(counter[120]+odummy->weight>counter[122]){ \n");
     if(hardcoded_messages==false)
         fprintf(of, TAB TAB "show_message(1003);\n");
@@ -2085,8 +2213,26 @@ void output_utility_func(FILE *of)
     fprintf(of, TAB "return 0;\n");
     fprintf(of, "}\n");
 
+    /* Check among two verbs */
+    fprintf(of, "boolean vov(unsigned int v1, unsigned int v2)\n");
+    fprintf(of, "{\n");
+    fprintf(of, "    return verb==v1||verb==v2;\n");
+    fprintf(of, "}\n");
+    /* Check among two verbs AND a name */
+    fprintf(of,
+        "boolean vovn(unsigned int v1, unsigned int v2, unsigned int n)\n");
+    fprintf(of, "{\n");
+    fprintf(of, "    return (verb==v1||verb==v2)&&noun1==n;\n");
+    fprintf(of, "}\n");
+
+
+    /* Check among two nouns1 */
+    fprintf(of, "boolean non1(unsigned int n1, unsigned int n2)\n");
+    fprintf(of, "{\n");
+    fprintf(of, "    return noun1==n1||noun1==n2;\n");
+    fprintf(of, "}\n");
     /* Check for a name and noun */
-    fprintf(of, "unsigned int cvn(unsigned int v, unsigned int n)\n");
+    fprintf(of, "boolean cvn(unsigned int v, unsigned int n)\n");
     fprintf(of, "{\n");
     fprintf(of, "    return verb==v&&noun1==n;\n");
     fprintf(of, "}\n");
@@ -2099,42 +2245,54 @@ void output_utility_func(FILE *of)
     /* Check if an object is here */
     fprintf(of, "boolean object_is_here(unsigned int c)\n");
     fprintf(of, "{\n");
-    fprintf(of, 
+    fprintf(of,
         "    return obj[search_object(c)].position==current_position;\n");
+    fprintf(of, "}\n");
+    /* Check if an object is carried */
+    fprintf(of, "boolean object_is_carried(unsigned int c)\n");
+    fprintf(of, "{\n");
+    fprintf(of,
+        "    return obj[search_object(c)].position==CARRIED;\n");
+    fprintf(of, "}\n");
+    /* Check if an object is available */
+    fprintf(of, "boolean object_is_available(unsigned int c)\n");
+    fprintf(of, "{\n");
+    fprintf(of,
+        "    return object_is_here(c)||object_is_carried(c);\n");
     fprintf(of, "}\n");
     /* Set current position of an object */
     fprintf(of, "void set_object_position(unsigned int c, int pos)\n");
     fprintf(of, "{\n");
     fprintf(of, "    obj[search_object(c)].position=pos;\n");
     fprintf(of, "}\n");
-    
+
      /* Check for a position and marker */
-    
+
     if(hardcoded_messages==false) {
-        fprintf(of, 
+        fprintf(of,
             "void amsm(unsigned int p, unsigned char c, boolean v,"
             " unsigned int m)\n");
-        
+
     } else {
-        fprintf(of, 
+        fprintf(of,
             "void amsm(unsigned int p, unsigned char c, boolean v,"
             " char *m)\n");
     }
-    
+
     fprintf(of, "{\n");
-    fprintf(of, 
+    fprintf(of,
         "    if(current_position==p&&marker[c]==v) show_message(m);\n");
     fprintf(of, "}\n");
 
 
     /* If a name and a noun and avai conditions are given */
-    fprintf(of, 
+    fprintf(of,
         "unsigned int cvna(unsigned int v, unsigned int n, unsigned int o)\n");
     fprintf(of, "{\n    dummy=get_object_position(o);\n");
     fprintf(of, "    return verb==v&&noun1==n&&"
         "(dummy==current_position||dummy==CARRIED);\n");
     fprintf(of, "}\n");
-    
+
     fprintf(of, "void drop(unsigned int o)\n{\n");
     fprintf(of, TAB  "dummy=search_object(o);\n");
     fprintf(of, TAB  "odummy=&obj[dummy];\n");
@@ -2382,6 +2540,10 @@ void output_hicond(FILE *f, char **cond, unsigned int size)
         process_aws(f,cond[i]);
     }
     fprintf(f, TAB "return 0;\n");
+    /*  Use of goto allows to spare a few bytes instead of putting a return 1
+        every time in the code. The difference can be considerable in big
+        adventures, as there are plenty of WAIT commands. */
+    fprintf(f, TAB "return1: return 1;\n");
     fprintf(f,"}\n");
 }
 
@@ -2394,6 +2556,11 @@ void output_lowcond(FILE *f, char **cond, unsigned int size)
         process_aws(f,cond[i]);
     }
     fprintf(f, TAB "return 0;\n");
+    /*  Use of goto allows to spare a few bytes instead of putting a return 1
+        every time in the code. The difference can be considerable in big
+        adventures, as there are plenty of WAIT commands. */
+    fprintf(f, TAB "return1: return 1;\n");
+
     fprintf(f,"}\n");
 }
 
@@ -2419,6 +2586,10 @@ void output_local(FILE *f, localc* cond, unsigned int size)
     fprintf(f, TAB "}\n");
 
     fprintf(f, TAB "return 0;\n");
+    /*  Use of goto allows to spare a few bytes instead of putting a return 1
+        every time in the code. The difference can be considerable in big
+        adventures, as there are plenty of WAIT commands. */
+    fprintf(f, TAB "return1: return 1;\n");
     fprintf(f,"}\n");
 }
 
@@ -2433,10 +2604,17 @@ void output_gamecycle(FILE *f)
     fprintf(f, TAB TAB
         "if(marker[120]==false&&(marker[121]==true||marker[122]==true)) {\n");
     if(compress_messages==true) {
-        fprintf(f,TAB TAB TAB
-            "decode(world[search_room(current_position)]."
-            "long_d,decompress_b,B_SIZE);\n");
-        fprintf(f,TAB TAB TAB "writesameln(decompress_b);\n");
+        if(hardcoded_messages==true) {
+            fprintf(f,TAB TAB 
+                "show_message(world[search_room(current_position)]."
+                "long_d);\n");
+        } else {
+            fprintf(f,TAB TAB TAB
+                "write_text(world[search_room(current_position)]."
+                "long_d);\n");
+        
+            fprintf(f,TAB TAB TAB "writesameln(decompress_b);\n");
+        }
     } else {
         fprintf(f, TAB TAB TAB
             "writeln(world[search_room(current_position)].long_d);\n");
@@ -2454,9 +2632,12 @@ void output_gamecycle(FILE *f)
     fprintf(f, TAB TAB TAB TAB TAB TAB "ve=true;\n");
     fprintf(f, TAB TAB TAB TAB TAB "}\n");
     if(compress_messages==true) {
-        fprintf(f, TAB TAB TAB TAB TAB
-            "decode(obj[k].desc,decompress_b,B_SIZE);\n");
-        fprintf(f, TAB TAB TAB TAB TAB "writeln(decompress_b);\n");
+        if(hardcoded_messages==true) {
+            fprintf(f,TAB TAB "show_message(obj[k].desc);\n");
+        } else {
+            fprintf(f, TAB TAB TAB TAB TAB
+                "write_text(obj[k].desc);\n");
+        }
     } else {
         fprintf(f, TAB TAB TAB TAB TAB "writeln(obj[k].desc);\n");
     }
@@ -2492,9 +2673,9 @@ void output_gamecycle(FILE *f)
 
     fprintf(f, TAB TAB "if(hi_cond()!=0) continue;\n");
     if(hardcoded_messages==false)
-        fprintf(f, TAB TAB "if(line_finished()==true) show_message(1012);\n");
+        fprintf(f, TAB TAB "if(ls==0) show_message(1012);\n");
     else
-        fprintf(f, TAB TAB "if(line_finished()==true) "
+        fprintf(f, TAB TAB "if(ls==0) "
             "show_message(message1012);\n");
     fprintf(f, TAB TAB "interrogationAndAnalysis(DSIZE);\n");
     fprintf(f, TAB TAB "if(local_cond()!=0) continue;\n");

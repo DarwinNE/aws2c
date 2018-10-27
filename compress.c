@@ -205,6 +205,8 @@ void output_decoder(FILE *fout)
     fprintf(fout,"char *compressed;\n");
     fprintf(fout,"unsigned char bpointer;\n");
     fprintf(fout,"unsigned int cpointer;\n");
+    fprintf(fout,"#define B_SIZE 200\n");
+    fprintf(fout,"char decompress_b[B_SIZE];\n");
     fprintf(fout,"unsigned char currbyte;\n\n");
     fprintf(fout,"unsigned char g_b(void)\n");
     fprintf(fout,"{\n");
@@ -250,21 +252,25 @@ void output_decoder(FILE *fout)
     fprintf(fout,"        }\n");
     fprintf(fout,"    }\n");
     fprintf(fout,"    return 0;\n}\n\n");
-    fprintf(fout, 
-        "int decode(char *source, char* dest, unsigned int maxlen)\n");
+    
+    fprintf(fout,"void decode_start(char *source)\n");
     fprintf(fout,"{\n");
-    fprintf(fout,"    char c;\n");
-    fprintf(fout,"    unsigned int k=0;\n");
     fprintf(fout,"    cpointer=0;\n");
     fprintf(fout,"    bpointer=0;\n");
     fprintf(fout,"    compressed=source;\n");
+    fprintf(fout,"}\n");
+
+    fprintf(fout,"char decode(void)\n");
+    fprintf(fout,"{\n");
+    fprintf(fout,"    char c;\n");
+    fprintf(fout,"    unsigned int k=0;\n");
     fprintf(fout,"    do {\n");
     fprintf(fout,"        c=hufget();\n");
     fprintf(fout,"        SHIFTPETSCII;\n");
-    fprintf(fout,"        dest[k++]=c;\n");
-    fprintf(fout,"    } while(c!='\\0'&&k<maxlen);\n");
-    fprintf(fout,"    if(k>=maxlen)\n");
-    fprintf(fout,"        return -1;\n");
+    fprintf(fout,"        decompress_b[k++]=c;\n");
+    fprintf(fout,"    } while(c!='\\0'&&k<B_SIZE);\n");
+    fprintf(fout,"    if(k>=B_SIZE)\n");
+    fprintf(fout,"        return 1;\n");
     fprintf(fout,"    return 0;\n");
     fprintf(fout,"}\n");
 }
