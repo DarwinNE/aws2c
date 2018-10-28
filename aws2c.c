@@ -2148,9 +2148,9 @@ void output_utility_func(FILE *of)
     fprintf(of,TAB TAB TAB "if(obj[i].position==WEARED){\n");
     fprintf(of,TAB TAB TAB TAB "writesameln(\"  \");\n");
     if(hardcoded_messages==false)
-        fprintf(of,TAB TAB TAB TAB "show_message(1018);\n");
+        fprintf(of,TAB TAB TAB TAB "show_messagenlf(1018);\n");
     else
-        fprintf(of,TAB TAB TAB TAB "show_message(message1018);\n");
+        fprintf(of,TAB TAB TAB TAB "show_messagenlf(message1018);\n");
     fprintf(of,TAB TAB TAB "}\n");
     fprintf(of,TAB TAB TAB "writeln(\"\");\n");
     fprintf(of,TAB TAB "}\n");
