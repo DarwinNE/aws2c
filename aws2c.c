@@ -60,6 +60,7 @@ boolean compress_descriptions=false;
 boolean use_6_directions=false;
 boolean shortcuts=true;
 boolean hardcoded_messages=false;
+boolean add_clrscr=true;
 
 boolean complete_shortcut=false;
 
@@ -1450,7 +1451,7 @@ unsigned int action_brin(FILE *f, char *line, unsigned int scanpos)
     unsigned int position, value;
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, TAB TAB "set_object_position(%s,current_position);\n",
+    fprintf(f, TAB TAB "bring_object_here(%s);\n",
         function_res);
     return scanpos;
 }
@@ -2130,19 +2131,32 @@ void output_utility_func(FILE *of)
     else
         fprintf(of,TAB "show_message(message1032);\n");
     fprintf(of,TAB "for(i = 0; i<OSIZE; ++i) {\n");
-    fprintf(of,TAB TAB "if(obj[i].position==CARRIED) {\n");
+    fprintf(of,TAB TAB 
+        "if(obj[i].position==CARRIED||obj[i].position==WEARED) {\n");
     fprintf(of,TAB TAB TAB "++gs;\n");
+    fprintf(of,TAB TAB TAB "evidence2();\n");
     if(compress_messages==true) {
         if(hardcoded_messages==false) {
-            fprintf(of,TAB TAB TAB "write_text(obj[i].desc);\n");
+            fprintf(of,TAB TAB TAB "write_textsl(obj[i].desc);\n");
         } else {
-            fprintf(of,TAB TAB TAB "show_message(obj[i].desc);\n");
+            fprintf(of,TAB TAB TAB "show_messagenlf(obj[i].desc);\n");
         }
     } else {
         fprintf(of,TAB TAB TAB "writeln(obj[i].desc);\n");
     }
+    fprintf(of,TAB TAB TAB "normaltxt();\n");
+    fprintf(of,TAB TAB TAB "if(obj[i].position==WEARED){\n");
+    fprintf(of,TAB TAB TAB TAB "writesameln(\"  \");\n");
+    if(hardcoded_messages==false)
+        fprintf(of,TAB TAB TAB TAB "show_message(1018);\n");
+    else
+        fprintf(of,TAB TAB TAB TAB "show_message(message1018);\n");
+    fprintf(of,TAB TAB TAB "}\n");
+    fprintf(of,TAB TAB TAB "writeln(\"\");\n");
     fprintf(of,TAB TAB "}\n");
     fprintf(of,TAB "}\n");
+    //fprintf(of,TAB "normaltxt();\n");
+
     if(hardcoded_messages==false)
         fprintf(of,TAB "if(gs==0) show_message(1033);\n}\n\n");
     else
@@ -2238,6 +2252,7 @@ void output_utility_func(FILE *of)
     fprintf(of,
         "    return obj[search_object(c)].position==current_position;\n");
     fprintf(of, "}\n");
+    
     /* Check if an object is carried */
     fprintf(of, "boolean object_is_carried(unsigned int c)\n");
     fprintf(of, "{\n");
@@ -2254,6 +2269,11 @@ void output_utility_func(FILE *of)
     fprintf(of, "void set_object_position(unsigned int c, int pos)\n");
     fprintf(of, "{\n");
     fprintf(of, "    obj[search_object(c)].position=pos;\n");
+    fprintf(of, "}\n");
+    /* Bring here an object */
+    fprintf(of, "void bring_object_here(unsigned int c)\n");
+    fprintf(of, "{\n");
+    fprintf(of, "    set_object_position(c,current_position);\n");
     fprintf(of, "}\n");
 
      /* Check for a position and marker */
@@ -2497,13 +2517,10 @@ void output_greetings(FILE *f, info *header)
     fprintf(f, TAB "writesameln(\"%s\");\n", encodechar(header->author));
     fprintf(f, TAB "writeln(\"  %s\\n\");\n", encodechar(header->date));
     fprintf(f, TAB "writeln(\"%s\\n\");\n", encodechar(header->description));
-    fprintf(f, TAB "normaltxt();\n");
-
     fprintf(f, TAB "writesameln(\"AWS \");\n");
-    fprintf(f, TAB "evidence2();\n");
     fprintf(f, TAB "writeln(\"%s\");\n", encodechar(header->version));
     fprintf(f, TAB "normaltxt();\n");
-
+    fprintf(f, TAB "waitkey();\n");
     fprintf(f, "}\n");
 }
 
@@ -2579,7 +2596,11 @@ void output_gamecycle(FILE *f)
     fprintf(f, TAB TAB "current_position=next_position;\n");
     fprintf(f, TAB TAB
         "if(marker[120]==false&&(marker[121]==true||marker[122]==true)) {\n");
-    fprintf(f,TAB TAB "evidence1();\n");
+    if(add_clrscr==true)
+        fprintf(f, TAB TAB "clear();\n");
+    else
+        fprintf(f,TAB TAB "writeln(\"\");\n");
+    fprintf(f, TAB TAB "evidence1();\n");
     if(compress_messages==true) {
         if(hardcoded_messages==true) {
             fprintf(f,TAB TAB
@@ -2611,7 +2632,7 @@ void output_gamecycle(FILE *f)
         fprintf(f, TAB TAB TAB
             "writeln(world[search_room(current_position)].long_d);\n");
     }
-
+    fprintf(f, TAB TAB TAB "writeln(\"\");\n");
     fprintf(f, TAB TAB TAB "marker[120]=true;\n");
     fprintf(f, TAB TAB TAB "ve=false;\n");
     fprintf(f, TAB TAB TAB "for(k=0;k<OSIZE;++k)\n");
@@ -2622,6 +2643,8 @@ void output_gamecycle(FILE *f)
     else
         fprintf(f, TAB TAB TAB TAB TAB TAB "show_message(message1031);\n");
     fprintf(f, TAB TAB TAB TAB TAB TAB "ve=true;\n");
+    fprintf(f, TAB TAB TAB TAB TAB TAB "evidence2();\n");
+
     fprintf(f, TAB TAB TAB TAB TAB "}\n");
     if(compress_messages==true) {
         if(hardcoded_messages==true) {
@@ -2633,6 +2656,8 @@ void output_gamecycle(FILE *f)
         fprintf(f, TAB TAB TAB TAB TAB "writeln(obj[k].desc);\n");
     }
     fprintf(f, TAB TAB TAB TAB "}\n");
+    fprintf(f, TAB TAB TAB TAB "normaltxt();\n");
+
     fprintf(f, TAB TAB TAB "if(marker[124]==true) {\n");
     fprintf(f, TAB TAB TAB TAB "pa=false;\n");
     if(use_6_directions)
@@ -2660,13 +2685,16 @@ void output_gamecycle(FILE *f)
     fprintf(f, TAB TAB TAB TAB "}\n");
     fprintf(f, TAB TAB TAB TAB "normaltxt();\n");
     fprintf(f, TAB TAB TAB TAB "writeln(\"\");\n");
-    fprintf(f, TAB TAB "}}\n");
+    fprintf(f, TAB TAB TAB "}\n");
+    fprintf(f, TAB TAB "}\n");
     fprintf(f, TAB TAB "++counter[125];\n");
     fprintf(f, TAB TAB "--counter[126];\n");
     fprintf(f, TAB TAB "--counter[127];\n");
     fprintf(f, TAB TAB "--counter[128];\n");
 
     fprintf(f, TAB TAB "if(hi_cond()!=0) continue;\n");
+    fprintf(f, TAB TAB "writeln(\"\");\n");
+
     if(hardcoded_messages==false)
         fprintf(f, TAB TAB "if(ls==0) show_message(1012);\n");
     else
@@ -2724,7 +2752,8 @@ void print_help(char *name)
            "        é -> e'  è -> e'\n"
            " -c  compress text with Huffman algorithm.\n"
            " -d  employ 6 directions instead of 10.\n"
-           " -m  employ hardcoded messages instead of an array.\n");
+           " -m  employ hardcoded messages instead of an array.\n"
+           " -n  do not clear screen every time a new room is shown.\n");
 
     printf("\n");
 }
@@ -2757,6 +2786,9 @@ unsigned int process_options(char *arg, char *name)
         return 1;
     } else if (strcmp(arg, "-m")==0) {
         hardcoded_messages=true;
+        return 1;
+    } else if (strcmp(arg, "-n")==0) {
+        add_clrscr=false;
         return 1;
     }
     return 0;

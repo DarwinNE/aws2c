@@ -14,11 +14,15 @@
 #include <string.h>
 #include "systemdef.h"
 #include "aws.h"
+#include "inout.h"
 
 char playerInput[BUFFERSIZE];
 char wordbuffer[NCOL*2];
-unsigned int colc;
+unsigned char colc;
 
+#ifdef NROW
+unsigned char rowc;
+#endif
 
 unsigned int verb;
 unsigned int noun1;
@@ -51,6 +55,9 @@ void writesameln(char *line)
             if(colc>=NCOL) {
                 printf("\n");
                 colc=pc;
+                #ifdef NROW
+                if(++rowc>NROW) {waitkey(); rowc=0;};
+                #endif
             }
             printf("%s",wordbuffer);
             if(norm==true) {
@@ -65,6 +72,9 @@ void writesameln(char *line)
                     ++i;
                 printf("\n");
                 colc=0;
+                #ifdef NROW
+                if(++rowc>NROW) {waitkey(); rowc=0;};
+                #endif
             } else if(colc<NCOL-1) {
                 printf(" ");
                 ++colc;
@@ -75,6 +85,23 @@ void writesameln(char *line)
         }
     }
 }
+
+/* Clear the screen */
+void clear(void)
+{
+    cls();
+    colc=0;
+    #ifdef NROW
+    rowc=0;
+    #endif
+}
+
+#ifdef NROW
+void zeror(void)
+{
+    rowc=0;
+}
+#endif
 
 /** Same as writesameln, but adds a newline at the end of the message.
 */
@@ -100,6 +127,9 @@ unsigned int readln(void)
         playerInput[lc-1]='\0';
         --lc;
     }
+    #ifdef NROW
+    rowc=0;
+    #endif
     return lc;
 }
 

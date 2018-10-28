@@ -58,7 +58,8 @@ Available options:
  -c  compress text with Huffman algorithm.
  -d  employ 6 directions instead of 10.
  -m  employ hardcoded messages instead of an array.
+ -n  do not clear the screen every time a new room is shown.
 ~~~~
 
 If you have a machine that only has the accent ' available such as a Commodore 64, it makes sense to use the `-s` option to create the file to be compiled.
-The `-m` option deserves a little discussion. The default way of storing messages in the generated C code is an array of structures. This allows a certain flexibility for example to show a message with a code calculated on the fly during the game. With the `-m` option this is not possible as there will be a bunch of variables called `message1`, `message2` etc. This saves space at the expense of a (rarely used) flexibility. If a calculated message code is exploited in the AWS file you are trying to convert with the `-m` option, you will get errors during the compilation of the generated file.
+The `-m` option deserves some discussion. The default way of storing messages in the generated C code is an array of structures. This allows a certain flexibility for example to show a message with a code calculated on the fly during the game. With the `-m` option this is not possible as there will be a bunch of variables called `message1`, `message2` etc. This saves space at the expense of a (rarely used) flexibility. If a calculated message code is exploited in the AWS file you are trying to convert with the `-m` option, you will get errors during the compilation of the generated file.

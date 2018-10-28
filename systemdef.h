@@ -31,8 +31,6 @@
 #define yellow      "\x9E"
 #define pink        "\x96"
 
-#define cls         "\x93"
-
 #define switch80col "\x1Bx\x0E"
 
 /* Macro to wait for a key */
@@ -53,6 +51,10 @@
 /* Define the style of the normal text */
 #define normaltxt() printf(cyan)
 
+/* Clear the screen */
+#define cls() clrscr()
+
+
 /* Write a tabulation (it can be adapted to screen width). */
 #define tab() printf("        ")
 
@@ -68,7 +70,7 @@
         printf(switch80col);\
     }\
     *(char*)PTFST=1;\
-    cputs(cls);\
+    clrscr();\
     normaltxt();\
 }
 
@@ -86,8 +88,11 @@
 
 #define waitscreen()
 
-// The number of columns of the screen
+/* The number of columns of the screen */
 #define NCOL 40
+/* The number of available rows of the screen. If undefined, it is not checked
+*/
+#define NROW 21
 
 #define green       "\x1E"
 #define red         "\x1C"
@@ -95,8 +100,6 @@
 #define blue        "\x1F"
 #define yellow      "\x9E"
 #define pink        "\x96"
-
-#define cls         "\x93"
 
 
 /* Macro to wait for a key */
@@ -116,6 +119,9 @@
 
 /* Define the style of the normal text */
 #define normaltxt() printf(cyan)
+
+/* Clear the screen */
+#define cls() clrscr();zeror()
 
 /* Write a tabulation (it can be adapted to screen width). */
 #define tab() printf("    ")
@@ -148,13 +154,16 @@
 
 // The number of columns of the screen
 #define NCOL 22
+/* The number of available rows of the screen. If undefined, it is not checked
+*/
+#define NROW 19
 
 #define green       "\x1E"
 #define red         "\x1C"
 #define cyan        "\x9F"
 #define blue        "\x1F"
 #define yellow      "\x9E"
-#define cls         "\x93"
+#define pink        "\x9C"
 
 
 /* Macro to wait for a key */
@@ -169,8 +178,14 @@
 /* Define the style of the second evidenced text */
 #define evidence2() printf(yellow)
 
+/* Define the style of the third evidenced text */
+#define evidence3() printf(pink)
+
 /* Define the style of the normal text */
 #define normaltxt() printf(cyan)
+
+/* Clear the screen */
+#define cls() clrscr();zeror()
 
 /* Write a tabulation (it can be adapted to screen width). */
 #define tab() printf("    ")
@@ -181,7 +196,7 @@
 /* Init the terminal */
 #define init_term() {\
     *(char*)PTRCLR = 0x08;\
-    printf(cls);\
+    clrscr();\
     normaltxt();\
 }
 
@@ -205,6 +220,7 @@
 #define evidence1() printf("\033[1m\x1b[31m\33[40m")
 #define evidence2() printf("\033[0m\x1b[93m\33[40m")
 #define evidence3() printf("\033[0m\x1b[95m\33[40m")
+#define cls()
 
 #define normaltxt() printf("\033[0m\x1b[36m\33[40m")
 #define tab() printf("\t")
