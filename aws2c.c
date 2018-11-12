@@ -1719,7 +1719,8 @@ unsigned int action_wear(FILE *f, char *line, unsigned int scanpos)
     fprintf(f, TAB TAB "odummy=&obj[dummy];\n");
 
     fprintf(f, TAB TAB
-        "if(odummy->isnotwereable==false&&odummy->position==CARRIED){\n");
+        "if(odummy->isnotwereable==false&&(odummy->position==CARRIED||"
+        "odummy->position==current_position)){\n");
     fprintf(f, TAB TAB TAB"odummy->position=WEARED;\n");
     fprintf(f, TAB TAB TAB "++counter[118];\n");
     fprintf(f, TAB TAB "} else if(odummy->position==WEARED) {\n");
