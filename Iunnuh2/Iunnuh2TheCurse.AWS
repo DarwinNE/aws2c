@@ -838,6 +838,9 @@ NOME
 ROOM
 25
 NOME
+HALLWAY
+26
+NOME
 SHAFT
 27
 NOME
@@ -885,6 +888,9 @@ TAKE
 VERBO
 GRAB
 50
+VERBO
+PUT
+55
 VERBO
 THROW
 55
@@ -1015,6 +1021,9 @@ NOME
 WRITING
 94
 NOME
+COVER
+95
+VERBO
 TAPE
 95
 VERBO
@@ -1057,9 +1066,6 @@ VERBO
 INSERT
 102
 VERBO
-PUT
-102
-VERBO
 SCARAB
 104
 NOME
@@ -1097,9 +1103,6 @@ REMOVE
 111
 VERBO
 DETACH
-111
-VERBO
-REMOVE
 111
 VERBO
 ELECTRICAL
@@ -1240,6 +1243,9 @@ VERBO
 FUCKHEAD
 216
 VERBO
+ASSHOLE
+216
+VERBO
 PISS
 216
 VERBO
@@ -1249,12 +1255,6 @@ VERBO
 CHANGE
 217
 VERBO
-IN
-218
-AVVERBIO
-INTO
-218
-AVVERBIO
 IN
 218
 AVVERBIO
@@ -1301,6 +1301,9 @@ STOP
 250
 NOME
 STEPS
+251
+NOME
+STAIRCASE
 251
 NOME
 ENTRANCE
@@ -1402,7 +1405,7 @@ NOME
 HYMETTUS
 275
 NOME
-MARMO
+MARBLE
 275
 NOME
 PENTELIC
@@ -1746,7 +1749,7 @@ Staircase
 0
 0
 10
-You are in the big hall at the museum's entrance. You can see a large billboardç at least three meters high.
+You are in the big hall at the museum's entrance. You can see a large billboardç at least ten feet high.
 Entrance hall. North side
 Entrance hall
 0
@@ -1774,7 +1777,7 @@ Entrance hall
 0
 0
 12
-You are in the big hall at the museum's entrance. You can see a large billboardç at least three meters high.
+You are in the big hall at the museum's entrance. You can see a large billboardç at least ten feet high.
 Entrance hall. South side
 Entrance hall
 11
@@ -2193,11 +2196,11 @@ Those are alkaline batteriesç for electric torches.
 55
 Those are hallucinogenic drugs from three thousand years ago.
 56
-It's the sapphire found by your father in the Iunnuh's pyramid. It glitters with a magnificent bluish shade of colour and its size is impressive sizeç even if it's far smaller than the 563 carats of Star of India.
+It's the sapphire found by your father in the Iunnuh's pyramid. It glitters with a magnificent bluish shade of colour and its size is impressiveç even if it's far smaller than the 563 carats of Star of India.
 57
 It's one of the artefacts found in the Iunnuh's pyramidç a perfectly crafted sword. It's a pity it's broken.
 58
-It's the sarcophagus where the Iunnuh's mummy was placed. It's historiated finely with images of rare beauty.
+It's the sarcophagus where Iunnuh's mummy was placed. It's historiated finely with images of rare beauty.
 59
 It's Iunnuh's funerary mask. It's in gold and finely chiselled.
 60
@@ -2219,25 +2222,25 @@ Those are glass fragments: they are not interesting.
 68
 Those are electrical switches from ABBç of 64ç 32 and 16 amps. Every one has its own tag.
 69
-Which screwdriver?
+What screwdriver?
 70
-Which scissors?
+What scissors?
 71
-I don't see any mummy here.
+I can't see any mummy here.
 72
-I don't see any portrait.
+I can't see any portrait.
 73
-I don't see mirrors around here.
+I can't see mirrors around here.
 74
 It's a wonderful golden candlestickç weighting about two kilograms. It represent the Isis goddess kneeling and with spread wings. The open arms carry a candle each.
 75
-Those are the vestments of an ancient Egyptian priest and the High Priest of Amunç Amenhotep. Those are very rich vestments and finely wovenç a clear example of the power and the richness of the powerful Teban clergyç which would later become in contrast with the pharaoh.
+Those are the vestments of an ancient Egyptian priest and the High Priest of Amunç Amenhotep. Those are very rich vestments and finely wovenç a clear example of the power and the richness of the powerful Teban clergyç which would later go in contrast with the pharaoh.
 100
 I'am not buying this!
 101
 It's best to leave everything openç who knows.
 102
-If you like breaking thingsç why don't you play to an arcade game?
+If you like breaking thingsç why don't you play an arcade game?
 104
 Which writing?
 105
@@ -2253,7 +2256,7 @@ I can't go there.
 111
 I don't know the word 
 112
-There's anything to open here.
+There's nothing to open here.
 113
 But it's open!
 114
@@ -2293,7 +2296,7 @@ Stop cursing and use your brain!
 131
 Wellç let's pretend we didn't understand...
 132
-I've fallen and I broke my neck!
+I fell and I broke my neck!
 133
 Maybe it's better if you say in which way!
 134
@@ -2301,7 +2304,7 @@ Whee! It's fun.
 137
 The door is locked.
 138
-Now it's pitch black! It's dangerous to walk blindly.
+Now it's pitch black! It's dangerous to move in the dark.
 139
 The mummy says: Thanksç strangerç it was about time that someone passed byç now I can rest in peace for another two thousand years. It takes the bandages and goes away.
 140
@@ -2311,7 +2314,7 @@ Try to write GIVE THE BANDAGES TO...
 142
 It's better to have them; I mean the bandages...
 144
-There's a ladder from the ceiling.
+There's a ladder hanging from the ceiling.
 145
 There's a girder that allows to pass towards the south.
 146
@@ -2331,7 +2334,7 @@ Don't joke about that.
 153
 It's already on.
 154
-I can'tç batteries are flat!
+I can'tç batteries are dead!
 155
 You have 
 156
@@ -2357,7 +2360,7 @@ The Egyptian Scarabç called khepererç is considered a powerful amulet ever since
 166
 Which one?
 167
-I read the screenç where text lines are written...^MYou are in the antechamber of Iunnuh's pyramid...^Mbut...^MIt can't be possible...^MOf courseç yes! It's the Pyramid as described in the game published 30 years ago on MC microcomputer (september 1984)ç after my father's findings.^MThat's incredibleç they've found also thisç a 30-year old game!^MBut waitç they must've exposed it todayç because yesterday it wasn't here.
+I read the screenç where lines of text are written...^MYou are in the antechamber of Iunnuh's pyramid...^Mbut...^MIt can't be...^MOf courseç yes! It's the Pyramid as described in the game published 30 years ago on MC microcomputer (september 1984)ç after my father's findings.^MThat's incredibleç they've found also thisç a 30-year old game!^MBut waitç they must've exposed it todayç because yesterday it wasn't here.
 170
 On the billboardç there's another signç hung with a rope. There's something written on it.
 171
@@ -2369,17 +2372,17 @@ The catç with an agile jumpç catches the scarab and swallows it whole!
 174
 There's a hole in the floorç in the middle of the room.
 175
-With a great effortç centimeter after centimeterç the sarcophagus moves. 
+With a great effortç inch after inchç the sarcophagus moves. 
 176
-I already moved itç don't waste your forces!
+I already moved itç don't waste my forces!
 177
-There is no pointç think about something useful!
+There is no point in itç think about something useful!
 178
 It's a clay fluteç a reproduction of the artefact found in the Iunnuh's pyramid. It can be bought for a few pounds a the museum's gift shop.
 179
 There is no point using itç leave it here.
 180
-Which flute?
+What flute?
 181
 It's not useful to type random numbers...
 182
@@ -2405,11 +2408,11 @@ The other end of the rope is hanging through the hole.
 215
 Where do you see a sarcophagus?
 216
-Which hole?
+What hole?
 217
 It's already tied!
 218
-Which rope?
+What rope?
 219
 But it's not tied!
 220
@@ -2421,7 +2424,7 @@ The rope falls in the hole and lands on the floor downstairs with a loud noise.
 223
 You rappel down the rope with skill and elegance.
 224
-You try to get down but you badly fall and you break your neck. You're dead.
+You try to get down but badly fall and you break your neck. You're dead.
 225
 Do you want to hang yourself? I don't think it is a solution.
 226
@@ -2435,7 +2438,7 @@ With a fast pace you goes down the ladder.
 230
 You fall from the balcony and with a loud thud you heavily hit the floor. You're dead.
 231
-With a leap of unsuspected agility in an ancient Egypt scholarç you jump in the empty space and you land on the chandelier. Well done!
+With a leap of unsuspected agility in an ancient Egypt scholarç you jump in the empty space and land on the chandelier. Well done!
 232
 You tenderly caress Bastetç the professor's catç and she purrs back.
 233
@@ -2455,7 +2458,7 @@ In the shrineç there is the torch used by your father during the exploration of 
 240
 The shrine has the glass broken.
 241
-How can I doç should I pass through the glass?
+How can I do itç should I pass through the glass?
 242
 A good punch shutters the glass of the shrine.
 243
@@ -2473,19 +2476,19 @@ It is a regular no access signç a red disc with a horizontal white bar.
 249
 Those hieroglyphics have been the focus of your studies for years and you already read and translated all of them. You learnt them by heartç don't start again!
 250
-Which hieroglyphics?
+What hieroglyphics?
 251
 Bastetç the catç doesn't like to be carried. She will follow you faithfully.
 252
 It seems there's something written!
 253
-I don't notice anything special.
+I can't see anything special.
 254
 There's a hole in the east wall.
 255
 A large portrait of your father covers almost all the east wall.
 256
-With great care you detach the portrait from the wall and you put it on the wall.
+With the greatest care you detach the portrait from the wall and put it on the floor.
 257
 Leave it there!
 258
@@ -2523,19 +2526,19 @@ A large mirror completely covers the west wall.
 274
 There is a notebook on the desk!
 275
-It's a Tiffanyç lampç finely decorated. A rare piece of art.
+It's a Tiffany lampç finely decorated. A rare piece of art.
 276
 It's your father's notebookç where the ritual is accurately described. The only thing missing is the prayer to declaim that isç literallyç hidden in a very high place!
 277
 It's your father's notebookç a nice notebook with parchment pages bound in red Morocco leather.
 278
-I don't see that around!
+I can't see that around!
 279
-I don't see any notebook here!
+I can't see any notebook here!
 280
 You wear the holy vestments of the High Priest of the ancient Egypt and a lymph of pure energy seems to flow in your veins. You have a hieratic appearance while wearing the vestments.
 281
-Which vestments?
+What vestments?
 282
 Keep wearing themç they might be useful...
 283
@@ -2545,9 +2548,9 @@ I can't see any book!
 285
 The altar is the one that was placed in the Iunnuh's pyramid and that your father and his staff took away. The stone on which it was carved is still stained with the blood of countless human sacrifices where it played the leading role.
 286
-Which altar?
+What altar?
 287
-But you don't know the ritual to say!
+But you don't know the ritual verses to say!
 288
 You should be wearing something!
 289
@@ -2571,7 +2574,7 @@ Well done! Now you can live long without any problemsç apart paying the rentç ta
 298
 It's the text of Hermes Trismegistus: "Verumç sine mendacio certum et verissimumç quod est inferiusç est sicut quod est superiusç et quod est superiusç est sicut quod est inferius: ad perpetranda miracula rei unius. Et sicut omnes res ...". It's not worth to read everythingç you don't have time and it's pointless.
 299
-I beg your pardonç which Emerald Table? I can't see any.
+I beg your pardonç what Emerald Table? I can't see any.
 300
 The different switches are behind the door of the panel and can't be reached!
 301
@@ -2585,25 +2588,25 @@ I can't see any switch around.
 305
 I can't see any panel around.
 306
-I don't see tags here.
+I can't see tags here.
 310
-It's the bus stop where you stopped to come here.
+It's the bus stop where you stopped to get here.
 311
 There are the names and the paths of the buses. Nothing useful to you.
 312
 It's a staircase that you know pretty well as you walked there every day in the last twenty years.
 313
-What do you want I say? Do you want I explain what's the British Museum?
+What do you want me to say? Do you want me to explain what's the British Museum?
 314
 It's a perfectly normal authentic Cockney sidewalk!
 315
-You already saw it thousands of timeç there's nothing new on it.
+You already saw it thousands of timesç there's nothing new on it.
 316
 Don't loose yourself behind some stepsç there's nothing special about them!
 317
 It's a large square whereç when the Museum is openç the visitors gathers themselves before getting inside.
 318
-It's the gap through which visitors get inside the Museum. There's nothing different from all other days where you saw it!
+It's the gap through which visitors get inside the Museum. There's nothing different from all other days when you saw it!
 319
 It's always the very same desk where the very same tickets are sold to get in the museum. Clearlyç now it's closed and nothing is sold.
 320
@@ -2619,7 +2622,7 @@ I don't notice anything peculiar in the panic bar.
 325
 You are not in a pyramid!
 326
-It's the entrance door from the internal side of the museumç a metallic structureç burglar-resistant and very heavy. It's equipped with a panic bar to evacuate rapidly in case of emergency.
+It's the entrance door from the inner side of the museumç a metallic structureç burglar-resistant and very heavy. It's equipped with a panic bar to evacuate rapidly in case of emergency.
 327
 The hall is rectangularç very large and spotless. It has been set up to recreate the internal of the Iunnuh's Pyramid to give the impression to visitors to be there.
 328
@@ -2653,13 +2656,13 @@ You studied on books for years the images of the trespass and the carrying in th
 342
 It's a very normal tunnelç even if it's placed in the dungeons of the British Museum!
 343
-It's a wooden simulacrumç covered with gold leafç here it's the sarcophagus of Pharaoh Iunnuh. On this load of gold are visible paintings in various colours: redç blue and green and a series of hieroglyphics hailing to the greatness of the pharaoh.
+It's a wooden simulacrumç covered with gold leavesç here it's the sarcophagus of Pharaoh Iunnuh. On this load of gold are visible paintings in various colours: redç blue and green and a series of hieroglyphics hailing to the greatness of the pharaoh.
 344
 Those are dark and ugly tracesç as if someone dragged something...
 345
 The feet on which the sarcophagus lays are wooden and finely decorated. They seem the feet of the sphinx.
 346
-You will run out of time if you insist loosing it this way!
+You will run out of time if you insist losing it this way!
 347
 It's the rope you tied to the sarcophagus to rappel downç did you forget already?
 348
@@ -2667,7 +2670,7 @@ It seems a very ordinary greenish mouldç such as the one usually found in wet ce
 349
 It's not pleasant to wander around with mould in your pocketsç trust me.
 350
-Those are the typical iron instruments used for embalming. Can be noticed the two long curved needles that were used to remove the brain from the nose.
+Those are the typical iron instruments used for embalming. You can notice the two long curved needles that were used to remove the brain from the nose.
 351
 They're part of the exposition: don't damage them. And you'll not need thoseç I know that!
 352
@@ -2685,7 +2688,7 @@ It's an ancient desk in precious mahogany woodç with no drawer. It's very elegan
 358
 It's only woodç particularly good-looking if you wishç but only wood!
 359
-The furnishing in your father's studio are very refined. Try to examine them by calling by their name one by one...
+The furnishing in your father's studio are very refined. Try to examine them by calling their name one by one...
 360
 As already saidç you are in a room with shelves on the wall. Tons of books cover all the sides of the roomç from the floor to the ceiling.
 361
@@ -2693,61 +2696,61 @@ Those are books on ancient Egyptç the ritualsç the structures and the social con
 362
 Copper? What do you want to know? That the symbol is Cu? Don't waste your time with copperç it's not useful.
 363
-It's a balcony that is placed high on all the centre hall's walls. It has a handrail about one meter highç to avoid falling below. There's almost nothing special in this balcony.
+It's a balcony that is placed high on all the centre hall's walls. It has a handrail about three feet highç to avoid falling below. There's almost nothing special in this balcony.
 364
-I don't notice anything special on the handrail.
+I can't see anything special on the handrail.
 365
 It's an enormous crystal chandelier with many arms. It's so close that you can almost touch it...
 366
 I said you're so close that you can ALMOST touch it!
 367
-If I was closerç I would examine it better. From hereç it seems only crystal.
+If I were closerç I would examine it better. From hereç it seems only crystal.
 368
-Which entrance?
+What entrance?
 369
-Which museum?
+What museum?
 370
-Which staircase?
+What staircase?
 371
-Which sidewalk?
+What sidewalk?
 372
-Which lobby?
+What lobby?
 373
-Which ticket desk?
+What ticket desk?
 374
 Where do you see a pyramid?
 375
 I can't see any panic bar!
 376
-Which door?
+What door?
 377
-Which wall?
+What wall?
 378
 Think to other thingsç not to the floor...
 379
 We start thinking to paranormalç now....
 380
-Which rope?
+What rope?
 381
-Which chapel?
+What chapel?
 382
-Which altar?
+What altar?
 383
-Which studio?
+What studio?
 384
-Which furniture?
+What furniture?
 385
-Which wood?
+What wood?
 386
-Which room?
+What room?
 387
-Which wall?
+What wall?
 388
-Which hall?
+What hall?
 389
-Which ceiling?
+What ceiling?
 390
-Which structure?
+What structure?
 391
 You are already wearing the vestments!
 392
@@ -2759,7 +2762,7 @@ Where are you seeing a portrait?
 395
 I can't do that: the switch is blocked on the ON position and doesn't move. Try with the batteries...
 396
-Torch? Which torch?
+Torch? What torch?
 397
 The hieroglyphics on the sarcophagus show various scenes of different moments of the glorious life of Iunnuh.
 398
@@ -2767,7 +2770,7 @@ Notice that the rope is on the floor...
 399
 They are simple wooden boxes used to carry findings.
 500
-You leave the quest for your father's notebook and the solution of the Iunnuh's curse as a rookie. Lord Carnavon is turning in his grave!
+You leave the quest for your father's notebook and the solution of the Iunnuh's curse as a rookie. Lord Carnarvon is turning in his grave!
 501
 There's something written on it!
 502
@@ -2777,7 +2780,7 @@ The cat softly meows...
 504
 It's no good luck to carry a cat. Better don't do that.
 505
-Which cat?
+What cat?
 506
 The cat is following you.
 507
@@ -2805,7 +2808,7 @@ The latch is unlocked and the door opens electrically..
 518
 It's a numeric keypad with numbers from 0 to 9 and the symbols asterisk and hashç or pound as the smart ones use to say!
 519
-You must type the combination!
+You must key in the combination!
 520
 You press the panic barç the door opens and you get out. Then the door closes behind you.
 521
@@ -2821,7 +2824,7 @@ I put the candlestick on the altar.
 526
 The candlestick is already on the altar.
 527
-Which candlestick?
+What candlestick?
 528
 You want to put it in some place in particular?
 529
@@ -2835,13 +2838,13 @@ You feel light and you have the impression to be carried in a movie where you se
 533
 Then the effect fades and you come back on the presentç here and now. You should quit doing strange substancesç you have something much more important to accomplish!
 534
-Drugs? Which drugs? I can't see any around here!
+Drugs? What drugs? I can't see any around here!
 535
 You know by heart the content of the Table of Emerald: carrying it with yourself will not be useful. Leave it there.
 536
 Pictures? Where are you seeing pictures?
 537
-Those are a series of pictures printed in 20x25 sizeç certainly contact printed from large format negatives. They show the archeological site of the Iunnuh's pyramidç with the digs in various development stages.
+Those are a series of pictures printed in 10x12 sizeç certainly contact printed from large format negatives. They show the archeological site of the Iunnuh's pyramidç with the digs in various development stages.
 600
 [PRESS A KEY]
 900
@@ -2977,7 +2980,7 @@ FALSE
 FALSE
 7
 tape
-a roll of insulating plastic tape 4 cm wide
+a roll of insulating plastic tape 2 inches wide
 0
 0
 41
@@ -2985,7 +2988,7 @@ FALSE
 FALSE
 8
 rope
-a rope about three meters long
+a rope about ten feet long
 1
 0
 0
@@ -3017,7 +3020,7 @@ FALSE
 FALSE
 13
 batteries
-a set of charged batteries
+a set of fully charged batteries
 0
 0
 41
@@ -3049,7 +3052,7 @@ FALSE
 FALSE
 18
 panel
-a panel of about one meter of width
+a panel about three feet width
 2
 4
 0

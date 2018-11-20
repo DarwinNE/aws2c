@@ -2167,7 +2167,7 @@ unsigned int low_cond(void)
     if(vovn(120,102,9)) if(object_is_available(9)) {
         dummy=search_object(9);
         odummy=&obj[dummy];
-        if(odummy->isnotwereable==false&&odummy->position==CARRIED){
+        if(odummy->isnotwereable==false&&(odummy->position==CARRIED||odummy->position==current_position)){
             odummy->position=WEARED;
             ++counter[118];
         } else if(odummy->position==WEARED) {

@@ -42,15 +42,14 @@ unsigned int ls, lc;
 */
 void writesameln(char *line)
 {
-    unsigned int i=0;
     boolean flag=false;
-    boolean norm=false;
     char c;
     unsigned int pc=0;
 
     while(1){
-        c=line[i++];
-        if(c==' ' || c=='\n'||c=='\0' || (c=='\\' && line[i]=='n')) {
+        c=*line;
+        ++line;
+        if(c==' ' || c=='\n' || (c=='\\' && *line=='n') ||c=='\0') {
             wordbuffer[pc]='\0';
             if(colc>=NCOL) {
                 printf("\n");
@@ -60,16 +59,12 @@ void writesameln(char *line)
                 #endif
             }
             printf("%s",wordbuffer);
-            if(norm==true) {
-                normaltxt();
-                norm=false;
-            }
             if(c=='\0')
                 return;
             pc=0;
-            if(c=='\n' || (c=='\\' && line[i]=='n')) {
+            if(c=='\n' || (c=='\\' && *line=='n')) {
                 if(c=='\\')
-                    ++i;
+                    ++line;
                 printf("\n");
                 colc=0;
                 #ifdef NROW
@@ -148,8 +143,7 @@ void interrogationAndAnalysis(unsigned int num_of_words)
 {
     unsigned int i, k;
     char c;
-    boolean search = true;
-    boolean found = false;
+
     if(ls==0) {
         lc=readln();
     }
