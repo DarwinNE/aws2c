@@ -1605,7 +1605,7 @@ unsigned int action_getall(FILE *f, char *line, unsigned int scanpos)
 /** DROPALL */
 unsigned int action_dropall(FILE *f, char *line, unsigned int scanpos)
 {
-    fprintf(f, TAB TAB "for(dummy=0; dummy<OSIZE;++dummy)\n");
+    fprintf(f, TAB TAB "for(dummy=0; dummy<OSIZE;++dummy){\n");
     fprintf(f, TAB TAB TAB "odummy=&obj[dummy];\n");
     fprintf(f, TAB TAB TAB
         "if(odummy->position==CARRIED) {\n");
@@ -1617,6 +1617,27 @@ unsigned int action_dropall(FILE *f, char *line, unsigned int scanpos)
     fprintf(f, TAB TAB TAB TAB
         "counter[124]-=odummy->size;\n");
     fprintf(f, TAB TAB TAB "}\n");
+    fprintf(f, TAB TAB "}\n");
+    return scanpos;
+}
+/** SENDALLROOM */
+unsigned int action_sendallroom(FILE *f, char *line, unsigned int scanpos)
+{
+    start_function();
+    scanpos=process_functions(line, scanpos);
+    fprintf(f, TAB TAB "for(dummy=0; dummy<OSIZE;++dummy){\n");
+    fprintf(f, TAB TAB TAB "odummy=&obj[dummy];\n");
+    fprintf(f, TAB TAB TAB
+        "if(odummy->position==CARRIED) {\n");
+    fprintf(f, TAB TAB TAB TAB
+        "odummy->position=%s;\n",function_res);
+    fprintf(f, TAB TAB TAB TAB "--counter[119];\n");
+    fprintf(f, TAB TAB TAB TAB
+        "counter[120]-=odummy->weight;\n");
+    fprintf(f, TAB TAB TAB TAB
+        "counter[124]-=odummy->size;\n");
+    fprintf(f, TAB TAB TAB "}\n");
+    fprintf(f, TAB TAB "}\n");
     return scanpos;
 }
 /** SETCONN */
@@ -1992,6 +2013,8 @@ void process_aws(FILE *f, char *line)
             scanpos=action_stre(f, line, scanpos);
         } else if(strcmp(token,"DIMENS")==0) {
             scanpos=action_dimens(f, line, scanpos);
+        } else if(strcmp(token,"SENDALLROOM")==0) {
+            scanpos=action_sendallroom(f, line, scanpos);
         } else if(strcmp(token,"PICT")==0) {
             // ??
             printf("PICT is not implemented\n");
