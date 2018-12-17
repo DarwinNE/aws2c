@@ -42,7 +42,6 @@ unsigned int ls, lc;
 */
 void writesameln(char *line)
 {
-    boolean flag=false;
     char c;
     unsigned int pc=0;
 

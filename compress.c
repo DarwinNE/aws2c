@@ -251,7 +251,7 @@ void output_decoder(FILE *fout)
     fprintf(fout,"            i=huftree[i].son1idx;\n");
     fprintf(fout,"        }\n");
     fprintf(fout,"    }\n");
-    fprintf(fout,"    return 0;\n}\n\n");
+    fprintf(fout,"}\n\n");
     
     fprintf(fout,"void decode_start(char *source)\n");
     fprintf(fout,"{\n");
