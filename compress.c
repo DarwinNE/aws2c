@@ -302,6 +302,8 @@ int compress(FILE *fout, char *txt)
             }
         }
         ++i;
+        if(i%40==0) // Avoid creating lines that are too long.
+            fprintf(fout,"\n");
     } while(c!='\0');
     fprintf(fout,"0x%X", (unsigned char)coded_v);
     ++size;

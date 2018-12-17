@@ -1,6 +1,6 @@
 #ifndef _INOUT_H_
 #define _INOUT_H_
-#include"systemdef.h"
+#include"systemd.h"
 
 void writesameln(char *line);
 void writeln(char* line);

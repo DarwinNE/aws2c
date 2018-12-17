@@ -930,11 +930,11 @@ unsigned int decision_equ(FILE *f, char *line, unsigned int scanpos)
 /** VERB */
 unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
 {
-    unsigned int sp,at;
+    unsigned int sp,at,tt;
     boolean proc=false;
     char *arg1,*arg2;
     start_function();
-    scanpos=process_functions(line, scanpos);
+    tt=scanpos=process_functions(line, scanpos);
     sp=peek_token(line, scanpos);
     if(shortcuts==true&&(strcmp(next,"AND")==0)) {
         sp=peek_token(line, sp);
@@ -964,6 +964,10 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
                     fprintf(f,"cvna(%s,%s,%s)", arg1, arg2, function_res);
                     proc=true;
                 }
+            } else if(strcmp(next,"OR")==0) {
+                fprintf(f, "verb==%s", arg1);
+                scanpos=tt;
+                proc=true;
             }
             if(proc==false) {
                 fprintf(f, "cvn(%s,%s)", arg1,arg2);
@@ -995,15 +999,25 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
             if(strcmp(next,"AND")==0) {
                 sp=peek_token(line, sp);
                 if(strcmp(next,"NOUN")==0) {
-                    proc=true;
-                    scanpos=sp;
-                    start_function();
-                    scanpos=process_functions(line, scanpos);
-                    fprintf(f,"vovn(%s,%s,%s)", arg1, arg2,function_res);
+                    int sp1=peek_token(line, sp);
+                    if(strcmp(next,"OR")==0) {
+                        proc=false;
+                    } else {
+                        proc=true;
+                        scanpos=sp;
+                        start_function();
+                        scanpos=process_functions(line, scanpos);
+                        fprintf(f,"vovn(%s,%s,%s)", arg1, arg2,function_res);
+                    }
                 }
             }
             if(proc==false) {
-                fprintf(f,"vov(%s,%s)", arg1, arg2);
+                int sp1=peek_token(line, sp);
+                if(strcmp(next,"OR")==0) {
+                    proc=false;
+                } else {
+                    fprintf(f,"vov(%s,%s)", arg1, arg2);
+                }
             }
             free(arg1);
             free(arg2);
@@ -2063,7 +2077,7 @@ void output_header(FILE *of)
     }
     fprintf(of,"#include\"aws.h\"\n\n");
     fprintf(of,"#include\"inout.h\"\n");
-    fprintf(of,"#include\"systemdef.h\"\n\n");
+    fprintf(of,"#include\"systemd.h\"\n\n");
     fprintf(of,"extern unsigned int verb;\nextern unsigned int noun1;\nextern unsigned int noun2;\n"
         "extern unsigned int adve;\nextern unsigned int actor;\nextern unsigned int adjective;\n");
     fprintf(of, "unsigned int dummy;\n");
