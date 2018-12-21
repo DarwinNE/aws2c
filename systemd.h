@@ -12,222 +12,252 @@
 
 #ifdef C128  /* Definitions to be used for the Commodore 128 computer */
 
-#include<conio.h>
+    #include<conio.h>
 
-#define BUFFERSIZE 128
+    #define BUFFERSIZE 128
 
-#define SHIFTPETSCII \
-    if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20
+    #define SHIFTPETSCII \
+        if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20
 
-#define waitscreen()
+    #define waitscreen()
 
-// The number of columns of the screen
-#define NCOL 80
+    // The number of columns of the screen
+    #define NCOL 80
 
-#define green       "\x1E"
-#define red         "\x1C"
-#define cyan        "\x9F"
-#define blue        "\x1F"
-#define yellow      "\x9E"
-#define pink        "\x96"
+    #define green       "\x1E"
+    #define red         "\x1C"
+    #define cyan        "\x9F"
+    #define blue        "\x1F"
+    #define yellow      "\x9E"
+    #define pink        "\x96"
 
-#define switch80col "\x1Bx\x0E"
+    #define switch80col "\x1Bx\x0E"
 
-/* Macro to wait for a key */
-#define waitkey() cgetc()
+    /* Macro to wait for a key */
+    #define waitkey() cgetc()
 
-/* Define the style of the input text */
-#define inputtxt() printf(green)
+    /* Define the style of the input text */
+    #define inputtxt() printf(green)
 
-/* Define the style of the first evidenced text */
-#define evidence1() printf(red)
+    /* Define the style of the first evidenced text */
+    #define evidence1() printf(red)
 
-/* Define the style of the second evidenced text */
-#define evidence2() printf(yellow)
+    /* Define the style of the second evidenced text */
+    #define evidence2() printf(yellow)
 
-/* Define the style of the third evidenced text */
-#define evidence3() printf(pink)
+    /* Define the style of the third evidenced text */
+    #define evidence3() printf(pink)
 
-/* Define the style of the normal text */
-#define normaltxt() printf(cyan)
+    /* Define the style of the normal text */
+    #define normaltxt() printf(cyan)
 
-/* Clear the screen */
-#define cls() clrscr()
+    /* Clear the screen */
+    #define cls() clrscr()
 
 
-/* Write a tabulation (it can be adapted to screen width). */
-#define tab() printf("        ")
+    /* Write a tabulation (it can be adapted to screen width). */
+    #define tab() printf("        ")
 
-/* Wait for one second */
-#define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
-    retTime);}
+    /* Wait for one second */
+    #define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
+        retTime);}
 
-/* Init the terminal */
-#define PT80COL 215
-#define PTFST 53296
-#define init_term() {\
-    if (*(char*)PT80COL==0) {\
-        printf(switch80col);\
-    }\
-    *(char*)PTFST=1;\
-    clrscr();\
-    normaltxt();\
-}
+    /* Init the terminal */
+    #define PT80COL 215
+    #define PTFST 53296
+    #define init_term() {\
+        if (*(char*)PT80COL==0) {\
+            printf(switch80col);\
+        }\
+        *(char*)PTFST=1;\
+        clrscr();\
+        normaltxt();\
+    }
 
-/* Prepare the terminal to leave the program execution. */
-#define leave() printf(cyan)
+    /* Prepare the terminal to leave the program execution. */
+    #define leave() printf(cyan)
 
 #elif defined(C64)
 
-#include<conio.h>
+    #include<conio.h>
 
-#define BUFFERSIZE 128
+    #define BUFFERSIZE 128
 
-#define SHIFTPETSCII \
-    if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20
+    #define SHIFTPETSCII \
+        if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20
 
-#define waitscreen()
+    #define waitscreen()
 
-/* The number of columns of the screen */
-#define NCOL 40
-/* The number of available rows of the screen. If undefined, it is not checked
-*/
-#define NROW 21
+    /* The number of columns of the screen */
+    #define NCOL 40
+    /* The number of available rows of the screen. If undefined, it is
+       not checked
+    */
+    #define NROW 21
 
-#define green       "\x1E"
-#define red         "\x1C"
-#define cyan        "\x9F"
-#define blue        "\x1F"
-#define yellow      "\x9E"
-#define pink        "\x96"
+    #define green       "\x1E"
+    #define red         "\x1C"
+    #define cyan        "\x9F"
+    #define blue        "\x1F"
+    #define yellow      "\x9E"
+    #define pink        "\x96"
 
 
-/* Macro to wait for a key */
-#define waitkey() cgetc()
+    /* Macro to wait for a key */
+    #define waitkey() cgetc()
 
-/* Define the style of the input text */
-#define inputtxt() printf(green)
+    /* Define the style of the input text */
+    #define inputtxt() printf(green)
 
-/* Define the style of the first evidenced text */
-#define evidence1() printf(red)
+    /* Define the style of the first evidenced text */
+    #define evidence1() printf(red)
 
-/* Define the style of the second evidenced text */
-#define evidence2() printf(yellow)
+    /* Define the style of the second evidenced text */
+    #define evidence2() printf(yellow)
 
-/* Define the style of the third evidenced text */
-#define evidence3() printf(pink)
+    /* Define the style of the third evidenced text */
+    #define evidence3() printf(pink)
 
-/* Define the style of the normal text */
-#define normaltxt() printf(cyan)
+    /* Define the style of the normal text */
+    #define normaltxt() printf(cyan)
 
-/* Clear the screen */
-#define cls() clrscr();zeror()
+    /* Clear the screen */
+    #define cls() clrscr();zeror()
 
-/* Write a tabulation (it can be adapted to screen width). */
-#define tab() printf("    ")
+    /* Write a tabulation (it can be adapted to screen width). */
+    #define tab() printf("    ")
 
-/* Wait for one second */
-#define wait1s()    {}
-#define PTRBRD 53280
-#define PTRCLR 53281
-/* Init the terminal */
-#define init_term() {\
-    *(char*)PTRBRD = 0x00;\
-    *(char*)PTRCLR = 0x00;\
-    clrscr();\
-    normaltxt();\
-}
+    /* Wait for one second */
+    #define wait1s()    {}
+    #define PTRBRD 53280
+    #define PTRCLR 53281
+    /* Init the terminal */
+    #define init_term() {\
+        *(char*)PTRBRD = 0x00;\
+        *(char*)PTRCLR = 0x00;\
+        clrscr();\
+        normaltxt();\
+    }
 
-/* Prepare the terminal to leave the program execution. */
-#define leave() cputs(cyan)
+    /* Prepare the terminal to leave the program execution. */
+    #define leave() cputs(cyan)
 
 #elif defined(VIC20)
 
-#include<conio.h>
+    #include<conio.h>
 
-#define BUFFERSIZE 128
+    #define BUFFERSIZE 128
 
-#define SHIFTPETSCII \
-    if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20
+    #define SHIFTPETSCII \
+        if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20
 
-#define waitscreen()
+    #define waitscreen()
 
-// The number of columns of the screen
-#define NCOL 22
-/* The number of available rows of the screen. If undefined, it is not checked
-*/
-#define NROW 19
+    // The number of columns of the screen
+    #define NCOL 22
+    /* The number of available rows of the screen. If undefined, it is 
+       not checked
+    */
+    #define NROW 19
 
-#define green       "\x1E"
-#define red         "\x1C"
-#define cyan        "\x9F"
-#define blue        "\x1F"
-#define yellow      "\x9E"
-#define pink        "\x9C"
+    #define green       "\x1E"
+    #define red         "\x1C"
+    #define cyan        "\x9F"
+    #define blue        "\x1F"
+    #define yellow      "\x9E"
+    #define pink        "\x9C"
 
+    /* Macro to wait for a key */
+    #define waitkey() cgetc()
 
-/* Macro to wait for a key */
-#define waitkey() cgetc()
+    /* Define the style of the input text */
+    #define inputtxt() printf(green)
 
-/* Define the style of the input text */
-#define inputtxt() printf(green)
+    /* Define the style of the first evidenced text */
+    #define evidence1() printf(red)
 
-/* Define the style of the first evidenced text */
-#define evidence1() printf(red)
+    /* Define the style of the second evidenced text */
+    #define evidence2() printf(yellow)
 
-/* Define the style of the second evidenced text */
-#define evidence2() printf(yellow)
+    /* Define the style of the third evidenced text */
+    #define evidence3() printf(pink)
 
-/* Define the style of the third evidenced text */
-#define evidence3() printf(pink)
+    /* Define the style of the normal text */
+    #define normaltxt() printf(cyan)
 
-/* Define the style of the normal text */
-#define normaltxt() printf(cyan)
+    /* Clear the screen */
+    #define cls() clrscr();zeror()
 
-/* Clear the screen */
-#define cls() clrscr();zeror()
+    /* Write a tabulation (it can be adapted to screen width). */
+    #define tab() printf("    ")
 
-/* Write a tabulation (it can be adapted to screen width). */
-#define tab() printf("    ")
+    /* Wait for one second */
+    #define wait1s()    {}
+    #define PTRCLR 36879
+    /* Init the terminal */
+    #define init_term() {\
+        *(char*)PTRCLR = 0x08;\
+        clrscr();\
+        normaltxt();\
+    }
 
-/* Wait for one second */
-#define wait1s()    {}
-#define PTRCLR 36879
-/* Init the terminal */
-#define init_term() {\
-    *(char*)PTRCLR = 0x08;\
-    clrscr();\
-    normaltxt();\
-}
+    /* Prepare the terminal to leave the program execution. */
+    #define leave() cputs(cyan)
 
-/* Prepare the terminal to leave the program execution. */
-#define leave() cputs(cyan)
+#elif defined(SPECTRUM)
+
+    #include <spectrum.h>
+    #define BUFFERSIZE 128
+
+    #define SHIFTPETSCII 
+
+    #define waitscreen()
+
+    // The number of columns of the screen
+    #define NCOL 64
+    #define NROW 19
+
+    #define waitkey() getchar()
+    #define inputtxt()  printf("\x1b[0m\x1b[32m\x1b[47m")
+    #define evidence1() printf("\x1b[1m\x1b[37m\x1b[41m")
+    #define evidence2() printf("\x1b[0m\x1b[34m\x1b[47m")
+    #define evidence3() printf("\x1b[0m\x1b[35m\x1b[47m")
+    #define cls()
+
+    #define normaltxt() printf("\x1b[0m\x1b[30m\x1b[47m")
+    #define tab() printf("\t")
+    #define wait1s() \
+        {unsigned int retTime = time(0) + 1;while (time(0) < retTime);}
+    #define init_term() {printf("\x1b[2J");normaltxt();}
+
+    #define leave() printf("\x1b[0m\n\n")
 
 #else /* Definitions for modern ANSI terminals */
 
-#define NCOL 80
-#define BUFFERSIZE 256
+    #define NCOL 80
+    #define BUFFERSIZE 256
 
-#define SHIFTPETSCII 
+    #define SHIFTPETSCII 
 
-#define waitscreen()
+    #define waitscreen()
 
-// The number of columns of the screen
-#define NCOL 80
+    // The number of columns of the screen
+    #define NCOL 80
 
-#define waitkey() getchar()
-#define inputtxt() printf("\033[1m\x1b[32m\33[40m")
-#define evidence1() printf("\033[1m\x1b[31m\33[40m")
-#define evidence2() printf("\033[0m\x1b[93m\33[40m")
-#define evidence3() printf("\033[0m\x1b[95m\33[40m")
-#define cls()
+    #define waitkey() getchar()
+    #define inputtxt() printf("\033[1m\x1b[32m\33[40m")
+    #define evidence1() printf("\033[1m\x1b[31m\33[40m")
+    #define evidence2() printf("\033[0m\x1b[93m\33[40m")
+    #define evidence3() printf("\033[0m\x1b[95m\33[40m")
+    #define cls()
 
-#define normaltxt() printf("\033[0m\x1b[36m\33[40m")
-#define tab() printf("\t")
-#define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < retTime);}
-#define init_term() {normaltxt();printf("\n\n");}
+    #define normaltxt() printf("\033[0m\x1b[36m\33[40m")
+    #define tab() printf("\t")
+    #define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
+        retTime);}
+    #define init_term() {normaltxt();printf("\n\n");}
 
-#define leave() printf("\033[0m\n\n")
+    #define leave() printf("\033[0m\n\n")
 
 #endif
 #endif

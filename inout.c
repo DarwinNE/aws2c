@@ -204,3 +204,4 @@ void interrogationAndAnalysis(unsigned int num_of_words)
         the next time the function is called */
     ls=0;
 }
+

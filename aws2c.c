@@ -1440,10 +1440,15 @@ unsigned int action_mess(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    if(hardcoded_messages==false)
-        fprintf(f, TAB TAB "show_message(%s);\n",  function_res);
-    else
+    if(strcmp("1036",function_res)==0) {
+        // Message 1036 is particular: it points to the name1 introduced by
+        // the player
+        fprintf(f, TAB TAB "printf(\"%%s\\n\",noun1);\n");
+    } else  if(hardcoded_messages==false) {
+       fprintf(f, TAB TAB "show_message(%s);\n",  function_res);
+    } else {
         fprintf(f, TAB TAB "show_message(message%s);\n",  function_res);
+    }
 
     return scanpos;
 }
