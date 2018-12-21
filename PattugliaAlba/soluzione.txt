@@ -1,0 +1,28 @@
+su
+prendi la torcia
+giu
+o
+n
+guarda sotto la panca
+prendi l'elmetto
+accendi la torcia con il fuoco
+s
+e
+apri la porta
+s
+prendi la spada
+n
+spegni la torcia
+e
+cerca nella paglia
+guarda
+prendi la cotta di maglia
+e
+prendi la sella
+prendi le briglie
+o
+metti le briglie al cavallo
+metti la sella al cavallo
+indossa l'elmetto
+indossa la cotta di maglia
+monta il cavallo
