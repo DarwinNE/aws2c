@@ -1,4 +1,4 @@
-all: modern c128 c64 vic20
+all: modern c128 c64 vic20 spectrum
 
 pattuglia.c: PattugliaAlba.AWS
 	../aws2c -d -c -n PattugliaAlba.AWS pattuglia.c
@@ -31,6 +31,12 @@ c64: pattuglia_no_UTF8.c inout.c pattuglia_en_no_UTF8.c
 vic20: pattuglia_no_UTF8.c inout.c pattuglia_en_no_UTF8.c
 	cl65 -t vic20 -C vic20-16k_exp.cfg -D VIC20 -Or pattuglia_no_UTF8.c inout.c -o pattuglia-VIC+16.prg
 	cl65 -t vic20 -C vic20-16k_exp.cfg -D VIC20 -Or pattuglia_en_no_UTF8.c inout.c -o patrol-VIC+16.prg
+
+spectrum: pattuglia_no_UTF8.c pattuglia_en_no_UTF8.c inout.c
+	zcc +zx -clib=ansi -lndos -create-app pattuglia_no_UTF8.c inout.c -o ZXpattuglia
+	appmake +zx -b ZXpattuglia.tap --audio --fast --dumb
+	zcc +zx -clib=ansi -lndos -create-app pattuglia_en_no_UTF8.c inout.c -o ZXpatrol
+	appmake +zx -b ZXpatrol.tap --audio --fast --dumb
 
 
 clean:
