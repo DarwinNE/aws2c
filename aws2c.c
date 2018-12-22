@@ -30,6 +30,8 @@ old Commodore machines.
 #include "aws.h"
 #include "compress.h"
 
+#define VERSION "1.2, september-december 2018"
+
 /* TO DO
 
 - Finish implementing the remaining actions, functions and decisions.
@@ -63,6 +65,15 @@ boolean hardcoded_messages=false;
 boolean add_clrscr=true;
 
 boolean complete_shortcut=false;
+
+boolean need_searchw=false;
+boolean need_vov=false;
+boolean need_vovn=false;
+boolean need_non1=false;
+boolean need_cvn=false;
+boolean need_hold=false;
+boolean need_cvna=false;
+boolean need_sendallroom=false;
 
 typedef struct conv_t {
     char *orig;
@@ -962,6 +973,7 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
                     start_function();
                     scanpos=process_functions(line, scanpos);
                     fprintf(f,"cvna(%s,%s,%s)", arg1, arg2, function_res);
+                    need_cvna=true;
                     proc=true;
                 }
             } else if(strcmp(next,"OR")==0) {
@@ -971,6 +983,7 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
             }
             if(proc==false) {
                 fprintf(f, "cvn(%s,%s)", arg1,arg2);
+                need_cvn=true;
             }
             free(arg1);
             free(arg2);
@@ -1008,6 +1021,7 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
                         start_function();
                         scanpos=process_functions(line, scanpos);
                         fprintf(f,"vovn(%s,%s,%s)", arg1, arg2,function_res);
+                        need_vovn=true;
                     }
                 }
             }
@@ -1017,6 +1031,7 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
                     proc=false;
                 } else {
                     fprintf(f,"vov(%s,%s)", arg1, arg2);
+                    need_vov=true;
                 }
             }
             free(arg1);
@@ -1065,6 +1080,7 @@ unsigned int decision_noun(FILE *f, char *line, unsigned int scanpos)
             start_function();
             scanpos=process_functions(line, scanpos);
             fprintf(f,"non1(%s,%s)", arg1, function_res);
+            need_non1=true;
             free(arg1);
         }
     } else {
@@ -1443,7 +1459,8 @@ unsigned int action_mess(FILE *f, char *line, unsigned int scanpos)
     if(strcmp("1036",function_res)==0) {
         // Message 1036 is particular: it points to the name1 introduced by
         // the player
-        fprintf(f, TAB TAB "printf(\"%%s\\n\",noun1);\n");
+        fprintf(f, TAB TAB "printf(\"%%s\\n\",searchw(noun1));\n");
+        need_searchw=true;
     } else  if(hardcoded_messages==false) {
        fprintf(f, TAB TAB "show_message(%s);\n",  function_res);
     } else {
@@ -1595,6 +1612,7 @@ unsigned int action_hold(FILE *f, char *line, unsigned int scanpos)
     start_function();
     scanpos=process_functions(line, scanpos);
     fprintf(f, TAB TAB "hold(%s);\n",function_res);
+    need_hold=true;
     return scanpos;
 }
 /** GET */
@@ -1644,19 +1662,8 @@ unsigned int action_sendallroom(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, TAB TAB "for(dummy=0; dummy<OSIZE;++dummy){\n");
-    fprintf(f, TAB TAB TAB "odummy=&obj[dummy];\n");
-    fprintf(f, TAB TAB TAB
-        "if(odummy->position==CARRIED) {\n");
-    fprintf(f, TAB TAB TAB TAB
-        "odummy->position=%s;\n",function_res);
-    fprintf(f, TAB TAB TAB TAB "--counter[119];\n");
-    fprintf(f, TAB TAB TAB TAB
-        "counter[120]-=odummy->weight;\n");
-    fprintf(f, TAB TAB TAB TAB
-        "counter[124]-=odummy->size;\n");
-    fprintf(f, TAB TAB TAB "}\n");
-    fprintf(f, TAB TAB "}\n");
+    fprintf(f, TAB TAB "sendallroom(%s);\n",function_res);
+    need_sendallroom=true;
     return scanpos;
 }
 /** SETCONN */
@@ -2092,6 +2099,81 @@ void output_header(FILE *of)
 
 }
 
+void output_optional_func(FILE *of)
+{
+    if(need_searchw) {
+        fprintf(of,"char *nonestr=\"\";\n");
+        fprintf(of,"char *searchw(unsigned int w)\n{\n");
+        fprintf(of, TAB "int i;\n");
+        fprintf(of, TAB "for(i=0;i<DSIZE;++i)\n");
+        fprintf(of, TAB TAB "if(w==dictionary[i].code)\n");
+        fprintf(of, TAB TAB TAB "return dictionary[i].w;\n");
+        fprintf(of, TAB "return nonestr;\n");
+        fprintf(of, "}\n");
+    }
+    if(need_vov) {
+        /* Check among two verbs */
+        fprintf(of, "boolean vov(unsigned int v1, unsigned int v2)\n");
+        fprintf(of, "{\n");
+        fprintf(of, "    return verb==v1||verb==v2;\n");
+        fprintf(of, "}\n");
+    }
+    if(need_vovn) {
+        /* Check among two verbs AND a name */
+        fprintf(of,
+            "boolean vovn(unsigned int v1, unsigned int v2, unsigned int n)\n");
+        fprintf(of, "{\n");
+        fprintf(of, "    return (verb==v1||verb==v2)&&noun1==n;\n");
+        fprintf(of, "}\n");
+    }
+    if(need_non1) {
+    /* Check among two nouns1 */
+        fprintf(of, "boolean non1(unsigned int n1, unsigned int n2)\n");
+        fprintf(of, "{\n");
+        fprintf(of, "    return noun1==n1||noun1==n2;\n");
+        fprintf(of, "}\n");
+    }
+    if(need_cvn) {
+        /* Check for a name and noun */
+        fprintf(of, "boolean cvn(unsigned int v, unsigned int n)\n");
+        fprintf(of, "{\n");
+        fprintf(of, "    return verb==v&&noun1==n;\n");
+        fprintf(of, "}\n");
+    }
+    if(need_cvna) {
+        /* If a name and a noun and avai conditions are given */
+        fprintf(of,
+            "unsigned int cvna(unsigned int v, unsigned int n, "
+            "unsigned int o)\n");
+        fprintf(of, "{\n    dummy=get_object_position(o);\n");
+        fprintf(of, "    return verb==v&&noun1==n&&"
+            "(dummy==current_position||dummy==CARRIED);\n");
+        fprintf(of, "}\n");
+    }
+    if(need_sendallroom) {
+        fprintf(of, "void sendallroom(unsigned int s)\n{\n");
+        fprintf(of, TAB "for(dummy=0; dummy<OSIZE;++dummy){\n");
+        fprintf(of, TAB TAB "odummy=&obj[dummy];\n");
+        fprintf(of, TAB TAB
+            "if(odummy->position==CARRIED) {\n");
+        fprintf(of, TAB TAB TAB
+            "odummy->position=s;\n");
+        fprintf(of, TAB TAB TAB "--counter[119];\n");
+        fprintf(of, TAB TAB TAB
+            "counter[120]-=odummy->weight;\n");
+        fprintf(of, TAB TAB TAB
+            "counter[124]-=odummy->size;\n");
+        fprintf(of, TAB TAB "}\n");
+        fprintf(of, TAB "}\n");
+        fprintf(of, "}\n");
+    }
+    if(need_hold) {
+        fprintf(of, "void hold(unsigned int p)\n{\n");
+        fprintf(of, TAB "for(dummy=0; dummy<p; ++dummy) {wait1s();}\n");
+        fprintf(of, "}\n");
+    }
+}
+
 void output_utility_func(FILE *of)
 {
     fprintf(of,"unsigned int current_position;\n");
@@ -2100,6 +2182,9 @@ void output_utility_func(FILE *of)
     fprintf(of,"boolean marker[129];\n");
     fprintf(of,"int counter[129];\n");
     fprintf(of,"object *odummy;\n\n");
+    /* Introduces the prototype here, function will be included only if 
+       necessary after having analyzed the file. */
+    fprintf(of,"char *searchw(unsigned int w);\n");
 
     fprintf(of,"unsigned int search_object(unsigned int o)\n{\n");
     fprintf(of,TAB "unsigned int i;\n");
@@ -2261,28 +2346,20 @@ void output_utility_func(FILE *of)
     fprintf(of, "}\n");
 
     /* Check among two verbs */
-    fprintf(of, "boolean vov(unsigned int v1, unsigned int v2)\n");
-    fprintf(of, "{\n");
-    fprintf(of, "    return verb==v1||verb==v2;\n");
-    fprintf(of, "}\n");
+    fprintf(of, "boolean vov(unsigned int v1, unsigned int v2);\n");
+
     /* Check among two verbs AND a name */
     fprintf(of,
-        "boolean vovn(unsigned int v1, unsigned int v2, unsigned int n)\n");
-    fprintf(of, "{\n");
-    fprintf(of, "    return (verb==v1||verb==v2)&&noun1==n;\n");
-    fprintf(of, "}\n");
-
+        "boolean vovn(unsigned int v1, unsigned int v2, unsigned int n);\n");
 
     /* Check among two nouns1 */
-    fprintf(of, "boolean non1(unsigned int n1, unsigned int n2)\n");
-    fprintf(of, "{\n");
-    fprintf(of, "    return noun1==n1||noun1==n2;\n");
-    fprintf(of, "}\n");
+    fprintf(of, "boolean non1(unsigned int n1, unsigned int n2);\n");
+
     /* Check for a name and noun */
-    fprintf(of, "boolean cvn(unsigned int v, unsigned int n)\n");
-    fprintf(of, "{\n");
-    fprintf(of, "    return verb==v&&noun1==n;\n");
-    fprintf(of, "}\n");
+    fprintf(of, "boolean cvn(unsigned int v, unsigned int n);\n");
+    
+    /* Send all objects to a room in particular */
+    fprintf(of, "void sendallroom(unsigned int s);\n");
 
     /* Get current position of an object */
     fprintf(of, "unsigned int get_object_position(unsigned int c)\n");
@@ -2340,11 +2417,7 @@ void output_utility_func(FILE *of)
 
     /* If a name and a noun and avai conditions are given */
     fprintf(of,
-        "unsigned int cvna(unsigned int v, unsigned int n, unsigned int o)\n");
-    fprintf(of, "{\n    dummy=get_object_position(o);\n");
-    fprintf(of, "    return verb==v&&noun1==n&&"
-        "(dummy==current_position||dummy==CARRIED);\n");
-    fprintf(of, "}\n");
+        "unsigned int cvna(unsigned int v, unsigned int n, unsigned int o);\n");
 
     fprintf(of, "void drop(unsigned int o)\n{\n");
     fprintf(of, TAB  "dummy=search_object(o);\n");
@@ -2367,9 +2440,7 @@ void output_utility_func(FILE *of)
     fprintf(of, TAB "marker[120]=false;\n");
     fprintf(of, "}\n\n");
 
-    fprintf(of, "void hold(unsigned int p)\n{\n");
-    fprintf(of, TAB "for(dummy=0; dummy<p; ++dummy) {wait1s();}\n");
-    fprintf(of, "}\n");
+    fprintf(of, "void hold(unsigned int p);\n");
 
 }
 
@@ -2780,8 +2851,8 @@ void create_main(FILE *f, info *header)
 /* Print a help. */
 void print_help(char *name)
 {
-    printf("Adventure Writing System to C compiler, version 1.0\n");
-    printf("Davide Bucci 2018\n\n");
+    printf("Adventure Writing System to C compiler, version %s\n", VERSION);
+    printf("Davide Bucci\n\n");
     printf("Usage: %s [options] inputfile.aws outputfile\n\n",name);
     printf( "then compile (along with file inout.c) using your favourite "
         "C compiler.\n\n");
@@ -2797,7 +2868,8 @@ void print_help(char *name)
            " -c  compress text with Huffman algorithm.\n"
            " -d  employ 6 directions instead of 10.\n"
            " -m  employ hardcoded messages instead of an array.\n"
-           " -n  do not clear screen every time a new room is shown.\n");
+           " -n  do not clear screen every time a new room is shown.\n"
+           " -v  or --version print version and exit\n");
 
     printf("\n");
 }
@@ -2834,6 +2906,9 @@ unsigned int process_options(char *arg, char *name)
     } else if (strcmp(arg, "-n")==0) {
         add_clrscr=false;
         return 1;
+    } else if (strcmp(arg, "-v")==0 || strcmp(arg, "--version")==0) {
+        printf("This is AWS2C version %s\n", VERSION);
+        exit(0);
     }
     return 0;
 }
@@ -2861,10 +2936,6 @@ int main(int argc, char **argv)
     unsigned int localcondsize;
     unsigned int argumentr=1;
 
-    if(argc<3) {
-        print_help(argv[0]);
-        return 0;
-    }
     init_analysis();
     while (argumentr<argc && process_options(argv[argumentr], argv[0])!=0) {
         ++argumentr;
@@ -2966,6 +3037,7 @@ int main(int argc, char **argv)
     output_local(of,localcond, localcondsize);
     output_gamecycle(of);
     create_main(of, header);
+    output_optional_func(of);
     fclose(of);
     printf("File %s created\n",argv[argumentr+1]);
     printf("No of critical errors: %d\n",no_of_errors);
