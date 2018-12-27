@@ -81,7 +81,7 @@
 
     #include<conio.h>
 
-    #define BUFFERSIZE 128
+    #define BUFFERSIZE 80
 
     #define SHIFTPETSCII \
         if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20
@@ -94,6 +94,7 @@
        not checked
     */
     #define NROW 21
+    extern unsigned char rowc;
 
     #define green       "\x1E"
     #define red         "\x1C"
@@ -104,7 +105,7 @@
 
 
     /* Macro to wait for a key */
-    #define waitkey() cgetc()
+    #define waitkey() cgetc(); rowc=0
 
     /* Define the style of the input text */
     #define inputtxt() printf(green)
@@ -159,6 +160,7 @@
        not checked
     */
     #define NROW 19
+    extern unsigned char rowc;
 
     #define green       "\x1E"
     #define red         "\x1C"
@@ -168,7 +170,7 @@
     #define pink        "\x9C"
 
     /* Macro to wait for a key */
-    #define waitkey() cgetc()
+    #define waitkey() cgetc(); rowc=0
 
     /* Define the style of the input text */
     #define inputtxt() printf(green)
@@ -216,8 +218,9 @@
     // The number of columns of the screen
     #define NCOL 64
     #define NROW 19
+    extern unsigned char rowc;
 
-    #define waitkey() getchar()
+    #define waitkey() getchar(); rowc=0
     #define inputtxt()  printf("\x1b[0m\x1b[32m\x1b[47m")
     #define evidence1() printf("\x1b[1m\x1b[37m\x1b[41m")
     #define evidence2() printf("\x1b[0m\x1b[34m\x1b[47m")

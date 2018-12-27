@@ -1365,7 +1365,39 @@ unsigned int decision_adjelt(FILE *f, char *line, unsigned int scanpos)
     fprintf(f, "adjective<%s", function_res);
     return scanpos;
 }
+/** CONNEQ */
+unsigned int decision_conneq(FILE *f, char *line, unsigned int scanpos)
+{
+    char *arg1, *arg2;
+    unsigned int l;
+    start_function();
+    scanpos=process_functions(line, scanpos);
+    l=strlen(function_res);
+    arg1=(char *) calloc(l+1,sizeof(char));
+    if(arg1==NULL) {
+        printf("Error allocating memory!\n");
+        exit(1);
+    }
+    strcpy(arg1,function_res);
 
+    start_function();
+    scanpos=process_functions(line, scanpos);
+    l=strlen(function_res);
+    arg2=(char *) calloc(l+1,sizeof(char));
+    if(arg2==NULL) {
+        printf("Error allocating memory!\n");
+        exit(1);
+    }
+    strcpy(arg2,function_res);
+
+    start_function();
+    scanpos=process_functions(line, scanpos);
+    fprintf(f, "world[search_room(%s)].directions[(%s)-1]==%s",
+        arg1, arg2, function_res);
+    free(arg1);
+    free(arg2);
+    return scanpos;
+}
 /* Actions */
 
 /** PRESSKEY */
@@ -1930,6 +1962,8 @@ void process_aws(FILE *f, char *line)
             scanpos=decision_adjegt(f, line, scanpos);
         } else if(strcmp(token,"ADJELT")==0) {
             scanpos=decision_adjelt(f, line, scanpos);
+        } else if(strcmp(token,"CONNEQ")==0) {
+            scanpos=decision_conneq(f, line, scanpos);
         } else if(strcmp(token,"OR")==0) {
             //shortcuts=false;
             fprintf(f,"||");

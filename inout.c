@@ -7,7 +7,7 @@
     Some basic configuration can also be done by adjusting the systemdef.h file
     to your needs.
 
-    Davide Bucci, October 2018
+    Davide Bucci, October-December 2018
 */
 
 #include <stdio.h>
@@ -103,6 +103,9 @@ void writeln(char* line)
 {
     writesameln(line);
     printf("\n");
+    #ifdef NROW
+    if(++rowc>NROW) {waitkey(); rowc=0;};
+    #endif
     colc=0;
 }
 
