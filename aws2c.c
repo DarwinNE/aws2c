@@ -826,10 +826,10 @@ unsigned int decision_at(FILE *f, char *line, unsigned int scanpos)
                         proc=true;
                         complete_shortcut=true;
                         if(hardcoded_messages==false)
-                            fprintf(f, "1) amsm(%s,%s,%d,%s);",
+                            fprintf(f, "1) amsm(%s,%s,%d,%s);\n\n",
                                 arg1,arg2,polarity,function_res);
                         else
-                            fprintf(f, "1) amsm(%s,%s,%d,message%s);",
+                            fprintf(f, "1) amsm(%s,%s,%d,message%s);\n\n",
                                 arg1,arg2,polarity,function_res);
                     }
                 }
@@ -2213,6 +2213,7 @@ void output_utility_func(FILE *of)
     fprintf(of,"unsigned int current_position;\n");
     fprintf(of,"unsigned int next_position;\n");
     fprintf(of,"extern unsigned int ls;\n");
+    
     fprintf(of,"boolean marker[129];\n");
     fprintf(of,"int counter[129];\n");
     fprintf(of,"object *odummy;\n\n");
@@ -2448,7 +2449,6 @@ void output_utility_func(FILE *of)
         "    if(current_position==p&&marker[c]==v) show_message(m);\n");
     fprintf(of, "}\n");
 
-
     /* If a name and a noun and avai conditions are given */
     fprintf(of,
         "unsigned int cvna(unsigned int v, unsigned int n, unsigned int o);\n");
@@ -2501,23 +2501,26 @@ void output_dictionary(FILE *of, word* dictionary, unsigned int dsize)
 }
 
 
-/** Create the code for the rooms' description in the output file. */
-void output_rooms(FILE *of, room* world, unsigned int rsize)
+/** Create the code for the rooms' description in the output file.
+    Return the total size occupied by room descriptions.
+*/
+unsigned int output_rooms(FILE *of, room* world, unsigned int rsize)
 {
     unsigned int i,j;
     char *long_d;
     char *p;
     unsigned int size_d=0;
+    unsigned int totalsize=0;
     if(compress_messages==true) {
         for(i=0; i<rsize;++i) {
             fprintf(of, "char long_d%d[]={",world[i].code);
-            compress(of, encodechar(world[i].long_d));
+            totalsize+=compress(of, encodechar(world[i].long_d));
             fprintf(of, "};\n");
             fprintf(of, "char s_desc%d[]={",world[i].code);
-            compress(of, encodechar(world[i].s));
+            totalsize+=compress(of, encodechar(world[i].s));
             fprintf(of, "};\n");
             fprintf(of, "char short_d%d[]={",world[i].code);
-            compress(of, encodechar(world[i].short_d));
+            totalsize+=compress(of, encodechar(world[i].short_d));
             fprintf(of, "};\n");
         }
     }
@@ -2533,18 +2536,21 @@ void output_rooms(FILE *of, room* world, unsigned int rsize)
             fprintf(of, "long_d%d",world[i].code);
         } else {
             fprintf(of, "\"%s\"", long_d);
+            totalsize+=strlen(long_d);
         }
         fprintf(of, ",");
         if(compress_messages==true) {
             fprintf(of, "s_desc%d",world[i].code);
         } else {
             fprintf(of, "\"%s\"", encodechar(world[i].s));
+            totalsize+=strlen(buffer);
         }
         fprintf(of, ",");
         if(compress_messages==true) {
             fprintf(of, "short_d%d",world[i].code);
         } else {
             fprintf(of, "\"%s\"", world[i].short_d);
+            totalsize+=strlen(world[i].short_d);
         }
         fprintf(of, ",");
         free(long_d);
@@ -2560,22 +2566,27 @@ void output_rooms(FILE *of, room* world, unsigned int rsize)
         fprintf(of,"\n");
     }
     fprintf(of,"};\n\n");
+    return totalsize;
 }
 
-/** Create the code for the messages in the output file. */
-void output_messages(FILE *of, message* msg, unsigned int msize)
+/** Create the code for the messages in the output file. 
+    Return the total size in byte occupied by the messages.
+*/
+unsigned int output_messages(FILE *of, message* msg, unsigned int msize)
 {
     unsigned int i,j;
     unsigned int size_d=0;
+    unsigned int totalsize=0;
     if(compress_messages==true||hardcoded_messages==true) {
         for(i=0; i<msize;++i) {
             fprintf(of, "char message%d[]=",msg[i].code);
             if(compress_messages==true) {
                 fprintf(of,"{");
-                compress(of, encodechar(msg[i].txt));
+                totalsize+=compress(of, encodechar(msg[i].txt));
                 fprintf(of,"}");
             } else {
                 fprintf(of,"\"%s\"",encodechar(msg[i].txt));
+                totalsize+=strlen(buffer)+1;
             }
             fprintf(of, ";\n");
 
@@ -2590,6 +2601,7 @@ void output_messages(FILE *of, message* msg, unsigned int msize)
             } else {
                 fprintf(of, TAB "{%d,\"%s\"}", msg[i].code,
                     encodechar(msg[i].txt));
+                totalsize+=strlen(buffer)+1;
             }
             if(i<msize-1) {
                 fprintf(of,",");
@@ -2612,6 +2624,7 @@ void output_messages(FILE *of, message* msg, unsigned int msize)
         }
         fprintf(of, "};\n\n");
     }
+    return totalsize;
 }
 
 /** Create the code for the objects in the output file. */
@@ -2954,8 +2967,10 @@ int main(int argc, char **argv)
     FILE *of;
     unsigned int dsize;
     unsigned int rsize;
+    unsigned int rsize_bytes;
     unsigned int osize;
     unsigned int msize;
+    unsigned int msize_bytes;
     unsigned int i;
     info *header;
     word* dictionary;
@@ -3061,8 +3076,8 @@ int main(int argc, char **argv)
         output_decoder(of);
     }
     output_dictionary(of, dictionary, dsize);
-    output_rooms(of, world, rsize);
-    output_messages(of, msg, msize);
+    rsize_bytes=output_rooms(of, world, rsize);
+    msize_bytes=output_messages(of, msg, msize);
     output_objects(of, objects, osize);
     output_utility_func(of);
     output_greetings(of, header);
@@ -3074,6 +3089,8 @@ int main(int argc, char **argv)
     output_optional_func(of);
     fclose(of);
     printf("File %s created\n",argv[argumentr+1]);
+    printf("Size occupied by room descriptions: %d bytes\n", rsize_bytes);
+    printf("Size occupied by messages: %d bytes\n", msize_bytes);
     printf("No of critical errors: %d\n",no_of_errors);
     if(no_of_errors>0)
         return 1;
