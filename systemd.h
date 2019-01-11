@@ -130,11 +130,84 @@
 
     /* Wait for one second */
     #define wait1s()    {}
-    #define PTRBRD 53280
-    #define PTRCLR 53281
+    #define PTRBRD 53280U
+    #define PTRCLR 53281U
     /* Init the terminal */
+    #define POKE(addr,val)     (*(unsigned char*) (addr) = (val))
+    
+    // Restore default VIC-II config (lower case)
+    // This is useful if there is loader that goes in a graphic mode.
+
     #define init_term() {\
         *(char*)PTRBRD = 0x00;\
+        *(char*)PTRCLR = 0x00;\
+        clrscr();\
+        normaltxt();\
+        POKE(56578U, 63);\
+        POKE(56576U, 151);\
+        POKE(53272U, 23);\
+        POKE(53265U, 27);\
+    }
+
+    /* Prepare the terminal to leave the program execution. */
+    #define leave() asm("jmp $FCE2")
+
+#elif defined(PLUS4)
+
+    #include<conio.h>
+
+    #define BUFFERSIZE 80
+
+    #define SHIFTPETSCII \
+        if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20
+
+    #define waitscreen()
+
+    /* The number of columns of the screen */
+    #define NCOL 40
+    /* The number of available rows of the screen. If undefined, it is
+       not checked
+    */
+    #define NROW 21
+    extern unsigned char rowc;
+
+    #define green       "\x1E"
+    #define red         "\x1C"
+    #define cyan        "\x9F"
+    #define blue        "\x1F"
+    #define yellow      "\x9E"
+    #define pink        "\x96"
+
+
+    /* Macro to wait for a key */
+    #define waitkey() cgetc(); rowc=0
+
+    /* Define the style of the input text */
+    #define inputtxt() printf(green)
+
+    /* Define the style of the first evidenced text */
+    #define evidence1() printf(red)
+
+    /* Define the style of the second evidenced text */
+    #define evidence2() printf(yellow)
+
+    /* Define the style of the third evidenced text */
+    #define evidence3() printf(pink)
+
+    /* Define the style of the normal text */
+    #define normaltxt() printf(cyan)
+
+    /* Clear the screen */
+    #define cls() clrscr();zeror()
+
+    /* Write a tabulation (it can be adapted to screen width). */
+    #define tab() printf("    ")
+
+    /* Wait for one second */
+    #define wait1s()    {}
+    #define PTRCLR 65301U
+    /* Init the terminal */
+    #define init_term() {\
         *(char*)PTRCLR = 0x00;\
         clrscr();\
         normaltxt();\
@@ -233,7 +306,7 @@
         {unsigned int retTime = time(0) + 1;while (time(0) < retTime);}
     #define init_term() {printf("\x1b[2J");normaltxt();}
 
-    #define leave() printf("\x1b[0m\n\n")
+    #define leave() printf("\x1b[0m\n\n");
 
 #else /* Definitions for modern ANSI terminals */
 

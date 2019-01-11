@@ -48,7 +48,7 @@ void writesameln(char *line)
     while(1){
         c=*line;
         ++line;
-        if(c==' ' || c=='\n' || (c=='\\' && *line=='n') ||c=='\0') {
+        if(c==' ' || c=='\n' || (c=='\\' && *line=='n') || c=='\r' ||c=='\0') {
             wordbuffer[pc]='\0';
             if(colc>=NCOL) {
                 printf("\n");
@@ -61,7 +61,7 @@ void writesameln(char *line)
             if(c=='\0')
                 return;
             pc=0;
-            if(c=='\n' || (c=='\\' && *line=='n')) {
+            if(c=='\n' || c=='\r' || (c=='\\' && *line=='n')) {
                 if(c=='\\')
                     ++line;
                 printf("\n");

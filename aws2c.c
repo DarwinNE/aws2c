@@ -30,7 +30,7 @@ old Commodore machines.
 #include "aws.h"
 #include "compress.h"
 
-#define VERSION "1.2, september-december 2018"
+#define VERSION "1.3, September 2018 - January 2019"
 
 /* TO DO
 
@@ -1525,16 +1525,25 @@ unsigned int action_brin(FILE *f, char *line, unsigned int scanpos)
 }
 
 /** QUIT */
-unsigned int action_exit(FILE *f, char *line, unsigned int scanpos)
+unsigned int action_quit(FILE *f, char *line, unsigned int scanpos)
 {
-
-    fprintf(f, TAB TAB "leave(); exit(0);\n");
+    
+    fprintf(f, TAB TAB "if(are_you_sure()) {\n");
+    fprintf(f, TAB TAB TAB "leave(); exit(0);\n");
+    fprintf(f, TAB TAB "}\n");
+    fprintf(f, TAB TAB "goto return1;\n");
     return scanpos;
 }
 /** EXIT */
-unsigned int action_quit(FILE *f, char *line, unsigned int scanpos)
+unsigned int action_exit(FILE *f, char *line, unsigned int scanpos)
 {
-    fprintf(f, TAB TAB "leave(); exit(0);\n");
+    fprintf(f, TAB TAB 
+        "writeln(\"'E' and return to exit, anything else to restart.\\n\");\n");
+    fprintf(f, TAB TAB "fgets(decompress_b,B_SIZE,stdin);\n");
+    fprintf(f, TAB TAB "if(decompress_b[0]=='E' || decompress_b[0]=='e') {\n");
+    fprintf(f, TAB TAB TAB "leave(); exit(0);\n");
+    fprintf(f, TAB TAB "}");
+    fprintf(f, TAB TAB "restart(); goto return1;\n");
     return scanpos;
 }
 /** INVE */
@@ -1845,6 +1854,14 @@ unsigned int action_stre(FILE *f, char *line, unsigned int scanpos)
     fprintf(f, TAB TAB "counter[122]=%s;\n",function_res);
     return scanpos;
 }
+/** RESTART */
+unsigned int action_restart(FILE *f, char *line, unsigned int scanpos)
+{
+    fprintf(f, TAB TAB "if(are_you_sure())\n");
+    fprintf(f, TAB TAB TAB "restart();\n");
+    scanpos=action_wait(f, line, scanpos);
+    return scanpos;
+}
 /** DIMENS */
 unsigned int action_dimens(FILE *f, char *line, unsigned int scanpos)
 {
@@ -2082,8 +2099,7 @@ void process_aws(FILE *f, char *line)
             // ??
             printf("TEXT is not implemented\n");
         } else if(strcmp(token,"RESTART")==0) {
-            // ??
-            printf("RESTART is not implemented\n");
+            scanpos=action_restart(f, line, scanpos);
         } else if(strcmp(token,"LOAD")==0) {
             // ??
             printf("LOAD is not implemented\n");
@@ -2208,7 +2224,7 @@ void output_optional_func(FILE *of)
     }
 }
 
-void output_utility_func(FILE *of)
+void output_utility_func(FILE *of, info *header)
 {
     fprintf(of,"unsigned int current_position;\n");
     fprintf(of,"unsigned int next_position;\n");
@@ -2216,9 +2232,10 @@ void output_utility_func(FILE *of)
     
     fprintf(of,"boolean marker[129];\n");
     fprintf(of,"int counter[129];\n");
+
     fprintf(of,"object *odummy;\n\n");
     /* Introduces the prototype here, function will be included only if 
-       necessary after having analyzed the file. */
+       necessary, after having analyzed the file. */
     fprintf(of,"char *searchw(unsigned int w);\n");
 
     fprintf(of,"unsigned int search_object(unsigned int o)\n{\n");
@@ -2234,6 +2251,44 @@ void output_utility_func(FILE *of)
     fprintf(of,TAB TAB "if(world[i].code==r)\n");
     fprintf(of,TAB TAB TAB "return i;\n");
     fprintf(of,TAB "return 0;\n}\n\n");
+
+    fprintf(of,"void restart(void)\n{\n");
+    fprintf(of,TAB "unsigned char i;\n");
+    fprintf(of,TAB "unsigned int j;\n");
+    fprintf(of,TAB "for(i=1;i<129;++i){\n");
+    fprintf(of,TAB TAB "marker[i]=0;\n");
+    fprintf(of,TAB TAB "counter[i]=0;\n");
+    fprintf(of,TAB "}\n");
+    fprintf(of,TAB "for(j=0; j<RSIZE;++j)\n");
+    fprintf(of,TAB TAB "for(i=0; i<NDIR;++i)\n");
+    fprintf(of,TAB TAB TAB 
+        "world[j].directions[i]=original_connections[j][i];\n");
+
+    fprintf(of, TAB "init_term();\n");
+    fprintf(of, TAB "next_position=%d;\n",header->startroom);
+    fprintf(of, TAB "marker[124]=true;\n");
+    fprintf(of, TAB "marker[121]=true;\n");
+    if(header->maxcarryingw==0) {
+        header->maxcarryingw=10000;
+    }
+    if(header->maxcarryings==0) {
+        header->maxcarryings=10000;
+    }
+    fprintf(of, TAB "counter[121]=%d;\n",header->maxcarryings);
+    fprintf(of, TAB "counter[122]=%d;\n",header->maxcarryingw);
+    fprintf(of, TAB "for(j=0; j<OSIZE;++j)\n");
+    fprintf(of, TAB TAB "obj[j].position=original_position[j];\n");
+    fprintf(of, "}\n\n");
+
+    fprintf(of, "boolean are_you_sure(void)\n{\n"); 
+    fprintf(of, TAB 
+        "writeln(\"Are you sure? Type 'Y' and return if yes.\\n\");\n");
+    fprintf(of, TAB "fgets(decompress_b,B_SIZE,stdin);\n");
+    fprintf(of, TAB "if(decompress_b[0]=='Y' || decompress_b[0]=='y') {\n");
+    fprintf(of, TAB TAB "return 1;\n");
+    fprintf(of, TAB "}\n");
+    fprintf(of, TAB "return 0;\n");
+    fprintf(of, "}\n\n");
 
     if(hardcoded_messages==false) {
         if(compress_messages==true) {
@@ -2525,6 +2580,19 @@ unsigned int output_rooms(FILE *of, room* world, unsigned int rsize)
         }
     }
     fprintf(of, "#define RSIZE %d\n",rsize);
+        if(use_6_directions)
+        fprintf(of,"#define NDIR 6\n");
+    else
+        fprintf(of,"#define NDIR 10\n");
+    fprintf(of,"int original_connections[RSIZE][NDIR]={\n");
+    for(i=0; i<rsize;++i) {
+        fprintf(of, TAB "{");
+        for(j=0; use_6_directions==true?j<6:j<10;++j) {
+            fprintf(of, "%d,", world[i].directions[j]);
+        }
+        fprintf(of,"},\n");
+    }
+    fprintf(of, "};\n");
     fprintf(of, "room world[RSIZE]={\n");
     for(i=0; i<rsize;++i) {
         p=encodechar(world[i].long_d);
@@ -2642,6 +2710,12 @@ void output_objects(FILE *of, object* obj, unsigned int osize)
         }
     }
     fprintf(of, "#define OSIZE %d\n",osize);
+
+    fprintf(of,"int original_position[OSIZE]={\n" TAB);
+    for(i=0; i<osize;++i)
+        fprintf(of, "%d,", obj[i].position);
+    fprintf(of,"};\n");
+
     fprintf(of, "object obj[OSIZE]={\n");
     for(i=0; i<osize;++i) {
         if(compress_messages==true) {
@@ -2821,11 +2895,7 @@ void output_gamecycle(FILE *f)
 
     fprintf(f, TAB TAB TAB "if(marker[124]==true) {\n");
     fprintf(f, TAB TAB TAB TAB "pa=false;\n");
-    if(use_6_directions)
-        fprintf(f, TAB TAB TAB TAB "for(k=0; k<6; ++k)\n");
-    else
-        fprintf(f, TAB TAB TAB TAB "for(k=0; k<10; ++k)\n");
-
+    fprintf(f, TAB TAB TAB TAB "for(k=0; k<NDIR; ++k)\n");
     fprintf(f, TAB TAB TAB TAB TAB
         "if(world[search_room(current_position)].directions[k]!=0) {\n");
     fprintf(f, TAB TAB TAB TAB TAB TAB "if(pa==false) {\n");
@@ -2874,22 +2944,12 @@ void output_gamecycle(FILE *f)
 }
 
 /** Create the entry point of the game. */
-void create_main(FILE *f, info *header)
+void create_main(FILE *f)
 {
     fprintf(f, "\nint main(void)\n{\n");
     fprintf(f, TAB "init_term();\n");
     fprintf(f, TAB "greetings();\n");
-    fprintf(f, TAB "next_position=%d;\n",header->startroom);
-    fprintf(f, TAB "marker[124]=true;\n");
-    fprintf(f, TAB "marker[121]=true;\n");
-    if(header->maxcarryingw==0) {
-        header->maxcarryingw=10000;
-    }
-    if(header->maxcarryings==0) {
-        header->maxcarryings=10000;
-    }
-    fprintf(f, TAB "counter[121]=%d;\n",header->maxcarryings);
-    fprintf(f, TAB "counter[122]=%d;\n",header->maxcarryingw);
+    fprintf(f, TAB "restart();\n");
     fprintf(f, TAB "game_cycle();\n");
     fprintf(f, TAB "return 0;\n");
     fprintf(f, "}\n");
@@ -3079,13 +3139,13 @@ int main(int argc, char **argv)
     rsize_bytes=output_rooms(of, world, rsize);
     msize_bytes=output_messages(of, msg, msize);
     output_objects(of, objects, osize);
-    output_utility_func(of);
+    output_utility_func(of,header);
     output_greetings(of, header);
     output_hicond(of, hicond, hicondsize);
     output_lowcond(of, lowcond, lowcondsize);
     output_local(of,localcond, localcondsize);
     output_gamecycle(of);
-    create_main(of, header);
+    create_main(of);
     output_optional_func(of);
     fclose(of);
     printf("File %s created\n",argv[argumentr+1]);
