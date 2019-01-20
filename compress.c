@@ -71,7 +71,7 @@ char pop(void)
 /* Depth-first exploration of the tree.*/
 void explore_tree(node *n)
 {
-    int c;
+    int c,i;
     treearray[n->nodeindex]=*n;
 
     if(n->son0==NULL&&n->son1==NULL) {
@@ -85,15 +85,21 @@ void explore_tree(node *n)
             else {
                 if (c=='\n'||c=='\0')
                     c='\\';
-                printf("%8d %6.2f%%, code: %20s   [%c",frequencies[n->c],
-                    (float)frequencies[n->c]/numofchar*100,
-                    codestack, c);
+                printf("%8d %6.2f%%, code: ",frequencies[n->c],
+                    (float)frequencies[n->c]/numofchar*100);
+                for(i=18; i>=0; --i) {
+                    if(i<length[n->c])
+                        printf("%c",codestack[i]);
+                    else
+                        printf(" ");
+                }
+                printf(" [%c", c);
                 if (n->c=='\n')
                     printf("n");
                  if (n->c=='\0')
                     printf("0");
-                printf("] i.e. 0x%X (0x%X on %d bits)\n",
-                    (int)n->c,code[n->c],length[n->c]);
+                printf("] i.e. 0x%X (%d bits)\n",
+                    (int)n->c,length[n->c]);
             }
         }
     } else {
@@ -271,7 +277,7 @@ void output_decoder(FILE *fout)
     fprintf(fout,"        SHIFTPETSCII;\n");
     fprintf(fout,"        decompress_b[k++]=c;\n");
     fprintf(fout,"    } while(c!='\\0'&&k<B_SIZE);\n");
-    fprintf(fout,"    if(k>=B_SIZE) {\n");
+    fprintf(fout,"    if(k==B_SIZE && c!='\\0') {\n");
     fprintf(fout,"        decompress_b[k]='\\0';\n");
     fprintf(fout,"        return 1;\n");
     fprintf(fout,"    }\n");
@@ -307,7 +313,7 @@ int compress(FILE *fout, char *txt)
         if(i%40==0) // Avoid creating lines that are too long.
             fprintf(fout,"\n");
     } while(c!='\0');
-    fprintf(fout,"0x%X", (unsigned char)coded_v);
+    if(shift!=0) fprintf(fout,"0x%X", (unsigned char)coded_v);
     ++size;
     shift=0;
     coded_v=0;
