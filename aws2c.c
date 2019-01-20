@@ -2264,7 +2264,6 @@ void output_utility_func(FILE *of, info *header)
     fprintf(of,TAB TAB TAB 
         "world[j].directions[i]=original_connections[j][i];\n");
 
-    fprintf(of, TAB "init_term();\n");
     fprintf(of, TAB "next_position=%d;\n",header->startroom);
     fprintf(of, TAB "marker[124]=true;\n");
     fprintf(of, TAB "marker[121]=true;\n");
