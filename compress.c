@@ -216,20 +216,6 @@ void output_decoder(FILE *fout)
     fprintf(fout,"unsigned char currbyte;\n\n");
     fprintf(fout,"unsigned int tt_c;\n");
 
-    fprintf(fout,"unsigned char g_b(void)\n");
-    fprintf(fout,"{\n");
-    fprintf(fout,"   if(bpointer==0) {\n");
-    fprintf(fout,"       currbyte=compressed[cpointer];\n");
-    fprintf(fout,"   }\n");
-    fprintf(fout,"   if(++bpointer==8) {\n");
-    fprintf(fout,"       bpointer=0;\n");
-    fprintf(fout,"       ++cpointer;\n");
-    fprintf(fout,"   }\n");
-    fprintf(fout,"   tt_c=currbyte&0x1;\n");
-    fprintf(fout,"   currbyte>>=1;\n");
-    fprintf(fout,"   return tt_c;\n");
-    fprintf(fout,"}\n\n");
-
     np=create_tree();
     stackp=0;
     explore_tree(np);
@@ -253,7 +239,16 @@ void output_decoder(FILE *fout)
     fprintf(fout,"    while(1) {\n");
     fprintf(fout,"        if(huftree[iii].c!=255)\n");
     fprintf(fout,"            return huftree[iii].c;\n");
-    fprintf(fout,"        if(g_b()==0) {\n");
+    fprintf(fout,"        if(bpointer==0) {\n");
+    fprintf(fout,"           currbyte=compressed[cpointer];\n");
+    fprintf(fout,"        }\n");
+    fprintf(fout,"        if(++bpointer==8) {\n");
+    fprintf(fout,"           bpointer=0;\n");
+    fprintf(fout,"           ++cpointer;\n");
+    fprintf(fout,"        }\n");
+    fprintf(fout,"        tt_c=currbyte&0x1;\n");
+    fprintf(fout,"        currbyte>>=1;\n");
+    fprintf(fout,"        if(tt_c==0) {\n");
     fprintf(fout,"            iii=huftree[iii].son0idx;\n");
     fprintf(fout,"        } else {\n");
     fprintf(fout,"            iii=huftree[iii].son1idx;\n");
@@ -271,7 +266,7 @@ void output_decoder(FILE *fout)
     fprintf(fout,"char decode(void)\n");
     fprintf(fout,"{\n");
     fprintf(fout,"    char c;\n");
-    fprintf(fout,"    unsigned int k=0;\n");
+    fprintf(fout,"    unsigned char k=0;\n");
     fprintf(fout,"    do {\n");
     fprintf(fout,"        c=hufget();\n");
     fprintf(fout,"        SHIFTPETSCII;\n");

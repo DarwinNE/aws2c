@@ -858,7 +858,7 @@ unsigned int decision_set(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, "marker[%s]==true", function_res);
+    fprintf(f, "marker[%s]", function_res);
     return scanpos;
 }
 
@@ -1249,7 +1249,7 @@ unsigned int decision_isnotmovable(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, "obj[search_object(%s)].isnotmovable==true",
+    fprintf(f, "obj[search_object(%s)].isnotmovable",
         function_res);
     return scanpos;
 }
@@ -2224,11 +2224,16 @@ void output_optional_func(FILE *of)
     }
 }
 
-void output_utility_func(FILE *of, info *header)
+void output_utility_func(FILE *of, info *header, int rsize, int osize)
 {
-    fprintf(of,"unsigned int current_position;\n");
-    fprintf(of,"unsigned int next_position;\n");
-    fprintf(of,"extern unsigned int ls;\n");
+    if(rsize>255) {
+        fprintf(of,"unsigned int current_position;\n");
+        fprintf(of,"unsigned int next_position;\n");
+    } else {
+        fprintf(of,"unsigned char current_position;\n");
+        fprintf(of,"unsigned char next_position;\n");
+    }
+    fprintf(of,"extern unsigned char ls;\n");
     
     fprintf(of,"boolean marker[129];\n");
     fprintf(of,"int counter[129];\n");
@@ -2238,8 +2243,14 @@ void output_utility_func(FILE *of, info *header)
        necessary, after having analyzed the file. */
     fprintf(of,"char *searchw(unsigned int w);\n");
 
-    fprintf(of,"unsigned int search_object(unsigned int o)\n{\n");
-    fprintf(of,TAB "unsigned int i;\n");
+    if(osize>255) {
+        fprintf(of,"unsigned int search_object(unsigned int o)\n{\n");
+        fprintf(of,TAB "unsigned int i;\n");
+
+    } else {
+        fprintf(of,"unsigned char search_object(unsigned int o)\n{\n");
+        fprintf(of,TAB "unsigned char i;\n");
+    }
     fprintf(of,TAB "for(i=0; i<OSIZE;++i)\n");
     fprintf(of,TAB TAB "if(obj[i].code==o)\n");
     fprintf(of,TAB TAB TAB "return i;\n");
@@ -2829,7 +2840,7 @@ void output_gamecycle(FILE *f)
     fprintf(f, TAB "while(1){\n");
     fprintf(f, TAB TAB "current_position=next_position;\n");
     fprintf(f, TAB TAB
-        "if(marker[120]==false&&(marker[121]==true||marker[122]==true)) {\n");
+        "if(marker[120]==false&&(marker[121]||marker[122])) {\n");
     if(add_clrscr==true)
         fprintf(f, TAB TAB TAB "clear();\n");
     else
@@ -2892,7 +2903,7 @@ void output_gamecycle(FILE *f)
     fprintf(f, TAB TAB TAB TAB "}\n");
     fprintf(f, TAB TAB TAB "normaltxt();\n");
 
-    fprintf(f, TAB TAB TAB "if(marker[124]==true) {\n");
+    fprintf(f, TAB TAB TAB "if(marker[124]) {\n");
     fprintf(f, TAB TAB TAB TAB "pa=false;\n");
     fprintf(f, TAB TAB TAB TAB "for(k=0; k<NDIR; ++k)\n");
     fprintf(f, TAB TAB TAB TAB TAB
@@ -3138,7 +3149,7 @@ int main(int argc, char **argv)
     rsize_bytes=output_rooms(of, world, rsize);
     msize_bytes=output_messages(of, msg, msize);
     output_objects(of, objects, osize);
-    output_utility_func(of,header);
+    output_utility_func(of,header,rsize, osize);
     output_greetings(of, header);
     output_hicond(of, hicond, hicondsize);
     output_lowcond(of, lowcond, lowcondsize);

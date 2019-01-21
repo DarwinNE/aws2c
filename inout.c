@@ -35,7 +35,7 @@ extern word dictionary[];
 
 /* The current position in the line */
 
-unsigned int ls, lc;
+unsigned char ls, lc;
 
 /** Write a string without adding a newline. Process some codes to put in
     evidence the text and handle the word wrapping.
