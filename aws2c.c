@@ -74,6 +74,8 @@ boolean need_cvn=false;
 boolean need_hold=false;
 boolean need_cvna=false;
 boolean need_sendallroom=false;
+boolean need_unwear=false;
+
 
 typedef struct conv_t {
     char *orig;
@@ -1661,7 +1663,7 @@ unsigned int action_get(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, TAB TAB "if(get(%s)!=0) goto return1;\n", function_res);
+    fprintf(f, TAB TAB "if(get(%s)) goto return1;\n", function_res);
 
     return scanpos;
 }
@@ -1831,19 +1833,8 @@ unsigned int action_unwear(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, TAB TAB "dummy=search_object(%s);\n",function_res);
-    fprintf(f, TAB TAB "odummy=&obj[dummy];\n");
-
-    fprintf(f, TAB TAB "if(odummy->position==WEARED){\n");
-    fprintf(f, TAB TAB TAB "odummy->position=CARRIED;\n");
-    fprintf(f, TAB TAB TAB "--counter[118];\n");
-    fprintf(f, TAB TAB "} else {\n");
-    if(hardcoded_messages==false)
-        fprintf(f, TAB TAB TAB "show_message(1010);\n");
-    else
-        fprintf(f, TAB TAB TAB "show_message(message1010);\n");
-    fprintf(f, TAB TAB TAB "goto return1;\n");
-    fprintf(f, TAB TAB "}\n");
+    need_unwear=true;
+    fprintf(f, TAB TAB "if(unwear(%s)) goto return1;\n", function_res);
     return scanpos;
 }
 /** STRE */
@@ -2137,6 +2128,8 @@ void output_header(FILE *of)
     if(use_6_directions==true) {
         fprintf(of,"#define DIR_REDUCED\n");
     }
+
+    fprintf(of,"#define AVOID_SDESC\n");
     fprintf(of,"#include\"aws.h\"\n\n");
     fprintf(of,"#include\"inout.h\"\n");
     fprintf(of,"#include\"systemd.h\"\n\n");
@@ -2159,6 +2152,24 @@ void output_optional_func(FILE *of)
         fprintf(of, TAB TAB "if(w==dictionary[i].code)\n");
         fprintf(of, TAB TAB TAB "return dictionary[i].w;\n");
         fprintf(of, TAB "return nonestr;\n");
+        fprintf(of, "}\n");
+    }
+    if(need_unwear) {
+        fprintf(of, "boolean unwear(unsigned int o)\n{\n");
+        fprintf(of, TAB "dummy=search_object(o);\n");
+        fprintf(of, TAB "odummy=&obj[dummy];\n");
+
+        fprintf(of, TAB "if(odummy->position==WEARED){\n");
+        fprintf(of, TAB TAB "odummy->position=CARRIED;\n");
+        fprintf(of, TAB TAB "--counter[118];\n");
+        fprintf(of, TAB "} else {\n");
+        if(hardcoded_messages==false)
+            fprintf(of, TAB TAB "show_message(1010);\n");
+        else
+            fprintf(of, TAB TAB "show_message(message1010);\n");
+        fprintf(of, TAB TAB "return true;\n");
+        fprintf(of, TAB "}\n");
+        fprintf(of, TAB "return false;\n");
         fprintf(of, "}\n");
     }
     if(need_vov) {
@@ -2193,7 +2204,7 @@ void output_optional_func(FILE *of)
     if(need_cvna) {
         /* If a name and a noun and avai conditions are given */
         fprintf(of,
-            "unsigned int cvna(unsigned int v, unsigned int n, "
+            "boolean cvna(unsigned int v, unsigned int n, "
             "unsigned int o)\n");
         fprintf(of, "{\n    dummy=get_object_position(o);\n");
         fprintf(of, "    return verb==v&&noun1==n&&"
@@ -2239,9 +2250,11 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize)
     fprintf(of,"int counter[129];\n");
 
     fprintf(of,"object *odummy;\n\n");
-    /* Introduces the prototype here, function will be included only if 
+    /* Introduces the prototype here, functions will be included only if 
        necessary, after having analyzed the file. */
     fprintf(of,"char *searchw(unsigned int w);\n");
+    fprintf(of, "boolean unwear(unsigned int o);\n");
+
 
     if(osize>255) {
         fprintf(of,"unsigned int search_object(unsigned int o)\n{\n");
@@ -2265,7 +2278,10 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize)
 
     fprintf(of,"void restart(void)\n{\n");
     fprintf(of,TAB "unsigned char i;\n");
-    fprintf(of,TAB "unsigned int j;\n");
+    if(rsize>255||osize>255)
+        fprintf(of,TAB "unsigned int j;\n");
+    else
+        fprintf(of,TAB "unsigned char j;\n");
     fprintf(of,TAB "for(i=1;i<129;++i){\n");
     fprintf(of,TAB TAB "marker[i]=0;\n");
     fprintf(of,TAB TAB "counter[i]=0;\n");
@@ -2275,7 +2291,6 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize)
     fprintf(of,TAB TAB TAB 
         "world[j].directions[i]=original_connections[j][i];\n");
 
-    fprintf(of, TAB "next_position=%d;\n",header->startroom);
     fprintf(of, TAB "marker[124]=true;\n");
     fprintf(of, TAB "marker[121]=true;\n");
     if(header->maxcarryingw==0) {
@@ -2284,6 +2299,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize)
     if(header->maxcarryings==0) {
         header->maxcarryings=10000;
     }
+    fprintf(of, TAB "next_position=%d;\n",header->startroom);
     fprintf(of, TAB "counter[121]=%d;\n",header->maxcarryings);
     fprintf(of, TAB "counter[122]=%d;\n",header->maxcarryingw);
     fprintf(of, TAB "for(j=0; j<OSIZE;++j)\n");
@@ -2304,11 +2320,13 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize)
         if(compress_messages==true) {
             fprintf(of,"void write_textsl(char *m)\n{\n");
             fprintf(of,TAB "char r;\n");
-            fprintf(of,TAB "decode_start(m);\n");
+            fprintf(of,TAB "cpointer=0;\n");
+            fprintf(of,TAB "bpointer=0;\n");
+            fprintf(of,TAB "compressed=m;\n");
             fprintf(of,TAB "do {\n");
             fprintf(of,TAB TAB "r=decode();\n");
             fprintf(of,TAB TAB "writesameln(decompress_b);\n");
-            fprintf(of,TAB "} while(r!=0);\n");
+            fprintf(of,TAB "} while(r);\n");
             fprintf(of, "}\n");
             fprintf(of,"void write_text(char *m)\n{\n");
             fprintf(of,TAB "write_textsl(m);\n");
@@ -2336,12 +2354,15 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize)
 
         fprintf(of,"void show_messagenlf(char *m)\n{\n");
         if(compress_messages==true) {
-            fprintf(of,TAB "char r;\n");
-            fprintf(of,TAB "decode_start(m);\n");
-            fprintf(of,TAB "do {\n");
-            fprintf(of,TAB TAB "r=decode();\n");
+            fprintf(of,TAB "boolean o;\n");
+            fprintf(of,TAB "cpointer=0;\n");
+            fprintf(of,TAB "bpointer=0;\n");
+            fprintf(of,TAB "compressed=m;\n");
+            fprintf(of,TAB "do{\n");
+            fprintf(of,TAB TAB "o=decode();\n");
             fprintf(of,TAB TAB "writesameln(decompress_b);\n");
-            fprintf(of,TAB "} while(r!=0);\n");
+            fprintf(of,TAB "} while(o);\n");
+
         } else {
             fprintf(of,TAB "writesameln(m);\n");
         }
@@ -2353,15 +2374,20 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize)
         fprintf(of, "}\n\n");
     }
     fprintf(of,"void inventory(void)\n{\n");
-    fprintf(of,TAB "unsigned int i, gs=0;\n");
+    fprintf(of,TAB "boolean gs=false;\n");
+    if(osize>255)
+        fprintf(of,TAB "unsigned int i;\n");
+    else
+        fprintf(of,TAB "unsigned char i;\n");
+
     if(hardcoded_messages==false)
         fprintf(of,TAB "show_message(1032);\n");
     else
         fprintf(of,TAB "show_message(message1032);\n");
     fprintf(of,TAB "for(i = 0; i<OSIZE; ++i) {\n");
-    fprintf(of,TAB TAB 
-        "if(obj[i].position==CARRIED||obj[i].position==WEARED) {\n");
-    fprintf(of,TAB TAB TAB "++gs;\n");
+    fprintf(of,TAB TAB "dummy=obj[i].position;\n");
+    fprintf(of,TAB TAB "if(dummy==CARRIED||dummy==WEARED) {\n");
+    fprintf(of,TAB TAB TAB "gs=true;\n");
     fprintf(of,TAB TAB TAB "evidence2();\n");
     if(compress_messages==true) {
         if(hardcoded_messages==false) {
@@ -2373,7 +2399,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize)
         fprintf(of,TAB TAB TAB "writeln(obj[i].desc);\n");
     }
     fprintf(of,TAB TAB TAB "normaltxt();\n");
-    fprintf(of,TAB TAB TAB "if(obj[i].position==WEARED){\n");
+    fprintf(of,TAB TAB TAB "if(dummy==WEARED){\n");
     fprintf(of,TAB TAB TAB TAB "writesameln(\"  \");\n");
     if(hardcoded_messages==false)
         fprintf(of,TAB TAB TAB TAB "show_messagenlf(1018);\n");
@@ -2386,16 +2412,21 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize)
     //fprintf(of,TAB "normaltxt();\n");
 
     if(hardcoded_messages==false)
-        fprintf(of,TAB "if(gs==0) show_message(1033);\n}\n\n");
+        fprintf(of,TAB "if(gs==false) show_message(1033);\n}\n\n");
     else
-        fprintf(of,TAB "if(gs==0) show_message(message1033);\n}\n\n");
+        fprintf(of,TAB "if(gs==false) show_message(message1033);\n}\n\n");
 
     fprintf(of, "unsigned int move(unsigned int dir)\n");
     fprintf(of, "{\n");
+    if(rsize>255)
+        fprintf(of, TAB "unsigned int p;\n");
+    else
+        fprintf(of, TAB "unsigned char p;\n");
+    fprintf(of, TAB 
+        "p=world[search_room(current_position)].directions[dir];\n");
     fprintf(of, TAB
-        "if(world[search_room(current_position)].directions[dir]!=0) {\n");
-    fprintf(of, TAB TAB "next_position="
-        "world[search_room(current_position)].directions[dir];\n");
+        "if(p) {\n");
+    fprintf(of, TAB TAB "next_position=p;");
     fprintf(of, TAB TAB "marker[120]=false;\n");
     fprintf(of, TAB TAB "return 1;\n");
     fprintf(of, TAB "} else \n");
@@ -2405,44 +2436,43 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize)
         fprintf(of, TAB TAB "show_message(message1008);\n");
     fprintf(of, TAB "return 0;\n}\n\n");
 
-    fprintf(of, "unsigned int get(unsigned int o)\n");
+    fprintf(of, "boolean get(unsigned int o)\n");
     fprintf(of, "{\n");
-    fprintf(of, TAB "dummy=search_object(o);\n");
-    fprintf(of, TAB "odummy=&obj[dummy];\n");
+    fprintf(of, TAB "odummy=&obj[search_object(o)];\n");
 
     fprintf(of, TAB "if(odummy->position!=current_position) {\n");
     if(hardcoded_messages==false)
         fprintf(of, TAB TAB "show_message(1006);\n");
     else
         fprintf(of, TAB TAB "show_message(message1006);\n");
-    fprintf(of, TAB TAB "return 1;\n");
+    fprintf(of, TAB TAB "return true;\n");
     /* Euh... should not be isnotmovable==true here??? */
     fprintf(of, TAB "} else if(odummy->isnotmovable==false) {\n");
     if(hardcoded_messages==false)
         fprintf(of, TAB TAB "show_message(1005);\n");
     else
         fprintf(of, TAB TAB "show_message(message1005);\n");
-    fprintf(of, TAB TAB "return 1;\n");
+    fprintf(of, TAB TAB "return true;\n");
     fprintf(of, TAB
         "} else if(counter[120]+odummy->weight>counter[122]){ \n");
     if(hardcoded_messages==false)
         fprintf(of, TAB TAB "show_message(1003);\n");
     else
         fprintf(of, TAB TAB "show_message(message1003);\n");
-    fprintf(of, TAB TAB TAB "return 1;\n");
+    fprintf(of, TAB TAB TAB "return true;\n");
     fprintf(of, TAB "} else if(counter[124]+odummy->size>counter[121]) {\n");
     if(hardcoded_messages==false)
         fprintf(of, TAB TAB "show_message(1004);\n");
     else
         fprintf(of, TAB TAB "show_message(message1004);\n");
-    fprintf(of, TAB TAB "return 1;\n");
+    fprintf(of, TAB TAB "return true;\n");
     fprintf(of, TAB "} else {\n");
     fprintf(of, TAB TAB "odummy->position=CARRIED;\n");
     fprintf(of, TAB TAB "++counter[119];\n");
     fprintf(of, TAB TAB "counter[120]+=odummy->weight;\n");
     fprintf(of, TAB TAB "counter[124]+=odummy->size;\n");
     fprintf(of, TAB "}\n");
-    fprintf(of, TAB "return 0;\n");
+    fprintf(of, TAB "return false;\n");
     fprintf(of, "}\n");
 
     /* Check among two verbs */
@@ -2462,7 +2492,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize)
     fprintf(of, "void sendallroom(unsigned int s);\n");
 
     /* Get current position of an object */
-    fprintf(of, "unsigned int get_object_position(unsigned int c)\n");
+    fprintf(of, "unsigned int get_object_position(unsigned char c)\n");
     fprintf(of, "{\n");
     fprintf(of, "    return obj[search_object(c)].position;\n");
     fprintf(of, "}\n");
@@ -2499,14 +2529,20 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize)
      /* Check for a position and marker */
 
     if(hardcoded_messages==false) {
-        fprintf(of,
-            "void amsm(unsigned int p, unsigned char c, boolean v,"
-            " unsigned int m)\n");
+        fprintf(of,"void amsm(");
+        if(rsize>255)
+            fprintf(of,"unsigned int");
+        else
+            fprintf(of,"unsigned char");
+        fprintf(of,"p, unsigned char c, boolean v, unsigned int m)\n");
 
     } else {
-        fprintf(of,
-            "void amsm(unsigned int p, unsigned char c, boolean v,"
-            " char *m)\n");
+        fprintf(of,"void amsm(");
+        if(rsize>255)
+            fprintf(of,"unsigned int");
+        else
+            fprintf(of,"unsigned char");
+        fprintf(of," p, unsigned char c, boolean v, char *m)\n");
     }
 
     fprintf(of, "{\n");
@@ -2516,11 +2552,10 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize)
 
     /* If a name and a noun and avai conditions are given */
     fprintf(of,
-        "unsigned int cvna(unsigned int v, unsigned int n, unsigned int o);\n");
+        "boolean cvna(unsigned int v, unsigned int n, unsigned int o);\n");
 
     fprintf(of, "void drop(unsigned int o)\n{\n");
-    fprintf(of, TAB  "dummy=search_object(o);\n");
-    fprintf(of, TAB  "odummy=&obj[dummy];\n");
+    fprintf(of, TAB  "odummy=&obj[search_object(o)];\n");
 
     fprintf(of, TAB  "if(odummy->position==CARRIED){\n");
     fprintf(of, TAB TAB "odummy->position=current_position;\n");
@@ -2534,7 +2569,12 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize)
         fprintf(of, TAB TAB "show_message(message1007);\n");
     fprintf(of, "}\n\n");
 
-    fprintf(of, "void jump(unsigned int p)\n{\n");
+    fprintf(of, "void jump(");
+    if(rsize>255)
+        fprintf(of, "unsigned int");
+    else
+        fprintf(of, "unsigned char");
+    fprintf(of, " p)\n{\n");
     fprintf(of, TAB "next_position=p;\n");
     fprintf(of, TAB "marker[120]=false;\n");
     fprintf(of, "}\n\n");
@@ -2581,9 +2621,9 @@ unsigned int output_rooms(FILE *of, room* world, unsigned int rsize)
             fprintf(of, "char long_d%d[]={",world[i].code);
             totalsize+=compress(of, encodechar(world[i].long_d));
             fprintf(of, "};\n");
-            fprintf(of, "char s_desc%d[]={",world[i].code);
+            /*fprintf(of, "char s_desc%d[]={",world[i].code);
             totalsize+=compress(of, encodechar(world[i].s));
-            fprintf(of, "};\n");
+            fprintf(of, "};\n");*/
             fprintf(of, "char short_d%d[]={",world[i].code);
             totalsize+=compress(of, encodechar(world[i].short_d));
             fprintf(of, "};\n");
@@ -2616,13 +2656,14 @@ unsigned int output_rooms(FILE *of, room* world, unsigned int rsize)
             fprintf(of, "\"%s\"", long_d);
             totalsize+=strlen(long_d);
         }
-        fprintf(of, ",");
+        /*fprintf(of, ",");
+        
         if(compress_messages==true) {
             fprintf(of, "s_desc%d",world[i].code);
         } else {
             fprintf(of, "\"%s\"", encodechar(world[i].s));
             totalsize+=strlen(buffer);
-        }
+        }*/
         fprintf(of, ",");
         if(compress_messages==true) {
             fprintf(of, "short_d%d",world[i].code);
@@ -2773,15 +2814,15 @@ void output_greetings(FILE *f, info *header)
 void output_hicond(FILE *f, char **cond, unsigned int size)
 {
     unsigned int i;
-    fprintf(f,"unsigned int hi_cond(void)\n{\n");
+    fprintf(f,"boolean hi_cond(void)\n{\n");
     for(i=0; i<size; ++i) {
         process_aws(f,cond[i]);
     }
-    fprintf(f, TAB "return 0;\n");
+    fprintf(f, TAB "return false;\n");
     /*  Use of goto allows to spare a few bytes instead of putting a return 1
         every time in the code. The difference can be considerable in big
         adventures, as there are plenty of WAIT commands. */
-    fprintf(f, TAB "return1: return 1;\n");
+    fprintf(f, TAB "return1: return true;\n");
     fprintf(f,"}\n");
 }
 
@@ -2789,15 +2830,15 @@ void output_hicond(FILE *f, char **cond, unsigned int size)
 void output_lowcond(FILE *f, char **cond, unsigned int size)
 {
     unsigned int i;
-    fprintf(f,"unsigned int low_cond(void)\n{\n");
+    fprintf(f,"boolean low_cond(void)\n{\n");
     for(i=0; i<size; ++i) {
         process_aws(f,cond[i]);
     }
-    fprintf(f, TAB "return 0;\n");
+    fprintf(f, TAB "return false;\n");
     /*  Use of goto allows to spare a few bytes instead of putting a return 1
         every time in the code. The difference can be considerable in big
         adventures, as there are plenty of WAIT commands. */
-    fprintf(f, TAB "return1: return 1;\n");
+    fprintf(f, TAB "return1: return true;\n");
 
     fprintf(f,"}\n");
 }
@@ -2808,7 +2849,7 @@ void output_local(FILE *f, localc* cond, unsigned int size)
     unsigned int i;
     unsigned int oldroom=-1;
     boolean first=true;
-    fprintf(f,"unsigned int local_cond(void)\n{\n");
+    fprintf(f,"boolean local_cond(void)\n{\n");
     fprintf(f, TAB "switch(current_position) {\n");
     for(i=0; i<size; ++i) {
         if(oldroom!=cond[i].room) {
@@ -2823,19 +2864,23 @@ void output_local(FILE *f, localc* cond, unsigned int size)
     }
     fprintf(f, TAB "}\n");
 
-    fprintf(f, TAB "return 0;\n");
+    fprintf(f, TAB "return false;\n");
     /*  Use of goto allows to spare a few bytes instead of putting a return 1
         every time in the code. The difference can be considerable in big
         adventures, as there are plenty of WAIT commands. */
-    fprintf(f, TAB "return1: return 1;\n");
+    fprintf(f, TAB "return1: return true;\n");
     fprintf(f,"}\n");
 }
 
 /* Create code for the main game cycle */
-void output_gamecycle(FILE *f)
+void output_gamecycle(FILE *f, int osize)
 {
     fprintf(f,"\nvoid game_cycle(void)\n{\n");
-    fprintf(f, TAB "unsigned int k;\n");
+    if(osize>255)
+        fprintf(f, TAB "unsigned int k;\n");
+    else
+        fprintf(f, TAB "unsigned char k;\n");
+    fprintf(f, TAB "room *cr;\n");
     fprintf(f, TAB "boolean ve,pa;\n");
     fprintf(f, TAB "while(1){\n");
     fprintf(f, TAB TAB "current_position=next_position;\n");
@@ -2846,19 +2891,18 @@ void output_gamecycle(FILE *f)
     else
         fprintf(f,TAB TAB TAB "writeln(\"\");\n");
     fprintf(f, TAB TAB TAB "evidence1();\n");
+    fprintf(f, TAB TAB TAB "cr=&world[search_room(current_position)];\n");
     if(compress_messages==true) {
         if(hardcoded_messages==true) {
             fprintf(f,TAB TAB TAB
-                "show_messagenlf(world[search_room(current_position)]."
-                "short_d);\n");
+                "show_messagenlf(cr->short_d);\n");
         } else {
             fprintf(f,TAB TAB TAB
-                "write_textsl(world[search_room(current_position)]."
-                "short_d);\n");
+                "write_textsl(cr->short_d);\n");
         }
     } else {
         fprintf(f, TAB TAB TAB
-            "writesameln(world[search_room(current_position)].long_d);\n");
+            "writesameln(cr->long_d);\n");
     }
     fprintf(f,TAB TAB TAB "writesameln(\"  \");\n");
     fprintf(f,TAB TAB TAB  "normaltxt();\n");
@@ -2866,16 +2910,14 @@ void output_gamecycle(FILE *f)
     if(compress_messages==true) {
         if(hardcoded_messages==true) {
             fprintf(f,TAB TAB TAB 
-                "show_message(world[search_room(current_position)]."
-                "long_d);\n");
+                "show_message(cr->long_d);\n");
         } else {
             fprintf(f,TAB TAB TAB
-                "write_text(world[search_room(current_position)]."
-                "long_d);\n");
+                "write_text(cr->long_d);\n");
         }
     } else {
         fprintf(f, TAB TAB TAB
-            "writeln(world[search_room(current_position)].long_d);\n");
+            "writeln(cr->long_d);\n");
     }
     fprintf(f, TAB TAB TAB "writeln(\"\");\n");
     fprintf(f, TAB TAB TAB "marker[120]=true;\n");
@@ -2907,7 +2949,7 @@ void output_gamecycle(FILE *f)
     fprintf(f, TAB TAB TAB TAB "pa=false;\n");
     fprintf(f, TAB TAB TAB TAB "for(k=0; k<NDIR; ++k)\n");
     fprintf(f, TAB TAB TAB TAB TAB
-        "if(world[search_room(current_position)].directions[k]!=0) {\n");
+        "if(cr->directions[k]) {\n");
     fprintf(f, TAB TAB TAB TAB TAB TAB "if(pa==false) {\n");
     if(hardcoded_messages==false)
         fprintf(f, TAB TAB TAB TAB TAB TAB TAB "show_messagenlf(1020);\n");
@@ -2934,7 +2976,7 @@ void output_gamecycle(FILE *f)
     fprintf(f, TAB TAB "--counter[127];\n");
     fprintf(f, TAB TAB "--counter[128];\n");
 
-    fprintf(f, TAB TAB "if(hi_cond()!=0) continue;\n");
+    fprintf(f, TAB TAB "if(hi_cond()) continue;\n");
     fprintf(f, TAB TAB "writeln(\"\");\n");
 
     if(hardcoded_messages==false)
@@ -2943,8 +2985,8 @@ void output_gamecycle(FILE *f)
         fprintf(f, TAB TAB "if(ls==0) "
             "show_message(message1012);\n");
     fprintf(f, TAB TAB "interrogationAndAnalysis(DSIZE);\n");
-    fprintf(f, TAB TAB "if(local_cond()!=0) continue;\n");
-    fprintf(f, TAB TAB "if(low_cond()!=0) continue;\n");
+    fprintf(f, TAB TAB "if(local_cond()) continue;\n");
+    fprintf(f, TAB TAB "if(low_cond()) continue;\n");
     if(hardcoded_messages==false)
         fprintf(f, TAB TAB "show_message(verb==0?1009:1010);\n");
     else
@@ -3056,7 +3098,7 @@ int main(int argc, char **argv)
     unsigned int argumentr=1;
 
     init_analysis();
-    while (argumentr<argc && process_options(argv[argumentr], argv[0])!=0) {
+    while (argumentr<argc && process_options(argv[argumentr], argv[0])) {
         ++argumentr;
     }
     if (argumentr+1!=argc-1) {
@@ -3154,7 +3196,7 @@ int main(int argc, char **argv)
     output_hicond(of, hicond, hicondsize);
     output_lowcond(of, lowcond, lowcondsize);
     output_local(of,localcond, localcondsize);
-    output_gamecycle(of);
+    output_gamecycle(of, osize);
     create_main(of);
     output_optional_func(of);
     fclose(of);

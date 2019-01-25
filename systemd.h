@@ -81,7 +81,7 @@
 
     #include<conio.h>
 
-    #define BUFFERSIZE 80
+    #define BUFFERSIZE 40
 
     #define SHIFTPETSCII \
         if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20

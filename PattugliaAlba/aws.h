@@ -44,7 +44,9 @@ typedef struct word_d {
 typedef struct room_d {
     unsigned int code;
     char *long_d;
+    #ifndef AVOID_SDESC
     char *s;
+    #endif
     char *short_d;
 
     #ifndef DIR_REDUCED

@@ -7,7 +7,7 @@
     Some basic configuration can also be done by adjusting the systemdef.h file
     to your needs.
 
-    Davide Bucci, October-December 2018
+    Davide Bucci, October 2018-January 2019
 */
 
 #include <stdio.h>
@@ -17,7 +17,7 @@
 #include "inout.h"
 
 char playerInput[BUFFERSIZE];
-char wordbuffer[NCOL*2];
+char wordbuffer[NCOL];
 unsigned char colc;
 
 #ifdef NROW
@@ -36,19 +36,26 @@ extern word dictionary[];
 /* The current position in the line */
 
 unsigned char ls, lc;
+unsigned char pc;
+
 
 /** Write a string without adding a newline. Process some codes to put in
     evidence the text and handle the word wrapping.
 */
 void writesameln(char *line)
 {
-    char c;
-    unsigned int pc=0;
+    char c,d;
+    pc=0;
 
     while(1){
         c=*line;
         ++line;
-        if(c==' ' || c=='\n' || (c=='\\' && *line=='n') || c=='\r' ||c=='\0') {
+        d=*line;
+        if(c==' ' || c=='\n' || c=='\r' ||c=='\0'
+            #ifndef COMPRESSED
+            || (c=='\\' && d=='n')
+            #endif
+            ) {
             wordbuffer[pc]='\0';
             if(colc>=NCOL) {
                 printf("\n");
@@ -61,9 +68,15 @@ void writesameln(char *line)
             if(c=='\0')
                 return;
             pc=0;
-            if(c=='\n' || c=='\r' || (c=='\\' && *line=='n')) {
+            if(c=='\n' || c=='\r' 
+            #ifndef COMPRESSED
+            || (c=='\\' && d=='n')
+            #endif
+            ) {
+                #ifndef COMPRESSED
                 if(c=='\\')
                     ++line;
+                #endif
                 printf("\n");
                 colc=0;
                 #ifdef NROW

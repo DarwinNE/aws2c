@@ -211,14 +211,14 @@ void output_decoder(FILE *fout)
     fprintf(fout,"char *compressed;\n");
     fprintf(fout,"unsigned char bpointer;\n");
     fprintf(fout,"unsigned int cpointer;\n");
-    fprintf(fout,"#define B_SIZE 200\n");
+    fprintf(fout,"#define B_SIZE 100\n");
     fprintf(fout,"char decompress_b[B_SIZE+1];\n");
     fprintf(fout,"unsigned char currbyte;\n\n");
-    fprintf(fout,"unsigned int tt_c;\n");
 
     np=create_tree();
     stackp=0;
     explore_tree(np);
+    printf("Analyzed: %ld bytes\n",numofchar);
     fprintf(fout, "#define NUM_NODES %d\n", num_nodes);
     fprintf(fout, "tree huftree[NUM_NODES]={\n");
     for(i=0;i<num_nodes;++i) {
@@ -246,24 +246,16 @@ void output_decoder(FILE *fout)
     fprintf(fout,"           bpointer=0;\n");
     fprintf(fout,"           ++cpointer;\n");
     fprintf(fout,"        }\n");
-    fprintf(fout,"        tt_c=currbyte&0x1;\n");
-    fprintf(fout,"        currbyte>>=1;\n");
-    fprintf(fout,"        if(tt_c==0) {\n");
-    fprintf(fout,"            iii=huftree[iii].son0idx;\n");
-    fprintf(fout,"        } else {\n");
+    fprintf(fout,"        if(currbyte&0x1) {\n");
     fprintf(fout,"            iii=huftree[iii].son1idx;\n");
+    fprintf(fout,"        } else {\n");
+    fprintf(fout,"            iii=huftree[iii].son0idx;\n");
     fprintf(fout,"        }\n");
+    fprintf(fout,"        currbyte>>=1;\n");
     fprintf(fout,"    }\n");
     fprintf(fout,"}\n\n");
-    
-    fprintf(fout,"void decode_start(char *source)\n");
-    fprintf(fout,"{\n");
-    fprintf(fout,"    cpointer=0;\n");
-    fprintf(fout,"    bpointer=0;\n");
-    fprintf(fout,"    compressed=source;\n");
-    fprintf(fout,"}\n");
 
-    fprintf(fout,"char decode(void)\n");
+    fprintf(fout,"boolean decode(void)\n");
     fprintf(fout,"{\n");
     fprintf(fout,"    char c;\n");
     fprintf(fout,"    unsigned char k=0;\n");
@@ -272,11 +264,11 @@ void output_decoder(FILE *fout)
     fprintf(fout,"        SHIFTPETSCII;\n");
     fprintf(fout,"        decompress_b[k++]=c;\n");
     fprintf(fout,"    } while(c!='\\0'&&k<B_SIZE);\n");
-    fprintf(fout,"    if(k==B_SIZE && c!='\\0') {\n");
+    fprintf(fout,"    if(c!='\\0') {\n");
     fprintf(fout,"        decompress_b[k]='\\0';\n");
-    fprintf(fout,"        return 1;\n");
+    fprintf(fout,"        return true;\n");
     fprintf(fout,"    }\n");
-    fprintf(fout,"    return 0;\n");
+    fprintf(fout,"    return false;\n");
     fprintf(fout,"}\n");
 }
 
