@@ -2640,7 +2640,10 @@ unsigned int output_rooms(FILE *of, room* world, unsigned int rsize)
         for(j=0; use_6_directions==true?j<6:j<10;++j) {
             fprintf(of, "%d,", world[i].directions[j]);
         }
-        fprintf(of,"},\n");
+        fprintf(of,"}");
+        if(i<rsize-1)
+            fprintf(of,",");
+        fprintf(of,"\n");
     }
     fprintf(of, "};\n");
     fprintf(of, "room world[RSIZE]={\n");

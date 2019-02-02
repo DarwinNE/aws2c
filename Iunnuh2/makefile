@@ -18,8 +18,9 @@ modern: iunnuh2.c inout.c iunnuh2_en.c
 	gcc iunnuh2_en.c inout.c -o iunnuh2_en
 
 c64: inout.c iunnuh2_no_utf8.c iunnuh2_no_utf8_en.c
-	cl65 -t c64 -D C64 -Or iunnuh2_no_utf8.c inout.c -o iunnuh2-it-64.prg
 	cl65 -t c64 -D C64 -Or iunnuh2_no_utf8_en.c inout.c -o iunnuh2-en-64.prg
+	cl65 -t c64 -D C64 -Or iunnuh2_no_utf8.c inout.c -o iunnuh2-it-64.prg
+
 
 clean:
 	rm iunnuh2.c iunnuh2 iunnuh2_no_utf8.c

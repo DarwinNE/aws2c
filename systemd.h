@@ -331,7 +331,16 @@
     #define tab() printf("\t")
     #define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
         retTime);}
-    #define init_term() {normaltxt();printf("\n\n");}
+#define init_term() {\
+        printf( "This terminal does not support ANSI codes."\
+        "\033[80D"\
+        "You'll see garbage chars on the screen. If you use MS-DOS, add "\
+        "\033[80D"\
+        "DEVICE=DOS\\ANSI.SYS to your CONFIG.SYS file"\
+        "\033[80D"\
+        "It's supported since MS-DOS 2.0, so no excuses."\
+"\033[80D                                                               ");\
+        normaltxt();printf("\n\n");}
 
     #define leave() printf("\033[0m\n\n")
 
