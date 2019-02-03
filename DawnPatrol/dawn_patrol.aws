@@ -1,0 +1,590 @@
+AWS
+VERSIONE
+3.0
+0
+7
+7
+0
+Dawn patrol
+Aristide Torrelli
+2014
+From a type-in program found in a computing magazine of 1980's
+1
+Bookman Old Style
+14
+0
+8
+FALSE
+0
+0
+CONDIZIONIHI
+if res? 50 then set 50 rese 124 endif
+IF at 8 AND res? 8 THEN set 8 goto 1 ENDIF
+if at 1 and res? 11 then mess 1 endif
+if at 1 and set? 11 then mess 2 endif
+if at 2 and res? 11 then mess 1 endif
+if at 2 and set? 11 then mess 2 endif
+if at 2 and carr 8 then set 122 endif
+if at 2 and here 8 then set 122 endif
+if at 2 and notcarr 8 then rese 122 endif
+if at 2 and nothere 8 then rese 122 endif
+IF carr 8 THEN set 122 ENDIF  ho la torcia accesa
+IF res? 16 and ctreq 126 0 then cset 126 61 ENDIF  
+IF res? 16 and ctreq 126 10 then mess 33 ENDIF  
+IF res? 16 and ctreq 126 1 then mess 34 quit ENDIF
+CONDIZIONILOW
+if verb 40 then quit endif
+if verb 74 and noun 72 then inve wait endif
+if verb 0 and noun 72 then inve wait endif
+if verb 987 then restart endif
+if verb 988 then save wait endif salva la partita
+if verb 989 then load wait endif carica la partita
+if verb  80 then nord wait endif
+if verb 81 then sud wait endif
+if verb 82 then est wait endif
+if verb 83 then ovest wait endif
+if verb 84 then alto wait endif
+if verb 85 then basso wait endif
+if verb 110 then look wait endif
+IF VERB 50 AND NO1LT 9 THEN GET NO1 OKAY ENDIF
+IF VERB 55 AND NO1LT 9 THEN DROP NO1 OKAY ENDIF
+IF verb 110 AND noun 58 THEN mess 1009 WAIT ENDIF  GUARDA  PANCA
+IF verb 36 AND noun 59 THEN mess 1009 WAIT ENDIF  CERCA  PAGLIA
+IF verb 37 AND noun 1 THEN mess 1010 WAIT ENDIF  ACCENDI  TORCIA
+IF verb 38 AND noun 1 AND carr 8 AND res? 121 THEN swap 8 1 rese 122 look WAIT ENDIF  SPEGNI  TORCIA  
+IF VERB 38 AND NOUN 1 AND CARR 8 AND Set? 121 THEN SWAP 8 1 RESE 122 okay ENDIF  SPEGNI  TORCIA     SPEGNI  TORCIA  
+IF VERB 38 AND NOUN 1 AND CARR 1 THEN mess 14 WAIT ENDIF  SPEGNI  TORCIA     SPEGNI  TORCIA  
+IF VERB 38 AND NOUN 1 THEN MESS 1010 WAIT ENDIF  SPEGNI  TORCIA     SPEGNI  TORCIA     SPEGNI  TORCIA     SPEGNI  TORCIA
+IF VERB 70 AND NOUN 61 THEN MESS 30 WAIT ENDIF  LEGGI  AVVISO     LEGGI  AVVISO
+IF verb 100 AND noun 7 THEN mess 31 WAIT ENDIF  MONTA  CAVALLO
+IF verb 70 AND noun 7 THEN mess 31 WAIT ENDIF  ESAMINA  CAVALLO
+IF verb 115 AND noun 2 AND carr 2 THEN wear 2 okay ENDIF  INDOSSA  ELMETTO  
+IF VERB 115 AND NOUN 3 AND CARR 3 THEN WEAR 3 OKAY ENDIF  INDOSSA  ELMETTO     INDOSSA  COTTA DI MAGLI
+CONDIZIONILOCALI
+1
+IF verb 81 and RES? 11 THEN  MESS 5 MESS 1 WAIT ENDIF
+1
+IF verb 81 AND set? 11 THEN rese 121 goto 2 WAIT ENDIF  SUD
+1
+IF verb 112 AND noun 114 AND res? 11 THEN set 11  mess 3 WAIT ENDIF  APRI  PORTA
+1
+IF verb 113 AND noun 114 AND set? 11 THEN rese 11 mess 4 WAIT ENDIF    APRI  PORTA  CHIUDI  PORTA
+2
+IF verb 80 AND set? 11 THEN set 121 goto 1 WAIT ENDIF  NORD
+2
+IF verb 112 AND noun 114 AND res? 11 THEN set 11  mess 3 WAIT ENDIF  APRI  PORTA
+2
+IF verb 113 AND noun 114 AND set? 11 THEN rese 11 mess 4 WAIT ENDIF    APRI  PORTA  CHIUDI  PORTA
+3
+IF verb 36 AND noun 59 AND res? 13 THEN mess 9 brin 3 set 13 WAIT ENDIF  CERCA  PAGLIA
+3
+IF verb 36 AND noun 59 AND set? 13 THEN mess 11 WAIT ENDIF  CERCA  PAGLIA
+3
+IF verb 100 and noun 7 and ISNOTWEARING 2 THEN MESS 23 WAIT ENDIF
+3
+IF verb 100 and noun 7 and isnotwearing 3 THEN mess 21 WAIT ENDIF
+3
+IF verb 100 and noun 7 and notcarr 4 THEN mess 20 WAIT ENDIF
+3
+IF verb 100 and noun 7 and res? 14 THEN mess 18 WAIT ENDIF
+3
+IF verb 100 and noun 7 and res? 15 THEN mess 19 WAIT ENDIF
+3
+IF verb 100 and noun 7 THEN set 16 mess 22 quit ENDIF
+3
+IF verb 39 AND noun 5 AND  no2eq 7 AND carr 5 THEN set 14 to 5 8 okay ENDIF  metti SELLA  CAVALLO
+3
+IF verb 39 AND noun 6 AND no2eq 7 AND carr 6 THEN set 15 to 6 8 okay ENDIF  METTI  BRIGLIE  CAVALLO
+3
+IF verb 70 AND noun 7 THEN mess 35 ENDIF
+3
+IF res? 14 THEN mess 18 ENDIF
+3
+IF res? 15 THEN mess 19 ENDIF
+3
+IF verb 70 AND noun 7 THEN wait ENDIF
+7
+IF verb 110 AND noun 58 AND adve 75 AND res? 12 THEN mess 8 brin 2 WAIT ENDIF  GUARDA  PANCA  SOTTO
+7
+IF verb 110 AND noun 58 AND res? 12 THEN mess 8 brin 2 WAIT ENDIF  GUARDA  PANCA  SOTTO
+7
+IF verb 37 AND noun 1 AND carr 8 THEN mess 15 WAIT ENDIF  ACCENDI  TORCIA
+7
+IF verb 37 AND noun 1 AND carr 1 THEN mess 10 swap 1 8 WAIT ENDIF  ACCENDI  TORCIA
+7
+IF verb 70 AND noun 61 THEN mess 16 WAIT ENDIF  LEGGI  AVVISO
+DIZIONARIO
+TO
+150
+AVVERBIO
+LIGHT
+37
+VERBO
+UP
+84
+VERBO
+OPEN
+112
+VERBO
+WARNING
+61
+NOME
+DOWN
+85
+VERBO
+STOP
+40
+VERBO
+HARNESS
+6
+NOME
+CHARGE
+989
+VERBO
+RIDE
+100
+VERBO
+HORSE
+7
+NOME
+SEARCH
+36
+VERBO
+CLOSE
+113
+VERBO
+CHAIN
+3
+NOME
+E
+82
+VERBO
+HELMET
+2
+NOME
+ENTER
+31
+VERBO
+EXAMINE
+70
+VERBO
+EAST
+82
+VERBO
+POKE
+36
+VERBO
+FIRE
+60
+NOME
+D
+110
+VERBO
+DOWN
+85
+VERBO
+LOOK
+110
+VERBO
+I
+72
+NOME
+WEAR
+115
+VERBO
+STICK
+39
+VERBO
+INSERT
+39
+VERBO
+INVENTORY
+72
+NOME
+LEAVE
+55
+VERBO
+READ
+70
+VERBO
+PUT
+39
+VERBO
+RIDE
+100
+VERBO
+SHOW
+74
+VERBO
+N
+80
+VERBO
+NORD
+80
+VERBO
+W
+83
+VERBO
+WEST
+83
+VERBO
+STRAW
+59
+NOME
+BENCH
+58
+NOME
+GRAB
+50
+VERBO
+THEN
+9999
+SEPARATORE
+DOOR
+114
+NOME
+LEAVE
+55
+VERBO
+TAKE
+50
+VERBO
+THEN
+9999
+SEPARATORE
+RESTART
+987
+VERBO
+S
+81
+VERBO
+CLIMB
+101
+VERBO
+SAVE
+988
+VERBO
+SADDLE
+5
+NOME
+DOWN
+75
+AVVERBIO
+SWORD
+4
+NOME
+TURN
+38
+VERBO
+UP
+84
+VERBO
+SOUTH
+81
+VERBO
+TORCH
+1
+NOME
+GO
+100
+VERBO
+LOCAZIONI
+1
+I am in the castle's courtyard. The stables are at east and an archway leads to the west passing under the guard post. On the northç a flight of stairs gets up towards the castle's entrance. The armory door is to the south.
+
+COURTYARD
+0
+0
+3
+6
+5
+0
+0
+0
+0
+0
+2
+The armory is a cold and dark chamber. It contains all kinds of weaponsç stored on wall racks. There is a door to the north.
+
+ARMORY
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+3
+I am in the castle's stables. Under my feet there is a layer of fresh straw. An opening leads to the eastç towards the hall where horses are shod. The courtyard is to the west.
+
+STABLES
+0
+0
+4
+1
+0
+0
+0
+0
+0
+0
+4
+Here is the room where horses are shod. Racks and pegs keep all kind of horse riding equipment. Stables are to the west.
+
+HORSE SHOE ROOM
+0
+0
+0
+3
+0
+0
+0
+0
+0
+0
+5
+At the top of stairs is the entrance of the castle. Two soldiers are standing here to guard the entrance. They hold two long spears crossed in front of the open door. I can see the throne room to the nord andç behind meç the stairs lead down to the courtyard.
+
+ON TOP OF STAIRS
+0
+0
+0
+0
+0
+1
+0
+0
+0
+0
+6
+I am under the arch of the guard post. I can seeç further to the westç the horse patrol I am supposed to join. A small door leads north into the guard post. The courtyard is to the east.
+
+UNDER THE ARCHWAY
+7
+0
+1
+0
+0
+0
+0
+0
+0
+0
+7
+This austere room is the guard post. The only comforts are a bench, a table and a fire happily cracking warming up the place. On one wall there is a warning.
+
+GUARD POST
+0
+6
+0
+0
+0
+0
+0
+0
+0
+0
+8
+You are a soldier of King Zog's army and you have to go out on a horse patrol in a few minutes. Some of your fellow pranksters have hidden your helmet and your chain mail, so you must find them before joining your fellow riders. And before the commander notice your absence!
+
+INTRODUCTION
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+MESSAGGI
+1
+The door is closed.
+2
+The door is open
+3
+The door is opening...
+4
+You close the door that slams with a great noise.
+5
+You can't do that.
+6
+You can't leave the castle by foot!
+7
+The sentinels stop you and one of them yells: "Simple soldiers can not get in the Throne Room."
+8
+Look what we found here? It is your helmet...
+9
+You search in the straw, finding an object...
+10
+You put the tip of the torch in the fire. It catches fire very rapidly.
+11
+You don't find anything useful.
+12
+You don't see anything special.
+14
+The torch is not burning.
+15
+The torch is burning.
+16
+A warning on the wall says: DO NOT SPIT ON FIRE!
+18
+The horse is not saddled.
+19
+The horse is not harnessed.
+20
+You don't have your sword.
+21
+You don't wear the chain mail.
+22
+You get on the horse and trot outside the castleç joining your mates in time for the morning patrol.
+23
+You don't wear your helmet.
+30
+Which note?
+31
+Which horse?
+33
+A loud voice echoes nearby: "Soldier Smith! Where are you hidingç sort of human garbage?" 
+34
+You hear footsteps behind you and a grouchy voice shouts: "Here you are! Throw him in the castle's dungeons for not showing up!". Two corpulent soldiers escort you to the dungeons and lock you in a cell. You spent too much time and you failed miserably!
+35
+The hose is a magnificent arab stallionç born to carry warriors like you.
+1000
+Okay.
+1001
+Done.
+1002
+Done.
+1003
+It is too heavy!
+1004
+It is too big to be handled!
+1005
+It does not move!
+1006
+I don't see that anywhere!
+1007
+I don't have that with me!
+1008
+I can't go that way!
+1009
+What do you mean?
+1010
+I can't do that.
+1011
+I already have that with me!
+1012
+What shall I do?
+1013
+It is darkç I can not see anything
+1014
+You played for 
+1015
+ turns to obtain 
+1016
+ points.
+1018
+worn
+1019
+I am already wearing that.
+1020
+I can go towards:
+1021
+north
+1022
+south
+1023
+east
+1024
+west
+1025
+up
+1026
+down
+1027
+northeast
+1028
+northwest
+1029
+southeast
+1030
+southovest
+1031
+I can see: 
+1032
+I carry: 
+1033
+I don't have anything with me.
+1035
+basta
+OGGETTI
+1
+
+a torch, out
+0
+0
+5
+FALSE
+FALSE
+2
+
+a helmet
+0
+0
+0
+FALSE
+TRUE
+3
+
+a chain mail
+0
+0
+0
+FALSE
+TRUE
+4
+
+a sword
+0
+0
+2
+FALSE
+FALSE
+5
+
+a saddle
+0
+0
+4
+FALSE
+FALSE
+6
+
+a harness
+0
+0
+4
+FALSE
+FALSE
+7
+
+a horse
+100
+0
+3
+FALSE
+FALSE
+8
+
+a lit torch
+0
+0
+0
+FALSE
+FALSE
+FINEDATI

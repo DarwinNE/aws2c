@@ -316,9 +316,8 @@
 
 #else /* Definitions for modern ANSI terminals */
 
-    #define NCOL 80
     #define BUFFERSIZE 256
-    #define B_SIZE 2000
+    #define B_SIZE 255
 
 
     #define SHIFTPETSCII 
