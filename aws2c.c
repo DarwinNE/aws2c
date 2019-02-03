@@ -30,7 +30,7 @@ old Commodore machines.
 #include "aws.h"
 #include "compress.h"
 
-#define VERSION "1.3, September 2018 - January 2019"
+#define VERSION "1.4, September 2018 - February 2019"
 
 /* TO DO
 
@@ -1541,8 +1541,8 @@ unsigned int action_exit(FILE *f, char *line, unsigned int scanpos)
 {
     fprintf(f, TAB TAB 
         "writeln(\"'E' and return to exit, anything else to restart.\\n\");\n");
-    fprintf(f, TAB TAB "fgets(decompress_b,B_SIZE,stdin);\n");
-    fprintf(f, TAB TAB "if(decompress_b[0]=='E' || decompress_b[0]=='e') {\n");
+    fprintf(f, TAB TAB "fgets(playerInput,BUFFERSIZE,stdin);\n");
+    fprintf(f, TAB TAB "if(playerInput[0]=='E' || playerInput[0]=='e') {\n");
     fprintf(f, TAB TAB TAB "leave(); exit(0);\n");
     fprintf(f, TAB TAB "}");
     fprintf(f, TAB TAB "restart(); goto return1;\n");
@@ -2245,6 +2245,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize)
         fprintf(of,"unsigned char next_position;\n");
     }
     fprintf(of,"extern unsigned char ls;\n");
+    fprintf(of,"extern char playerInput[];\n");
     
     fprintf(of,"boolean marker[129];\n");
     fprintf(of,"int counter[129];\n");
@@ -2309,8 +2310,8 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize)
     fprintf(of, "boolean are_you_sure(void)\n{\n"); 
     fprintf(of, TAB 
         "writeln(\"Are you sure? Type 'Y' and return if yes.\\n\");\n");
-    fprintf(of, TAB "fgets(decompress_b,B_SIZE,stdin);\n");
-    fprintf(of, TAB "if(decompress_b[0]=='Y' || decompress_b[0]=='y') {\n");
+    fprintf(of, TAB "fgets(playerInput,BUFFERSIZE,stdin);\n");
+    fprintf(of, TAB "if(playerInput[0]=='Y' || playerInput[0]=='y') {\n");
     fprintf(of, TAB TAB "return 1;\n");
     fprintf(of, TAB "}\n");
     fprintf(of, TAB "return 0;\n");
@@ -2534,7 +2535,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize)
             fprintf(of,"unsigned int");
         else
             fprintf(of,"unsigned char");
-        fprintf(of,"p, unsigned char c, boolean v, unsigned int m)\n");
+        fprintf(of," p, unsigned char c, boolean v, unsigned int m)\n");
 
     } else {
         fprintf(of,"void amsm(");
@@ -2905,7 +2906,7 @@ void output_gamecycle(FILE *f, int osize)
         }
     } else {
         fprintf(f, TAB TAB TAB
-            "writesameln(cr->long_d);\n");
+            "writesameln(cr->short_d);\n");
     }
     fprintf(f,TAB TAB TAB "writesameln(\"  \");\n");
     fprintf(f,TAB TAB TAB  "normaltxt();\n");

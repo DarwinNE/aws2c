@@ -211,7 +211,7 @@ void output_decoder(FILE *fout)
     fprintf(fout,"char *compressed;\n");
     fprintf(fout,"unsigned char bpointer;\n");
     fprintf(fout,"unsigned int cpointer;\n");
-    fprintf(fout,"#define B_SIZE 100\n");
+    //fprintf(fout,"#define B_SIZE 100\n");
     fprintf(fout,"char decompress_b[B_SIZE+1];\n");
     fprintf(fout,"unsigned char currbyte;\n\n");
 

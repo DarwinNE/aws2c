@@ -36,7 +36,7 @@ IF EQU? 1 0 THEN RESE 5 ENDIF
 IF ctreq 99 0 THEN mess 109 exit ENDIF  
 if at 10 and set? 2 then mess 144 endif
 IF AT 20 AND SET? 30 THEN MESS 145 ENDIF
-IF at 4 AND ctreq 123 100 THEN mess 161 QUIT ENDIF
+IF at 4 AND ctreq 123 100 THEN mess 161 EXIT ENDIF
 CONDIZIONILOW
 if verb 40 then mess 500 quit endif
 if verb 74 and noun 72 then inve wait endif
