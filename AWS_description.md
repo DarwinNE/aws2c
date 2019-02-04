@@ -1,5 +1,7 @@
 # AWS Format description
 
+By Davide Bucci
+
 ## Introduction
 
 The Adventure Writing System (AWS) is a program written by Aristide Torrelli to allow creating text adventures in a pleasant environment. An extensive documentation about it is available on Aristide's website and it is in Italian. Moreover, AWS only runs on Microsoft Windows and it may be cumbersome to use on other OS even if Wine can help in some situations.
@@ -111,7 +113,7 @@ IF VERB 110 AND NOUN 58 AND ADVE 75 AND RES? 12 THEN MESS 8 BRIN 2 WAIT ENDIF  L
 
 Every word recognized by AWS is described by three lines:
 
-1. The word CAPITALIZED
+1. The word (in capital letters)
 2. The numerical code (I store it in a 16-bit unsigned integer in `aws2c)
 3. The type of the word
 
@@ -271,22 +273,63 @@ phrase ::= IF [decision [logic decision]] THEN {action} ENDIF
 
 logic ::= AND | OR
 
-decision ::= VERB function | NOUN function | ADVE function | ACTOR function | ADJE function | AT function | NOTAT function | SET? function | RES? function | EQU? function function | NOTEQU? function function | HERE function | NOTHERE function | CARR function | NOTCARR function | AVAI function | NOTAVAI function | IN function function | NOTIN function function | NO1EQ function | NO1GT function | NO1LT function | NO2EQ function | NO2GT function | NO2LT function | ROOMEQ function | ROOMGT function | ROOMLT function | VBNOEQ function | VBNOGT function | VBNOLT function | ACTOREQ function | ACTORGT function | ACTORLT function | ADJEEQ function | ADJEGT function | ADJELT function | ADVEEQ function | ADVEGT function | ADVELT function | CTREQ function function | CTRGT function function | CTRLT function function | TURNEQ function | TURNGT function | TURNLT function | OBJLOCEQ function function | OBJLOCGT function function | OBJLOCLT function function | ISWEARING function | ISWEARABLE function | ISNOTWEARING function | ISNOTWEARABLE function | CONNEQ function function function | CONNGT function function function | CONNLT function function function | CONNCORREQ function function | CONNCORRGT function function | CONNCORRLT function function | WEIGEQ function function | WEIGGT function function | WEIGLT function function | PROB function
+decision ::= VERB function | NOUN function | ADVE function | ACTOR
+    function | ADJE function | AT function | NOTAT function | SET? function |
+    RES? function | EQU? function function | NOTEQU? function function | HERE
+    function | NOTHERE function | CARR function | NOTCARR function | AVAI
+    function | NOTAVAI function | IN function function | NOTIN function
+    function | NO1EQ function | NO1GT function | NO1LT function | NO2EQ
+    function | NO2GT function | NO2LT function | ROOMEQ function | ROOMGT
+    function | ROOMLT function | VBNOEQ function | VBNOGT function | VBNOLT
+    function | ACTOREQ function | ACTORGT function | ACTORLT function | ADJEEQ
+    function | ADJEGT function | ADJELT function | ADVEEQ function | ADVEGT
+    function | ADVELT function | CTREQ function function | CTRGT function
+    function | CTRLT function function | TURNEQ function | TURNGT function |
+    TURNLT function | OBJLOCEQ function function | OBJLOCGT function function |
+    OBJLOCLT function function | ISWEARING function | ISWEARABLE function |
+    ISNOTWEARING function | ISNOTWEARABLE function | CONNEQ function function
+    function | CONNGT function function function | CONNLT function function
+    function | CONNCORREQ function function | CONNCORRGT function function |
+    CONNCORRLT function function | WEIGEQ function function | WEIGGT function
+    function | WEIGLT function function | PROB function
 
-function ::= NO1 | NO2 | VBNO | CTR function | TURN | ROOM | CONN function function | CONNCORR function | RAND function | OBJLOC function | WEIG function | number
+function ::= NO1 | NO2 | VBNO | CTR function | TURN | ROOM | CONN
+    function function | CONNCORR function | RAND function | OBJLOC function |
+    WEIG function | number
 
 number ::= {digit}
 
-action ::= SET function | RESE function | CSET function function | INCR function | DECR function | GET function | DROP function | SWAP function function | OKAY | WAIT | EXIT | QUIT | HOLD function | GOTO function | DESC function | LOOK | LF | SAVE | LOAD | PICT | TEXT | MESS function | PRIN function | TO function function | ADDC function function | SUBC function function | OBJ function | LIST function | INVE | STRE function | BRIN function | FIND function | NORD | SUD | EST | OVEST | ALTO | BASSO | NORDEST | NORDOVEST | SUDEST | SUDOVEST | WEAR function |
-UNWEAR function | MESSNOLF function | RESTART | SETCONN function
-function function | PRINNOLF function | PRESSKEY | GETALL |
-DROPALL |COLOR function function |FCOLO function |BCOLO function
-|RAMSAVE|RAMLOAD|SCRIPTON|SCRIPTOFF
+action ::= SET function | RESE function | CSET function function | INCR
+    function | DECR function | GET function | DROP function | SWAP function
+    function | OKAY | WAIT | EXIT | QUIT | HOLD function | GOTO function | DESC
+    function | LOOK | LF | SAVE | LOAD | PICT | TEXT | MESS function | PRIN
+    function | TO function function | ADDC function function | SUBC function
+    function | OBJ function | LIST function | INVE | STRE function | BRIN
+    function | FIND function | NORD | SUD | EST | OVEST | ALTO | BASSO |
+    NORDEST | NORDOVEST | SUDEST | SUDOVEST | WEAR function | UNWEAR function |
+    MESSNOLF function | RESTART | SETCONN function function function | PRINNOLF
+    function | PRESSKEY | GETALL | DROPALL |COLOR function function |FCOLO
+    function |BCOLO function|RAMSAVE|RAMLOAD|SCRIPTON|SCRIPTOFF
 ~~~~
 
 ## Decisions
 
+To be described...
+
 ## Actions
+
+To be described...
 
 ## Functions
 
+To be described...
+
+## Bibliography
+
+Aristide Torrelli has described his Adventure Writing System in detail. Of course, the most important resource is his website and the Italian manuals:
+
+* http://www.aristidetorrelli.it/aws3/AWS.html
+* http://www.aristidetorrelli.it/aws3/Manuali/AWS%20-%20Manuale.pdf
+* http://www.aristidetorrelli.it/aws3/Manuali/AWS%20-%20Manuale%20Avanzato.pdf
+* http://www.aristidetorrelli.it/aws3/Manuali/AWS%20-%20Riferimento%20Linguaggio.pdf
+* http://www.aristidetorrelli.it/aws3/Manuali/AWS%20-%20Analisi%20Avventure.pdf
