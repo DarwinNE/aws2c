@@ -12,7 +12,7 @@ I thought it would be interesting to briefly document the file format here in En
 
 ## File organization
 
-Currently an AWS file is a UTF-8 encoded text file that is organized in the following way:
+Currently an AWS file is a UTF-8 encoded text file (Windows-style CR+LF end of line) that is organized in the following way:
 
 1. A header
 2. The high priority conditions, started by the `CONDIZIONIHI` tag
@@ -660,7 +660,7 @@ THEN
 SEPARATORE
 LOCAZIONI
 1
-You are in room 1
+You are in room 1. There's a panel here.
 
 ROOM 1
 2
