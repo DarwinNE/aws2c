@@ -213,7 +213,7 @@ cont:   t++;
     @return a pointer to the allocated dictionary, or NULL if something bad
         happened.
 */
-word *read_dictionary(FILE *f, unsigned int size)
+word *read_dictionary(FILE *f, int size)
 {
     unsigned int cw;
     fpos_t pos;
@@ -319,11 +319,14 @@ unsigned int get_room_number(FILE *f)
 
 /** Read all the "conditions" in the file.
 */
-char **read_cond(FILE*f, unsigned int size)
+char **read_cond(FILE*f, int size)
 {
     unsigned int i;
     char **cond;
     char *errorp="Could not allocate enough memory for the conditions.\n";
+
+    if(size<=0)
+        return NULL;
 
     cond = (char**)calloc(size, sizeof(char*));
     if (cond==NULL) {
@@ -345,11 +348,14 @@ char **read_cond(FILE*f, unsigned int size)
 
 /** Read all the "local conditions" in the file.
 */
-localc* read_local(FILE*f, unsigned int size)
+localc* read_local(FILE*f, int size)
 {
     unsigned int i,r;
     localc* cond;
     char *errorp="Could not allocate enough memory for the local conditions.\n";
+
+    if(size<=0)
+        return NULL;
 
     cond = (localc*)calloc(size, sizeof(localc));
     if (cond==NULL) {
@@ -377,7 +383,7 @@ localc* read_local(FILE*f, unsigned int size)
 
 /** Get the rooms in the game
 */
-room* read_rooms(FILE *f, unsigned int size)
+room* read_rooms(FILE *f, int size)
 {
     char *errorp="Could not allocate enough memory for the room description.\n";
     unsigned int i,j;
@@ -421,7 +427,7 @@ room* read_rooms(FILE *f, unsigned int size)
 
 /** Get the rooms in the game
 */
-object* read_objects(FILE *f, unsigned int size)
+object* read_objects(FILE *f, int size)
 {
     char *errorp="Could not allocate enough memory for the objects.\n";
     unsigned int i,j;
@@ -548,7 +554,7 @@ info *read_header(FILE *f)
 
 /** Get the messages in the game
 */
-message* read_messages(FILE *f, unsigned int size)
+message* read_messages(FILE *f, int size)
 {
     char *errorp="Could not allocate enough memory for messages.\n";
     unsigned int i,j;
@@ -2815,9 +2821,9 @@ void output_greetings(FILE *f, info *header)
 }
 
 /* Create code for HI conditions */
-void output_hicond(FILE *f, char **cond, unsigned int size)
+void output_hicond(FILE *f, char **cond, int size)
 {
-    unsigned int i;
+    int i;
     fprintf(f,"boolean hi_cond(void)\n{\n");
     for(i=0; i<size; ++i) {
         process_aws(f,cond[i]);
@@ -2831,9 +2837,9 @@ void output_hicond(FILE *f, char **cond, unsigned int size)
 }
 
 /* Create code for LOW conditions */
-void output_lowcond(FILE *f, char **cond, unsigned int size)
+void output_lowcond(FILE *f, char **cond,  int size)
 {
-    unsigned int i;
+    int i;
     fprintf(f,"boolean low_cond(void)\n{\n");
     for(i=0; i<size; ++i) {
         process_aws(f,cond[i]);
@@ -2848,7 +2854,7 @@ void output_lowcond(FILE *f, char **cond, unsigned int size)
 }
 
 /* Create code for LOCAL conditions */
-void output_local(FILE *f, localc* cond, unsigned int size)
+void output_local(FILE *f, localc* cond,  int size)
 {
     unsigned int i;
     unsigned int oldroom=-1;
@@ -3094,11 +3100,11 @@ int main(int argc, char **argv)
     object* objects;
     message* msg;
     char **hicond;
-    unsigned int hicondsize;
+    int hicondsize;
     char **lowcond;
-    unsigned int lowcondsize;
+    int lowcondsize;
     localc* localcond;
-    unsigned int localcondsize;
+    int localcondsize;
     unsigned int argumentr=1;
 
     init_analysis();
@@ -3126,7 +3132,7 @@ int main(int argc, char **argv)
     hicondsize=get_hi_cond_size(f);
     printf("%d\n",hicondsize);
     printf("Read CONDIZIONIHI: ");
-    if((hicond=read_cond(f, hicondsize))==NULL)
+    if((hicond=read_cond(f, hicondsize))==NULL && hicondsize>0)
         exit(1);
 
     printf("done\n");
@@ -3135,7 +3141,7 @@ int main(int argc, char **argv)
     lowcondsize=get_low_cond_size(f);
     printf("%d\n",lowcondsize);
     printf("Read CONDIZIONILOW: ");
-    if((lowcond=read_cond(f, lowcondsize))==NULL)
+    if((lowcond=read_cond(f, lowcondsize))==NULL && lowcondsize>0)
         exit(1);
     printf("done\n");
 
@@ -3143,7 +3149,7 @@ int main(int argc, char **argv)
     localcondsize=get_local_cond_size(f);
     printf("%d\n",localcondsize);
     printf("Read CONDIZIONILOCALI: ");
-    if((localcond=read_local(f, localcondsize))==NULL)
+    if((localcond=read_local(f, localcondsize))==NULL && localcondsize>0)
         exit(1);
     printf("done\n");
 
@@ -3197,7 +3203,9 @@ int main(int argc, char **argv)
     output_objects(of, objects, osize);
     output_utility_func(of,header,rsize, osize);
     output_greetings(of, header);
+
     output_hicond(of, hicond, hicondsize);
+
     output_lowcond(of, lowcond, lowcondsize);
     output_local(of,localcond, localcondsize);
     output_gamecycle(of, osize);
