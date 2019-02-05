@@ -625,7 +625,7 @@ unsigned int get_hi_cond_size(FILE *f)
     fpos_t pos;
     unsigned int counter=0;
     unsigned int sl=0;
-    while(fscanf(f,"%80s",buffer)==1){
+    while (getlinep(f)) {
         if(strcmp(buffer,"CONDIZIONIHI")==0) {
             break;
         }
@@ -648,7 +648,7 @@ unsigned int get_low_cond_size(FILE *f)
     fpos_t pos;
     unsigned int counter=0;
     unsigned int sl=0;
-    while(fscanf(f,"%80s",buffer)==1){
+    while(getlinep(f)){
         if(strcmp(buffer,"CONDIZIONILOW")==0) {
             break;
         }

@@ -515,6 +515,261 @@ To be described...
 
 To be described...
 
+## An example of a reasonably complete file
+
+Here is an example of a reasonably complete file that does not do anything in particular, but contains two rooms. I translated INITFI40.AWS provided by Aristide, I corrected some obvious errors, removed some conditions that I am going to discuss separately and added two rooms to it.
+
+~~~~
+AWS
+VERSIONE
+3.0
+0
+7
+7
+0
+Starting file
+Aristide Torrelli, edited and translated by D. Bucci
+2014
+File to be used to start writing a new adventure
+1
+Bookman Old Style
+14
+0
+1
+FALSE
+0
+0
+CONDIZIONIHI
+IF at 1 THEN mess 2 ENDIF
+CONDIZIONILOW
+if verb 73 then quit endif
+if verb 74 or verb 0 and noun 72 then inve wait endif
+if verb 987 then restart endif
+if verb 110 then look wait endif
+IF verb 100 OR vbnoeq 0 AND noun 80 THEN nord WAIT ENDIF  Go  NORTH  
+IF verb 100 OR vbnoeq 0 AND noun 81 THEN sud WAIT ENDIF  Go  SOUTH
+IF verb 100 OR vbnoeq 0 AND noun 82 THEN est WAIT ENDIF  Go  EAST
+IF verb 100 OR vbnoeq 0 AND noun 83 THEN ovest WAIT ENDIF  Go WEST
+IF verb 100 OR vbnoeq 0 AND noun 84 THEN alto WAIT ENDIF  Go UP
+IF verb 100 OR vbnoeq 0 AND noun 85 THEN basso WAIT ENDIF  Go DOWN
+CONDIZIONILOCALI
+1
+IF verb 70 and noun 1 THEN mess 1 WAIT ENDIF Examine the panel
+DIZIONARIO
+PANEL
+1
+NOME
+EXAMINE
+70
+VERBO
+X
+70
+VERBO
+I
+72
+NOME
+INVENTORY
+72
+NOME
+BYE
+73
+VERBO
+SHOW
+74
+VERBO
+GRAB
+75
+VERBO
+TAKE
+75
+VERBO
+LEAVE
+76
+VERBO
+DROP
+76
+VERBO
+ENTER
+77
+VERBO
+N
+80
+NOME
+NORTH
+80
+NOME
+S
+81
+NOME
+SOUTH
+81
+NOME
+E
+82
+NOME
+EAST
+82
+NOME
+W
+83
+NOME
+WEST
+83
+NOME
+U
+84
+NOME
+UP
+84
+NOME
+UPSTAIRS
+84
+NOME
+D
+85
+NOME
+DOWN
+85
+NOME
+DOWNSTAIRS
+85
+NOME
+GO
+100
+VERBO
+L
+110
+VERBO
+LOOK
+110
+VERBO
+A
+150
+AVVERBIO
+RESTART
+987
+VERBO
+SAVE
+988
+VERBO
+LOAD
+989
+VERBO
+THEN
+9999
+SEPARATORE
+LOCAZIONI
+1
+You are in room 1
+
+ROOM 1
+2
+0
+0
+0
+0
+0
+0
+0
+0
+0
+2
+You are in room 2
+
+ROOM 2
+0
+1
+0
+0
+0
+0
+0
+0
+0
+0
+MESSAGGI
+1
+This is an example of a message
+2
+If you read this message, a high condition has been executed
+1000
+Okay.
+1001
+Done.
+1002
+Fone.
+1003
+It's too heavy!
+1004
+It's too big to be handled!
+1005
+It does not move!
+1006
+I can't see that anywhere!
+1007
+I don't have that with me!
+1008
+I can't go in that direction!
+1009
+I beg your pardon?
+1010
+I can't
+1011
+I already have that with me!
+1012
+What shall I do
+1013
+It's dark, I can't see anything.
+1014
+You spent 
+1015
+ turns to obtain 
+1016
+ points.
+1018
+I wear 
+1019
+I already wear it
+1020
+I can go towards: 
+1021
+north
+1022
+south
+1023
+east
+1024
+west
+1025
+up
+1026
+down
+1027
+northeast
+1028
+northwest
+1029
+southeast
+1030
+southwest
+1031
+I can see: 
+1032
+I have with me: 
+1033
+I don't have anything with me.
+1050
+Place: 
+1051
+Points: 
+1052
+Turns: 
+1053
+I can't see that!
+OGGETTI
+FINEDATI
+~~~~
+
 ## Bibliography
 
 Aristide Torrelli has described his Adventure Writing System in detail. Of course, the most important resource is his website and the Italian manuals:
