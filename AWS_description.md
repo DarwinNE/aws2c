@@ -147,6 +147,110 @@ IF VERB 110 AND NOUN 58 THEN MESS 1009 WAIT ENDIF  Look at the bench
 
 Dictionary codes must not be provided in a particular order, but I like to keep them sorted so that I can find rapidly the word if I am searching for a particular code.
 
+Here's an example of a small dictionary that you can use:
+
+~~~~
+DIZIONARIO
+EXAMINE
+70
+VERBO
+X
+70
+VERBO
+I
+72
+NOME
+INVENTORY
+72
+NOME
+BYE
+73
+VERBO
+SHOW
+74
+VERBO
+GRAB
+75
+VERBO
+TAKE
+75
+VERBO
+LEAVE
+76
+VERBO
+DROP
+76
+VERBO
+ENTER
+77
+VERBO
+N
+80
+NOME
+NORTH
+80
+NOME
+S
+81
+NOME
+SOUTH
+81
+NOME
+E
+82
+NOME
+EAST
+82
+NOME
+W
+83
+NOME
+WEST
+83
+NOME
+U
+84
+NOME
+UP
+84
+NOME
+UPSTAIRS
+84
+NOME
+D
+85
+NOME
+DOWN
+85
+NOME
+DOWNSTAIRS
+85
+NOME
+GO
+100
+VERBO
+L
+110
+VERBO
+LOOK
+110
+VERBO
+A
+150
+AVVERBIO
+RESTART
+987
+VERBO
+SAVE
+988
+VERBO
+LOAD
+989
+VERBO
+THEN
+9999
+~~~~
+
 ## Room description and connections
 
 The code for one room appears as follows:
@@ -187,6 +291,12 @@ There are 14 lines, as follows:
 
 If you want to put a carriage return in the description, you can do that by putting the tag `^M`.
 
+Rooms can not have the following codes:
+
+* Code 0: it is used to indicate a place that does not exist, or a direction that is not available.
+* Code 1500: if an object is placed there, it is carried by the player.
+* Code 1600: if an object is placed there, it is worn.
+
 ## Messages
 
 Here things are quite simple: a message is composed by a code and the text of the message itself. For example:
@@ -199,6 +309,85 @@ A warning on the wall says: DO NOT SPIT ON FIRE!
 defines a message with the code 16 that can be displayed in the game by `MESS 16`
 
 As for room descriptions, you can use `^M` to insert a carriage return in the message. For some reasons, the original AWS substitutes commas with a particular non-UTF-8 code like `ç`. I don't like that, I think it's a legacy of an old version of AWS and I found that using the comma is legitimate at least in the last version of Aristide's program. It is certainly legitimate in `aws2c`, it does not screw the spell checker in your text editor and does not create issues with UTF-8. `aws2c` is able to parse those strange `ç`, anyway.
+
+Some messages are used by AWS and `aws2c` and have a special meaning:
+
+~~~~
+1000
+Okay.
+1001
+Done.
+1002
+Fone.
+1003
+It's too heavy!
+1004
+It's too big to be handled!
+1005
+It does not move!
+1006
+I can't see that anywhere!
+1007
+I don't have that with me!
+1008
+I can't go in that direction!
+1009
+I beg your pardon?
+1010
+I can't
+1011
+I already have that with me!
+1012
+What shall I do
+1013
+It's dark, I can't see anything.
+1014
+You spent 
+1015
+ turns to obtain 
+1016
+ points.
+1018
+I wear 
+1019
+I already wear it
+1020
+I can go towards: 
+1021
+north
+1022
+south
+1023
+east
+1024
+west
+1025
+up
+1026
+down
+1027
+northeast
+1028
+northwest
+1029
+southeast
+1030
+southwest
+1031
+I can see: 
+1032
+I have with me: 
+1033
+I don't have anything with me.
+1050
+Place: 
+1051
+Points: 
+1052
+Turns: 
+1053
+I can't see that!
+~~~~
 
 ## Objects
 
@@ -225,6 +414,8 @@ where each line means:
 6. The room where the object is present at the beginning of the game (0 if it is not directly accessible in a room)
 7. `TRUE` if the object can not be carried, `FALSE` otherwise
 8. `TRUE` if the object can be worn, `FALSE` otherwise
+
+Some special places are described in the "Room descriptions and connections" section of this document.
 
 ## Counters and markers
 
