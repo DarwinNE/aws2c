@@ -435,7 +435,6 @@ Number | Description
 125    | Game turn counter. It should not be changed.
 126    | Decrement automatically at each turn.
 127    | Decrement automatically at each turn.
--------|-------------
 
 
 Some markers have a special meaning:
@@ -449,7 +448,6 @@ Number | Description
 125    | not implemented in `aws2c`
 126    | not implemented in `aws2c`
 127    | not implemented in `aws2c`
--------|-------------
 
 ## Grammar for AWS logic conditions
 
@@ -505,7 +503,73 @@ action ::= SET function | RESE function | CSET function function | INCR
 
 ## Decisions
 
-To be described...
+Decisions are used in the first part of the condition, after the `IF` command. They can be combined by logical operators `OR` and `AND`. Those logical operators have (much unfortunately) the same priority, a complex expression is always evaluated from the left to the right. Trust me, avoid complex logic combining both operators: they can be error-prone. Moreover, `aws2c` sometimes tries to shunt some oft-found combinations of things by exploiting ad-hoc functions. They are wort it, as they greatly optimize the code. In some cases, it's a good idea to have a look to the output C code if you have some doubts.
+
+Decision |aws2c?| Decision becomes `true` if...
+---------|------|-------------------------------------------------------------
+`VERB v` | X    |  the phrase contains verb `v`
+`NOUN n` | X    |  the phrase contains noun `n`
+`ADVE a` | X    |  the phrase contains adverb `a`
+`ACTOR p`| X    |  the phrase contains actor `a`
+`ADJE g` | X    |  the phrase contains adjective `g`
+`AT r`   | X    |  player is at room number `r`
+`NOTAT r`| X    |  player is not at room number `r`
+`SET? m` | X    |  marker `m` is set (`true`)
+`RES? m` | X    |  marker `m` is reset (`false`)
+`EQU? c x`|X    |  counter `c` is equal to `x`
+`NOTEQU? c x`|X |  counter `c` is not equal to `x`
+`HERE o` | X    |  object `o` is in the current room
+`NOTHERE o`|X   |  object `o` is not in the current room
+`CARR o` | X    |  object `o` is carried by the player
+`NOTCARR o` | X |  object `o` is not carried by the player
+`AVAI o` | X    |  object `o` is available (in the current room or carried)
+`NOTAVAI o`| X  |  object `o` is not available
+`IN o r` | X    |  object `o` is in the room `r`
+`NOTIN o r`| X  |  object `o` is not in the room `r`
+`NO1EQ n`| X    |  the first name in the phrase has a code equal to `n`
+`NO1GT n`| X    |  the first name in the phrase has a code greater than `n`
+`NO1LT n`| X    |  the first name in the phrase has a code less than `n`
+`NO2EQ n`| X    |  the second name in the phrase has a code equal to `n`
+`NO2GT n`| X    |  the second name in the phrase has a code greater than `n`
+`NO2LT n`|      |  the second name in the phrase has a code less than `n`
+`ROOMEQ r`|     |  the player is in room `r`
+`ROOMGT r`|X    |  the player is in a room greater than `r`
+`ROOMLT r`|X    |  the player is in room lower than `r`
+`VBNOEQ v`|X    |  the verb in the phrase has a code equal to `v`
+`VBNOGT v`|X    |  the verb in the phrase has a code greater than `v`
+`VBNOLT v`|X    |  the verb in the phrase has a code less than `v`
+`ACTOREQ p`|X   |  the phrase contains the actor `p`
+`ACTORGT p`|X   |  the phrase contains the actor greater than`p`
+`ACTORLT p`|X   |  the phrase contains the actor less than`p`
+`ADJEEQ a`|X    |  the phrase contains an adjective equal to `a`
+`ADJEGT a`|X    |  the phrase contains an adjective greater than `a`
+`ADJELT a`|X    |  the phrase contains an adjective less than `a`
+`ADVEEQ a`|X    |  the phrase contains an adverb equal to `a`
+`ADVEGT a`|     |  the phrase contains an adverb greater than `a`
+`ADVELT a`|     |  the phrase contains an adverb less than than `a`
+`CTREQ c x`|X   |  counter `c` is equal to `x`
+`CTRGT c x`|X   |  counter `c` is greater than `x`
+`CTRLT c x`|    |  counter `c` is less than `x`
+`TURNEQ x`|     |  turn is equal to `x`
+`TURNGT x`|     |  turn is greater than `x`
+`TURNLT x`|     |  turn is less than `x`
+`OBJLOCEQ o x`|X|  the object `o` is in the room `x`
+`OBJLOCGT o x`|X|  the object `o` is in the room greater than `x`
+`OBJLOCLT o x`| |  the object `o` is in the room less than `x`
+`ISWEARING o` |X|  the player is wearing object `o`
+`ISWEARABLE o`|X|  the object `o` is wereable
+`ISNOTWEARING o`|X|  the player is not wearing object `o`
+`ISNOTWEARABLE o`| |  the object `o` is not wereable
+`CONNEQ r d x`|X| there is a connection between rooms `r` and `x` in the direction `d`
+`CONNGT r d x`| | there is a connection between rooms `r` and a room greater than `x` in the direction `d`
+`CONNLT r d x`| | there is a connection between rooms `r` and a room less than `x` in the direction `d`
+`CONNCORREQ d x`| | there is a connection between the current room and `x` in the direction `d`
+`CONNCORRGT d x`| | there is a connection between the current room and a room greater than `x` in the direction `d`
+`CONNCORRLT d x`| | there is a connection between the current room and a room less than `x` in the direction `d`
+`WEIGEQ o x`|   | object `o` has a weight `x`
+`WEIGGT o x`|   | object `o` has a weight greater than `x`
+`WEIGLT o x`|   | object `o` has a weight less than `x`
+`PROB x`  | X   | with a probability `x` (in percent)
 
 ## Actions
 
