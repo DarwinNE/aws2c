@@ -54,6 +54,7 @@ typedef struct localc_t {
 } localc;
 
 unsigned int no_of_errors;
+boolean verbose=false;
 boolean convert_utf8=false;
 boolean convert_accents=false;
 boolean convert_accent_alt=false;
@@ -218,6 +219,9 @@ word *read_dictionary(FILE *f, int size)
     unsigned int cw;
     fpos_t pos;
     char *errorp="Could not allocate enough memory for the dictionary.\n";
+    if (size<=0)
+        return NULL;
+    
     word *dictionary = (word*)calloc(size, sizeof(word));
     if (dictionary==NULL) {
         printf("%s",errorp);
@@ -296,12 +300,11 @@ char *getlinep(FILE *f)
 
 /** Get the number of the rooms in the game.
 */
-unsigned int get_room_number(FILE *f)
+int get_room_number(FILE *f)
 {
     fpos_t pos;
-    unsigned int counter=0;
-    unsigned int sl=0;
-    while(fscanf(f,"%80s",buffer)==1){
+    int counter=0;
+    while(getlinep(f)){
         if(strcmp(buffer,"LOCAZIONI")==0) {
             break;
         }
@@ -321,21 +324,26 @@ unsigned int get_room_number(FILE *f)
 */
 char **read_cond(FILE*f, int size)
 {
-    unsigned int i;
+    int i;
     char **cond;
     char *errorp="Could not allocate enough memory for the conditions.\n";
 
     if(size<=0)
         return NULL;
-
+    
+    if (verbose)
+        printf("\n");
     cond = (char**)calloc(size, sizeof(char*));
     if (cond==NULL) {
         printf("%s",errorp);
         return NULL;
     }
-    getlinep(f);
     for(i=0; i<size;++i) {
-        getlinep(f);
+        if(getlinep(f)==NULL) {
+            return NULL;
+        }
+        if (verbose)
+            printf("[%s]\n",buffer);
         cond[i]=calloc(strlen(buffer)+1,sizeof(char));
         if (cond[i]==NULL) {
             printf("%s",errorp);
@@ -362,11 +370,12 @@ localc* read_local(FILE*f, int size)
         printf("%s",errorp);
         return NULL;
     }
-    getlinep(f);
+    if(verbose)
+        printf("\n");
     for(i=0; i<size;++i) {
         getlinep(f);
         if(sscanf(buffer,"%d",&r)!=1) {
-            printf("\nCould not read the room number!\n");
+            printf("\nCould not read the room number! Read [%s]\n",buffer);
             return NULL;
         }
         cond[i].room=r;
@@ -377,6 +386,8 @@ localc* read_local(FILE*f, int size)
             return NULL;
         }
         strcpy(cond[i].condition,buffer);
+        if(verbose)
+            printf("Local room %d [%s]\n", cond[i].room, cond[i].condition);
     }
     return cond;
 }
@@ -386,7 +397,7 @@ localc* read_local(FILE*f, int size)
 room* read_rooms(FILE *f, int size)
 {
     char *errorp="Could not allocate enough memory for the room description.\n";
-    unsigned int i,j;
+    int i,j;
     room *world = (room*)calloc(size, sizeof(room));
     if (world==NULL) {
         printf("%s",errorp);
@@ -394,26 +405,28 @@ room* read_rooms(FILE *f, int size)
     }
 
     for(i=0; i<size;++i) {
-        getlinep(f);
-        getlinep(f);
+        getlinep(f);  // Read line 1
         sscanf(buffer, "%d",&(world[i].code));
-        getlinep(f);
+        getlinep(f);  // Read line 2
         world[i].long_d=calloc(strlen(buffer)+1,sizeof(char));
         strcpy(world[i].long_d,buffer);
+        if(verbose)
+            printf("Room %d [%s]\n",world[i].code,world[i].long_d);
         if(compress_descriptions==true)
             analyze(encodechar(world[i].long_d));
-        getlinep(f);
+        getlinep(f);  // Read line 3
         world[i].s=calloc(strlen(buffer)+1,sizeof(char));
         strcpy(world[i].s,buffer);
         if(compress_descriptions==true)
             analyze(encodechar(world[i].s));
-        getlinep(f);
+        getlinep(f);  // Read line 4
         world[i].short_d=calloc(strlen(buffer)+1,sizeof(char));
         strcpy(world[i].short_d,buffer);
         if(compress_descriptions==true)
             analyze(encodechar(world[i].short_d));
         for(j=0;j<10;++j) {
-            if(fscanf(f,"%d",&(world[i].directions[j]))!=1) {
+            getlinep(f);
+            if(sscanf(buffer,"%d",&(world[i].directions[j]))!=1) {
                 printf("Error reading directions.\n");
                 printf("Object code %d, direction %d\n",world[i].code,j+1);
                 getlinep(f);
@@ -431,13 +444,16 @@ object* read_objects(FILE *f, int size)
 {
     char *errorp="Could not allocate enough memory for the objects.\n";
     unsigned int i,j;
+    if(size<=0)
+        return NULL;
     object *obj = (object*)calloc(size, sizeof(object));
     if (obj==NULL) {
         printf("%s",errorp);
         return NULL;
     }
 
-    getlinep(f);
+    if(verbose)
+        printf("\n");
 
     for(i=0; i<size;++i) {
         getlinep(f);
@@ -475,6 +491,8 @@ object* read_objects(FILE *f, int size)
         } else {
             obj[i].isnotwereable=true;
         }
+        if(verbose)
+            printf("Object %d [%s]\n",obj[i].code,obj[i].desc);
     }
     return obj;
 }
@@ -563,8 +581,9 @@ message* read_messages(FILE *f, int size)
         printf("%s",errorp);
         return NULL;
     }
+    if(verbose)
+        printf("\n");
 
-    getlinep(f);
     for(i=0; i<size;++i) {
         getlinep(f);
         sscanf(buffer, "%d",&(msg[i].code));
@@ -574,6 +593,8 @@ message* read_messages(FILE *f, int size)
         strcpy(msg[i].txt,buffer);
         if(compress_messages==true)
             analyze(encodechar(msg[i].txt));
+        if(verbose)
+            printf("Message %d [%s]\n",msg[i].code,msg[i].txt);
     }
     return msg;
 }
@@ -585,7 +606,7 @@ unsigned int get_objects_number(FILE *f)
     fpos_t pos;
     unsigned int counter=0;
     unsigned int sl=0;
-    while(fscanf(f,"%80s",buffer)==1){
+    while(getlinep(f)){
         if(strcmp(buffer,"OGGETTI")==0) {
             break;
         }
@@ -603,12 +624,11 @@ unsigned int get_objects_number(FILE *f)
 
 /** Get the number of messages in the game.
 */
-unsigned int get_messages_number(FILE *f)
+int get_messages_number(FILE *f)
 {
     fpos_t pos;
-    unsigned int counter=0;
-    unsigned int sl=0;
-    while(fscanf(f,"%80s",buffer)==1){
+    int counter=0;
+    while(getlinep(f)){
         if(strcmp(buffer,"MESSAGGI")==0) {
             break;
         }
@@ -626,11 +646,10 @@ unsigned int get_messages_number(FILE *f)
 
 /** Get the number of "high conditions" in the file.
 */
-unsigned int get_hi_cond_size(FILE *f)
+int get_hi_cond_size(FILE *f)
 {
     fpos_t pos;
-    unsigned int counter=0;
-    unsigned int sl=0;
+    int counter=0;
     while (getlinep(f)) {
         if(strcmp(buffer,"CONDIZIONIHI")==0) {
             break;
@@ -644,16 +663,15 @@ unsigned int get_hi_cond_size(FILE *f)
         ++counter;
     }
     fsetpos(f, &pos);
-    return counter-1;
+    return counter;
 }
 
 /** Get the number of "low conditions" in the file.
 */
-unsigned int get_low_cond_size(FILE *f)
+int get_low_cond_size(FILE *f)
 {
     fpos_t pos;
-    unsigned int counter=0;
-    unsigned int sl=0;
+    int counter=0;
     while(getlinep(f)){
         if(strcmp(buffer,"CONDIZIONILOW")==0) {
             break;
@@ -667,16 +685,15 @@ unsigned int get_low_cond_size(FILE *f)
         ++counter;
     }
     fsetpos(f, &pos);
-    return counter-1;
+    return counter;
 }
 /** Get the number of "local conditions" in the file.
 */
-unsigned int get_local_cond_size(FILE *f)
+int get_local_cond_size(FILE *f)
 {
     fpos_t pos;
-    unsigned int counter=0;
-    unsigned int sl=0;
-    while(fscanf(f,"%80s",buffer)==1){
+    int counter=0;
+    while(getlinep(f)){
         if(strcmp(buffer,"CONDIZIONILOCALI")==0) {
             break;
         }
@@ -689,9 +706,8 @@ unsigned int get_local_cond_size(FILE *f)
         ++counter;
     }
     fsetpos(f, &pos);
-    return (counter-1)/2;
+    return (counter)/2;
 }
-
 
 
 char token[BUFFERSIZE];
@@ -3038,7 +3054,8 @@ void print_help(char *name)
            " -d  employ 6 directions instead of 10.\n"
            " -m  employ hardcoded messages instead of an array.\n"
            " -n  do not clear screen every time a new room is shown.\n"
-           " -v  or --version print version and exit\n");
+           " -v  or --version print version and exit\n"
+           " --verbose write plenty of things.\n");
 
     printf("\n");
 }
@@ -3078,6 +3095,9 @@ unsigned int process_options(char *arg, char *name)
     } else if (strcmp(arg, "-v")==0 || strcmp(arg, "--version")==0) {
         printf("This is AWS2C version %s\n", VERSION);
         exit(0);
+    } else if (strcmp(arg, "--verbose")==0) {
+        verbose=true;
+        return 1;
     }
     return 0;
 }
@@ -3157,7 +3177,7 @@ int main(int argc, char **argv)
     dsize=get_dict_size(f);
     printf("%d\n",dsize);
     printf("Read dictionary: ");
-    if((dictionary=read_dictionary(f,dsize))==NULL)
+    if((dictionary=read_dictionary(f,dsize))==NULL && dsize>0)
         exit(1);
     printf("done\n");
 

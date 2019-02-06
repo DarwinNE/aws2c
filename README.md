@@ -69,6 +69,7 @@ Available options:
  -d  employ 6 directions instead of 10.
  -m  employ hardcoded messages instead of an array.
  -n  do not clear the screen every time a new room is shown.
+  --verbose write plenty of things.
 ~~~~
 
 If you have a machine that only has the accent ' available such as a Commodore 64, it makes sense to use the `-s` option to create the file to be compiled.
