@@ -503,7 +503,8 @@ action ::= SET function | RESE function | CSET function function | INCR
 
 ## Decisions
 
-Decisions are used in the first part of the condition, after the `IF` command. They can be combined by logical operators `OR` and `AND`. Those logical operators have (much unfortunately) the same priority, a complex expression is always evaluated from the left to the right. Trust me, avoid complex logic combining both operators: they can be error-prone. Moreover, `aws2c` sometimes tries to shunt some oft-found combinations of things by exploiting ad-hoc functions. They are wort it, as they greatly optimize the code. In some cases, it's a good idea to have a look to the output C code if you have some doubts.
+Decisions are used in the first part of the condition, after the `IF` command. Therefore, they represent a condition that can be either `true` or `false`.
+They can be combined by logical operators `OR` and `AND`. Those logical operators have (much unfortunately) the same priority, a complex expression is evaluated from the left to the right. Trust me, avoid complex logic combining both operators: they can be error-prone and you can't use parenthesis in AWS. To add a certain degree of complexity, `aws2c` sometimes tries to shunt some oft-found combinations of things by exploiting ad-hoc functions. They are worth it, as they greatly optimize the code. In some cases, it's a good idea to have a look to the output C code if you have some doubts.
 
 Decision |aws2c?| Decision becomes `true` if...
 ---------|------|-------------------------------------------------------------
@@ -577,7 +578,25 @@ To be described...
 
 ## Functions
 
-To be described...
+Functions return a numerical value. They can be used as argument of decisions or actions and can be employed recursively, i.e. a function can be an argument of another function.
+
+Function |aws2c?| Value
+---------|------|-------------------------------------------------------------
+`ACTORNO`| X    | Code of the actor in the phrase (0 not present)
+`ADVENO` | X    | Code of the adverb in the phrase (0 not present)
+`ADJENO` | X    | Code of the adjective in the phrase (0 not present)
+`VBNO`   | X    | Code of the verb in the phrase (0 not present)
+`NO1`    | X    | Code of the first noun in the phrase (0 not present)
+`NO2`    | X    | Code of the first noun in the phrase (0 not present)
+`CTR c`  | X    | Value of the counter `c`
+`TURN`   |      | Number of turns since the beginning of the game
+`ROOM`   | X    | Current room
+`CONN r d`|     | Room number connected to room `r` via direction `d`
+`CONNCORR d`|   | Room number connected to current room via direction `d`
+`RAND x` |      | A random number between 1 and `x` (integer)
+`WEIG o` | X    | Weight of object `o`
+`OBJLOC o`|X    | Location of object `o`
+
 
 ## An example of a reasonably complete file
 
