@@ -572,10 +572,75 @@ Decision |aws2c?| Decision becomes `true` if...
 `WEIGLT o x`|   | object `o` has a weight less than `x`
 `PROB x`  | X   | with a probability `x` (in percent)
 
+NOTE: X in the second column means that this command is implemented in `aws2c`, I means that it is ignored (but a warning message appears).
+
 ## Actions
 
-To be described...
+Action   |aws2c?| Description
+---------|------|-------------------------------------------------------------
+`SET m`  | X    | Set marker `m`
+`RESE m` | X    | Reset marker `m`
+`CSET c x`|X    | Assign value `x` to counter `c`
+`INCR c` | X    | Increment counter `c`
+`DECR c` | X    | Decrement counter `c`. No effect if `c` is already zero
+`GET o`  | X    | Check if possible (weight, size, presence), get object `o`.
+`DROP o` | X    | Check if player carries it and drop object `o`
+`SWAP o1 o2`|X  | Swap the place of two objects. It's important they've same size and same weight
+`OKAY`   | X    | Writes `OKAY` and do a `WAIT`. Equivalent to `MESS 1000 WAIT`
+`WAIT`   | X    | Skip all other conditions and restart game cycle
+`EXIT`   | X    | Exit from game without asking for confirmation
+`QUIT`   | X    | Exit from game asking for confirmation
+`HOLD x` | X    | Wait for `x` seconds
+`GOTO r` | X    | Go to room `r` and describe it
+`DESC r` |      | Describe room `r`
+`LOOK`   | X    | Describe current room
+`LF`     | X    | Print a line feed
+`SAVE`   | I    | Save the game
+`LOAD`   | I    | Load the game
+`PICT`   | I    | Game with pictures (if they are present!)
+`TEXT`   | I    | Text-only game
+`MESS m` | X    | Print message `m` and a line feed
+`MESSNOLF m`|X  | Print message `m` and does not print a line feed
+`PRIN x` | X    | Print value `x` and a line feed
+`PRINNOLF x`|X  | Print value `x` and does not print a line feed
+`TO o r` | X    | Move object `o` to room `r`
+`ADDC c x`|X    | Add `x` to counter `c`
+`SUBC c x`|     | Subtract `x` to counter `c`. Stop at counter zero
+`OBJ o`  | X    | Describe object `o`
+`LIST r` |      | List objects in room `r`
+`INVE`   | X    | Print inventory
+`STRE x` | X    | Set maximum weight that can be carried to `x` (counter 122)
+`DIMENS x`|X    | Set maximum dimension that can be carried to `x` (c. 121)
+`BRIN o` | X    | Bring object `o` in the current room
+`FIND o` |      | Carry player in the room where object `o` is present
+`NORD`   | X    | If possible, move to north
+`SUD`    | X    | If possible, move to south
+`EST`    | X    | If possible, move to east
+`OVEST`  | X    | If possible, move to west
+`ALTO`   | X    | If possible, move up
+`BASSO`  | X    | If possible, move down
+`NORDEST`|      | If possible, move to north-east
+`NORDOVEST`|    | If possible, move to north-west
+`SUDEST` |      | If possible, move to south-east
+`SUDOVEST`|     | If possible, move to south-west
+`RESTART`| X    | Ask for confirmation and restart game
+`SETCONN r1 d r2`|X| Connect room `r1` to room `r2` trough direction `r2`
+`WEAR o` | X    | Wear object `o` if carried and it is wearable
+`UNWEAR o` |X   | Un-wear object `o` if worn and put it in the inventory
+`PRESSKEY`|X    | Wait for a key press
+`GETALL` | X    | Get all the object in the room, if possible
+`DROPALL`| X    | Drop all the objects carried
+`CLS`    |      | Clear screen
+`SENDALLROOM r`|X| Move all the carried objects (not worn) in the room `r`
+`RAMSAVE`|      | Save the current game in memory
+`RAMLOAD`|      | Load the current game from memory
+`SCRIPTON`| I   | Save all commands typed in the game in an output .txt file
+`SCRIPTOFF`| I  | Stop saving commands typed in a file
+`COLOR f b`|    | Set `f` as foreground colour and `b` as background
+`FCOLO f` |     | Set `f` as foreground colour
+`BCOLO b` |     | Set `b` as background colour
 
+NOTE: X in the second column means that this command is implemented in `aws2c`, I means that it is ignored (but a warning message appears).
 ## Functions
 
 Functions return a numerical value. They can be used as argument of decisions or actions and can be employed recursively, i.e. a function can be an argument of another function.
@@ -597,6 +662,7 @@ Function |aws2c?| Value
 `WEIG o` | X    | Weight of object `o`
 `OBJLOC o`|X    | Location of object `o`
 
+NOTE: X in the second column means that this command is implemented in `aws2c`, I means that it is ignored (but a warning message appears).
 
 ## An example of a reasonably complete file
 
