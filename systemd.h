@@ -15,8 +15,7 @@
     #include<conio.h>
 
     #define BUFFERSIZE 128
-    
-    #define B_SIZE 100
+    #define B_SIZE 160
 
     #define SHIFTPETSCII \
         if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20
@@ -84,7 +83,7 @@
     #include<conio.h>
 
     #define BUFFERSIZE 40
-    #define B_SIZE 40
+    #define B_SIZE 80
 
     #define SHIFTPETSCII \
         if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20
@@ -137,7 +136,7 @@
     #define PTRCLR 53281U
     /* Init the terminal */
     #define POKE(addr,val)     (*(unsigned char*) (addr) = (val))
-    
+
     // Restore default VIC-II config (lower case)
     // This is useful if there is loader that goes in a graphic mode.
 
@@ -160,7 +159,7 @@
     #include<conio.h>
 
     #define BUFFERSIZE 80
-    #define B_SIZE 320
+    #define B_SIZE 240
 
     #define SHIFTPETSCII \
         if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20
@@ -224,8 +223,8 @@
 
     #include<conio.h>
 
-    #define BUFFERSIZE 128
-    #define B_SIZE 44
+    #define BUFFERSIZE 44
+    #define B_SIZE 88
 
     #define SHIFTPETSCII \
         if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20
@@ -234,7 +233,7 @@
 
     // The number of columns of the screen
     #define NCOL 22
-    /* The number of available rows of the screen. If undefined, it is 
+    /* The number of available rows of the screen. If undefined, it is
        not checked
     */
     #define NROW 19
@@ -288,9 +287,9 @@
 
     #include <spectrum.h>
     #define BUFFERSIZE 128
-    #define B_SIZE 255
+    #define B_SIZE 192
 
-    #define SHIFTPETSCII 
+    #define SHIFTPETSCII
 
     #define waitscreen()
 
@@ -313,14 +312,40 @@
     #define init_term() {printf("\x1b[2J");normaltxt();}
 
     #define leave() printf("\x1b[0m\n\n");
+#elif defined(M20) /* Definitions for Olivetti M20 */
+
+    #define BUFFERSIZE 256
+    #define B_SIZE 240
+
+    #define SHIFTPETSCII
+
+    #define waitscreen()
+
+    // The number of columns of the screen
+    #define NCOL 80
+
+    #define waitkey() getchar()
+    #define inputtxt()
+    #define evidence1()
+    #define evidence2()
+    #define evidence3()
+    #define cls()
+
+    #define normaltxt()
+    #define tab() printf("\t")
+    #define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
+        retTime);}
+    #define init_term() {printf("\n\n");}
+
+    #define leave()
 
 #else /* Definitions for modern ANSI terminals */
 
     #define BUFFERSIZE 256
-    #define B_SIZE 255
+    #define B_SIZE 240
 
 
-    #define SHIFTPETSCII 
+    #define SHIFTPETSCII
 
     #define waitscreen()
 
@@ -338,7 +363,7 @@
     #define tab() printf("\t")
     #define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
         retTime);}
-#define init_term() {\
+    #define init_term() {\
         printf( "This terminal does not support ANSI codes."\
         "\033[80D"\
         "You'll see garbage chars on the screen. If you use MS-DOS, add "\
