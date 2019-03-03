@@ -13,6 +13,7 @@
 #ifdef C128  /* Definitions to be used for the Commodore 128 computer */
 
     #include<conio.h>
+    #include<stdio.h>
 
     #define BUFFERSIZE 128
     #define B_SIZE 160
@@ -38,26 +39,22 @@
     #define waitkey() cgetc()
 
     /* Define the style of the input text */
-    #define inputtxt() printf(green)
+    #define inputtxt() fputs(green, stdout)
 
     /* Define the style of the first evidenced text */
-    #define evidence1() printf(red)
+    #define evidence1() fputs(red, stdout)
 
     /* Define the style of the second evidenced text */
-    #define evidence2() printf(yellow)
+    #define evidence2() fputs(yellow, stdout)
 
     /* Define the style of the third evidenced text */
-    #define evidence3() printf(pink)
+    #define evidence3() fputs(pink, stdout)
 
     /* Define the style of the normal text */
-    #define normaltxt() printf(cyan)
+    #define normaltxt() fputs(cyan, stdout)
 
     /* Clear the screen */
     #define cls() clrscr()
-
-
-    /* Write a tabulation (it can be adapted to screen width). */
-    #define tab() printf("        ")
 
     /* Wait for one second */
     #define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
@@ -68,7 +65,7 @@
     #define PTFST 53296
     #define init_term() {\
         if (*(char*)PT80COL==0) {\
-            printf(switch80col);\
+            fputs(switch80col, stdout);\
         }\
         *(char*)PTFST=1;\
         clrscr();\
@@ -76,11 +73,12 @@
     }
 
     /* Prepare the terminal to leave the program execution. */
-    #define leave() printf(cyan)
+    #define leave() fputs(cyan, stdout)
 
 #elif defined(C64)
 
     #include<conio.h>
+    #include <stdio.h>
 
     #define BUFFERSIZE 40
     #define B_SIZE 80
@@ -110,25 +108,22 @@
     #define waitkey() cgetc(); rowc=0
 
     /* Define the style of the input text */
-    #define inputtxt() printf(green)
+    #define inputtxt() fputs(green, stdout)
 
     /* Define the style of the first evidenced text */
-    #define evidence1() printf(red)
+    #define evidence1() fputs(red, stdout)
 
     /* Define the style of the second evidenced text */
-    #define evidence2() printf(yellow)
+    #define evidence2() fputs(yellow, stdout)
 
     /* Define the style of the third evidenced text */
-    #define evidence3() printf(pink)
+    #define evidence3() fputs(pink, stdout)
 
     /* Define the style of the normal text */
-    #define normaltxt() printf(cyan)
+    #define normaltxt() fputs(cyan, stdout)
 
     /* Clear the screen */
     #define cls() clrscr();zeror()
-
-    /* Write a tabulation (it can be adapted to screen width). */
-    #define tab() printf("    ")
 
     /* Wait for one second */
     #define wait1s()    {}
@@ -157,6 +152,7 @@
 #elif defined(PLUS4)
 
     #include<conio.h>
+    #include <stdio.h>
 
     #define BUFFERSIZE 80
     #define B_SIZE 240
@@ -186,25 +182,23 @@
     #define waitkey() cgetc(); rowc=0
 
     /* Define the style of the input text */
-    #define inputtxt() printf(green)
+    #define inputtxt() fputs(green, stdout)
 
     /* Define the style of the first evidenced text */
-    #define evidence1() printf(red)
+    #define evidence1() fputs(red, stdout)
 
     /* Define the style of the second evidenced text */
-    #define evidence2() printf(yellow)
+    #define evidence2() fputs(yellow, stdout)
 
     /* Define the style of the third evidenced text */
-    #define evidence3() printf(pink)
+    #define evidence3() fputs(pink, stdout)
 
     /* Define the style of the normal text */
-    #define normaltxt() printf(cyan)
+    #define normaltxt() fputs(cyan, stdout)
 
     /* Clear the screen */
     #define cls() clrscr();zeror()
 
-    /* Write a tabulation (it can be adapted to screen width). */
-    #define tab() printf("    ")
 
     /* Wait for one second */
     #define wait1s()    {}
@@ -222,6 +216,7 @@
 #elif defined(VIC20)
 
     #include<conio.h>
+    #include<stdio.h>
 
     #define BUFFERSIZE 44
     #define B_SIZE 88
@@ -250,25 +245,22 @@
     #define waitkey() cgetc(); rowc=0
 
     /* Define the style of the input text */
-    #define inputtxt() printf(green)
+    #define inputtxt() fputs(green, stdout)
 
     /* Define the style of the first evidenced text */
-    #define evidence1() printf(red)
+    #define evidence1() fputs(red, stdout)
 
     /* Define the style of the second evidenced text */
-    #define evidence2() printf(yellow)
+    #define evidence2() fputs(yellow, stdout)
 
     /* Define the style of the third evidenced text */
-    #define evidence3() printf(pink)
+    #define evidence3() fputs(pink, stdout)
 
     /* Define the style of the normal text */
-    #define normaltxt() printf(cyan)
+    #define normaltxt() fputs(cyan, stdout)
 
     /* Clear the screen */
     #define cls() clrscr();zeror()
-
-    /* Write a tabulation (it can be adapted to screen width). */
-    #define tab() printf("    ")
 
     /* Wait for one second */
     #define wait1s()    {}
@@ -282,15 +274,75 @@
 
     /* Prepare the terminal to leave the program execution. */
     #define leave() cputs(cyan)
+#elif defined(VIC20_40c)
+
+    #include"loadhi.h"
+
+    #define BUFFERSIZE 37
+    #define B_SIZE 80
+
+    #define SHIFTPETSCII \
+        if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20
+
+    #define waitscreen()
+
+    // The number of columns of the screen
+    #define NCOL 40
+    /* The number of available rows of the screen. If undefined, it is
+       not checked
+    */
+    #define NROW 21
+    extern unsigned char rowc;
+
+    /* Macro to wait for a key */
+    #define waitkey() cgetc40ch(); rowc=0
+
+    /* Define the style of the input text */
+    #define inputtxt() 
+
+    /* Define the style of the first evidenced text */
+    #define evidence1() negative();
+    
+    /* Define the style of the second evidenced text */
+    #define evidence2() 
+
+    /* Define the style of the third evidenced text */
+    #define evidence3() negative();
+
+    /* Define the style of the normal text */
+    #define normaltxt() positive();
+
+    /* Clear the screen */
+    #define cls() clrscr();
+
+    #define PUTC(c) putc40ch(c)
+    #define PUTS(s) puts40ch(s)
+    #define GETS(b, si) gets40ch(b,si)
+
+    /* Wait for one second */
+    #define wait1s()    {}
+    #define PTRCLR 36879
+    /* Init the terminal */
+    #define init_term() {\
+        *(char*)PTRCLR = 0x08;\
+        initGraphic();\
+        normaltxt();\
+    }
+
+    /* Prepare the terminal to leave the program execution. */
+    #define leave() 
 
 #elif defined(SPECTRUM)
 
     #include <spectrum.h>
+    #include <stdio.h>
     #define BUFFERSIZE 128
     #define B_SIZE 192
 
     #define SHIFTPETSCII
 
+    #define PUTS(s) wtr(s)
+    #define DEFINEWTR
     #define waitscreen()
 
     // The number of columns of the screen
@@ -299,20 +351,23 @@
     extern unsigned char rowc;
 
     #define waitkey() getchar(); rowc=0
-    #define inputtxt()  printf("\x1b[0m\x1b[32m\x1b[47m")
-    #define evidence1() printf("\x1b[1m\x1b[37m\x1b[41m")
-    #define evidence2() printf("\x1b[0m\x1b[34m\x1b[47m")
-    #define evidence3() printf("\x1b[0m\x1b[35m\x1b[47m")
+    #define inputtxt()  fputs("\x1b[0m\x1b[32m\x1b[47m", stdout)
+    #define evidence1() fputs("\x1b[1m\x1b[37m\x1b[41m", stdout)
+    #define evidence2() fputs("\x1b[0m\x1b[34m\x1b[47m", stdout)
+    #define evidence3() fputs("\x1b[0m\x1b[35m\x1b[47m", stdout)
     #define cls()
 
-    #define normaltxt() printf("\x1b[0m\x1b[30m\x1b[47m")
-    #define tab() printf("\t")
+    #define normaltxt() fputs("\x1b[0m\x1b[30m\x1b[47m", stdout)
+    #define tab() fputs("\t")
     #define wait1s() \
         {unsigned int retTime = time(0) + 1;while (time(0) < retTime);}
-    #define init_term() {printf("\x1b[2J");normaltxt();}
+    #define init_term() {fputs("\x1b[2J", stdout);normaltxt();}
 
-    #define leave() printf("\x1b[0m\n\n");
+    #define leave() fputs("\x1b[0m\n\n", stdout);
+
 #elif defined(M20) /* Definitions for Olivetti M20 */
+
+    #include<stdio.h>
 
     #define BUFFERSIZE 256
     #define B_SIZE 240
@@ -332,15 +387,16 @@
     #define cls()
 
     #define normaltxt()
-    #define tab() printf("\t")
+    #define tab() fputs("\t", stdout)
     #define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
         retTime);}
-    #define init_term() {printf("\n\n");}
+    #define init_term() {fputs("\n\n", stdout);}
 
     #define leave()
 
 #else /* Definitions for modern ANSI terminals */
 
+    #include<stdio.h>
     #define BUFFERSIZE 256
     #define B_SIZE 240
 
@@ -377,4 +433,16 @@
     #define leave() printf("\033[0m\n\n")
 
 #endif
+
+
+#ifndef PUTC
+    #define PUTC(c) putc((c), stdout)
+#endif
+#ifndef PUTS
+    #define PUTS(s) fputs((s), stdout)
+#endif
+#ifndef GETS
+    #define GETS(buffer, size) fgets((buffer),(size),stdin);
+#endif
+
 #endif

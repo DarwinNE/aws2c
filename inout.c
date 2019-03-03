@@ -38,6 +38,15 @@ extern word dictionary[];
 unsigned char ls, lc;
 unsigned char pc;
 
+#ifdef DEFINEWTR
+void wtr(const char *s)
+{
+    int i;
+    for(i=0; s[i]!='\0';++i)
+        fputc(s[i],stdout);
+}
+#endif
+
 
 /** Write a string without adding a newline. Process some codes to put in
     evidence the text and handle the word wrapping.
@@ -58,13 +67,13 @@ void writesameln(char *line)
             ) {
             wordbuffer[pc]='\0';
             if(colc>=NCOL) {
-                printf("\n");
+                PUTC('\n');
                 colc=pc;
                 #ifdef NROW
                 if(++rowc>NROW) {waitkey(); rowc=0;};
                 #endif
             }
-            printf("%s",wordbuffer);
+            PUTS(wordbuffer);
             if(c=='\0')
                 return;
             pc=0;
@@ -77,13 +86,13 @@ void writesameln(char *line)
                 if(c=='\\')
                     ++line;
                 #endif
-                printf("\n");
+                PUTC('\n');
                 colc=0;
                 #ifdef NROW
                 if(++rowc>NROW) {waitkey(); rowc=0;};
                 #endif
             } else if(colc<NCOL-1) {
-                printf(" ");
+                PUTC(' ');
                 ++colc;
             }
         } else {
@@ -115,7 +124,7 @@ void zeror(void)
 void writeln(char* line)
 {
     writesameln(line);
-    printf("\n");
+    PUTC('\n');
     #ifdef NROW
     if(++rowc>NROW) {waitkey(); rowc=0;};
     #endif
@@ -129,7 +138,7 @@ unsigned int readln(void)
     unsigned int lc;
     inputtxt();
     writesameln("> ");
-    fgets(playerInput,BUFFERSIZE,stdin);
+    GETS(playerInput,BUFFERSIZE);
     normaltxt();
     lc=strlen(playerInput);
     // remove the '\n'
