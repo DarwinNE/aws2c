@@ -276,7 +276,7 @@
     #define leave() cputs(cyan)
 #elif defined(VIC20_40c)
 
-    #include"loadhi.h"
+    #include"vic40col.h"
 
     #define BUFFERSIZE 37
     #define B_SIZE 80
