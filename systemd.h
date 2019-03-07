@@ -273,7 +273,8 @@
     }
 
     /* Prepare the terminal to leave the program execution. */
-    #define leave() cputs(cyan)
+    #define leave() asm("jmp $FD22")
+
 #elif defined(VIC20_40c)
 
     #include"vic40col.h"
@@ -322,6 +323,8 @@
     /* Wait for one second */
     #define wait1s()    {}
     #define PTRCLR 36879
+    #define RESET 64802
+    
     /* Init the terminal */
     #define init_term() {\
         *(char*)PTRCLR = 0x08;\
@@ -330,7 +333,7 @@
     }
 
     /* Prepare the terminal to leave the program execution. */
-    #define leave() 
+    #define leave() asm("jmp $FD22")
 
 #elif defined(SPECTRUM)
 
