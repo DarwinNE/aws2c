@@ -169,23 +169,24 @@ On_02:
     rts
 
 ; Wanted config:
-; C:9000  0d 26 14 19  00 cc 57 ea  ff ff 00 00  00 00 00 08
+; C:9000  0d 22 14 19  00 cc 57 ea  ff ff 00 00  00 00 00 08
 ;          |  |  | |       |                               +-> Black screen
 ;          |  |  | |       +-> Screen address (video and chargen ad $1000)
 ;          |  |  | +-> 8x16 characters, 12 lines of text (will become 24)
 ;          |  |  +-> 20 columns that will become 40!
-;          +-> Distance from border to the first column
+;          |  +-> Distance from origin to the first row
+;          +-> Distance from origin to the first column
 ; PAL system at startup:
 ; C:9000  0c 26 16 2e  00 c0 57 ea  ff ff 00 00  00 00 00 1b
 ;
 ; Difference:
-;         01 00 FE EB  00 0C
+;         01 FC FE EB  00 0C
 ;
 ; Results with NTSC:
-; C:9000  07 19 14 19  00 cc 57 ea  ff ff 00 00  00 00 00 08
+; C:9000  07 15 14 19  00 cc 57 ea  ff ff 00 00  00 00 00 08
  
 Offset:
-    .byte $02, $00, $FE, $EB, $00, $0C
+    .byte $02, $FC, $FE, $EB, $00, $0C
 
 ; Clear the screen.
 ; KNOWN ISSUES: the organization of the characters is currently row-wise.
