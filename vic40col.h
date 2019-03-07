@@ -1,5 +1,5 @@
-#ifndef __LOADHI_H__
-#define __LOADHI_H__
+#ifndef __VIC40COL_H__
+#define __VIC40COL_H__
 
 extern void initGraphic(void);
 extern void clrscr(void);
