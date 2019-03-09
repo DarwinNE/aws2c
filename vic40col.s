@@ -189,25 +189,38 @@ Offset:
     .byte $02, $FC, $FE, $EB, $00, $0C
 
 ; Clear the screen.
-; KNOWN ISSUES: the organization of the characters is currently row-wise.
-; This greatly complicates the problem of the scrolling, that is currently
-; done in a crappy way.
 _clrscr:
-    ldx #00
+    ldx #0
     stx currLine
     stx currCol
-@lig:
-    txa
-    clc                 ; We don't use the first 16 characters as they
-    adc #$10            ; will occupy in chargen the same memory as video
-    sta $1000,x
     lda #foreground
+@lig:                   ; In a first loop, we set up the foreground colour
     sta $9400,x
     inx
     cpx #240
     bne @lig
-    lda #0
+    
+    lda #$10            ; Now we write the characters on screen. Column wise
+    pha
     ldx #0
+@loop:
+    ldy #20
+@lig2:
+    sta $1000,x
+    clc
+    adc #12
+    inx
+    dey
+    bne @lig2
+    pla
+    clc
+    adc #1
+    pha
+    cpx #240
+    bne @loop
+    pla
+    lda #0
+    tax
 @lig1:
     sta startm +$000,x
     sta startm +$100,x
@@ -398,49 +411,42 @@ nores:
 ; and currLine. Store the result in scrp and scrp+1 (LO and HI)
 ; Don't use X.
 calcptr:
-    lda currCol
-    and #$FE
-    sta scrp            ; Multiply the column number times 8
-    lda currLine
-    and #$01
-    ora scrp
-    sta scrp
     lda #0
-    asl scrp
-    rol A
-    asl scrp
-    rol A
-    asl scrp
-    rol A
     sta scrp+1
-    lda currLine        ; Add (currLine & $FE)*160, 160=128+32
-    ror
-    clc
-    adc scrp+1          ; (1) Add (currLine & $FE)*128
-    sta scrp+1
-    lda currLine
-    and #$1E
-    clc
+    lda currCol     ; ((currCol&0xFE)*6+currLine>>1)<<4+(currLine&1)*8+startm
+    and #$FE
+    asl             ; 6=4+2
+    sta scrp
     asl
-    asl
-    asl
-    asl
-    bcc @noadd0
-    inc scrp+1
-    inc scrp+1
-@noadd0:
-    asl
-    bcc @noadd1
-    inc scrp+1
-    clc
-@noadd1:
     adc scrp
     sta scrp
-    bcc @noadd2
-    inc scrp+1
+    lda currLine
     clc
-@noadd2:
+    ror
+    clc
+    adc scrp
+    asl
+    rol scrp+1
+    asl
+    rol scrp+1
+    asl
+    rol scrp+1
+    asl
+    rol scrp+1
+    sta scrp
+    lda currLine
+    and #1
+    asl
+    asl
+    asl             ; Carry is clear here?
+    clc
+    adc scrp
+    sta scrp
+    bcc @nohi
+    inc scrp+1
+@nohi:
     lda #.HIBYTE(startm)    ; Add $1100
+    clc
     adc scrp+1
     sta scrp+1
     rts
@@ -450,73 +456,77 @@ l1=ptr2
 l2=ptr3
 
 ; Scroll text one line up.
-; KNOWN ISSUES: basically this code is a mess and it is crap.
-; One must better organize the characters on the screen.
 ScrollUp:
-    lda #.LOBYTE(startm)
-    sta l0
-    lda #.HIBYTE(startm)
-    sta l0+1
-    lda #.LOBYTE(startm+8)
-    sta l1
-    lda #.HIBYTE(startm+8)
-    sta l1+1
-    lda #.LOBYTE(startm+320)
-    sta l2
-    lda #.HIBYTE(startm+320)
-    sta l2+1
-    ldy #0
     ldx #0
 @loop:
-    lda (l1),y
-    sta (l0),y
-    lda (l2),y
-    sta (l1),y
-    iny
-    tya
-    and #7
-    bne @loop
-    cpy #0
-    beq @st
-    tya
-    clc
-    adc #8
-    tay
-    bne @loop
-@st:
+    lda startm+8,x
+    sta startm,x
+    lda startm+8+1*192,x
+    sta startm+1*192,x
+    lda startm+8+2*192,x
+    sta startm+2*192,x
+    lda startm+8+3*192,x
+    sta startm+3*192,x
+    lda startm+8+4*192,x
+    sta startm+4*192,x
+    lda startm+8+5*192,x
+    sta startm+5*192,x
+    lda startm+8+6*192,x
+    sta startm+6*192,x
+    lda startm+8+7*192,x
+    sta startm+7*192,x
+    lda startm+8+8*192,x
+    sta startm+8*192,x
+    lda startm+8+9*192,x
+    sta startm+9*192,x
+    lda startm+8+10*192,x
+    sta startm+10*192,x
+    lda startm+8+11*192,x
+    sta startm+11*192,x
+    lda startm+8+12*192,x
+    sta startm+12*192,x
+    lda startm+8+13*192,x
+    sta startm+13*192,x
+    lda startm+8+14*192,x
+    sta startm+14*192,x
+    lda startm+8+15*192,x
+    sta startm+15*192,x
+    lda startm+8+16*192,x
+    sta startm+16*192,x
+    lda startm+8+17*192,x
+    sta startm+17*192,x
+    lda startm+8+18*192,x
+    sta startm+18*192,x
+    lda startm+8+19*192,x
+    sta startm+19*192,x
     inx
-    cpx #15
-    beq @ls
-    inc l0+1
-    inc l1+1
-    inc l2+1
+    cpx #192-8
     bne @loop
-@ls:
-    lda #.LOBYTE(startm+8+16*20*11)
-    sta l0
-    lda #.HIBYTE(startm+8+16*20*11)
-    sta l0+1
-    lda #.LOBYTE(startm+8+16*20*11+160)
-    sta l1
-    lda #.HIBYTE(startm+8+16*20*11+160)
-    sta l1+1
-    ldy #0
-@loop1:
     lda #0
-    sta (l0),y
-    sta (l1),y
-    iny
-    tya
-    and #7
+@loop1:
+    sta startm,x
+    sta startm+1*192,x
+    sta startm+2*192,x
+    sta startm+3*192,x
+    sta startm+4*192,x
+    sta startm+5*192,x
+    sta startm+6*192,x
+    sta startm+7*192,x
+    sta startm+8*192,x
+    sta startm+9*192,x
+    sta startm+10*192,x
+    sta startm+11*192,x
+    sta startm+12*192,x
+    sta startm+13*192,x
+    sta startm+14*192,x
+    sta startm+15*192,x
+    sta startm+16*192,x
+    sta startm+17*192,x
+    sta startm+18*192,x
+    sta startm+19*192,x
+    inx
+    cpx #192
     bne @loop1
-    cpy #152
-    beq @st1
-    tya
-    clc
-    adc #8
-    tay
-    bne @loop1
-@st1:
     rts
 
 shiftpetascii:
