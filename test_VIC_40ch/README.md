@@ -24,7 +24,7 @@ poke 43,lo:poke 44,hi:poke 256*hi+lo-1,0:new
 
 load "hello40.prg",8,1
 run
-~~~
+~~~~
 
 
 
