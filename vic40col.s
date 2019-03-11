@@ -6,6 +6,7 @@
 ; http://sleepingelephant.com/ipw-web/bulletin/bb/viewtopic.php?f=2&t=9257
 
 .export _initGraphic
+.export _normalText
 .export _putc40ch
 .export _puts40ch
 .export _gets40ch
@@ -35,7 +36,7 @@
     
     cursor = '-'
 
-.segment "HIMEM"
+.segment "CODE"
 
     GETIN =  $FFE4      ; Get a key from the keyboard
     VIC_DEFAULT=$EDE4   ; Table of the default values of VIC registers
@@ -156,17 +157,28 @@ isNeg:
 ; so that the bitmap is mapped at $1100.
 _initGraphic:
     ldy #$05
-On_02:
+@On_02:
     clc
     lda VIC_DEFAULT,Y   ; Read default values from the KERNAL rom
     adc Offset,Y
     sta $9000,Y
     dey
-    bpl On_02
+    bpl @On_02
     lda #background
     sta $900F           ; Screen background
     jsr _clrscr
     rts
+
+_normalText:
+    ldy #$F
+@On_02:
+    lda VIC_DEFAULT,Y   ; Read default values from the KERNAL rom
+    sta $9000,Y
+    dey
+    bpl @On_02
+    jsr $e55f
+    rts
+
 
 ; Wanted config:
 ; C:9000  0d 22 14 19  00 cc 57 ea  ff ff 00 00  00 00 00 08
@@ -438,8 +450,7 @@ calcptr:
     and #1
     asl
     asl
-    asl             ; Carry is clear here?
-    clc
+    asl             ; Carry is clear here
     adc scrp
     sta scrp
     bcc @nohi
@@ -451,82 +462,74 @@ calcptr:
     sta scrp+1
     rts
 
-l0=ptr1
-l1=ptr2
-l2=ptr3
-
 ; Scroll text one line up.
 ScrollUp:
-    ldx #0
+    ldy #0
 @loop:
-    lda startm+8,x
-    sta startm,x
-    lda startm+8+1*192,x
-    sta startm+1*192,x
-    lda startm+8+2*192,x
-    sta startm+2*192,x
-    lda startm+8+3*192,x
-    sta startm+3*192,x
-    lda startm+8+4*192,x
-    sta startm+4*192,x
-    lda startm+8+5*192,x
-    sta startm+5*192,x
-    lda startm+8+6*192,x
-    sta startm+6*192,x
-    lda startm+8+7*192,x
-    sta startm+7*192,x
-    lda startm+8+8*192,x
-    sta startm+8*192,x
-    lda startm+8+9*192,x
-    sta startm+9*192,x
-    lda startm+8+10*192,x
-    sta startm+10*192,x
-    lda startm+8+11*192,x
-    sta startm+11*192,x
-    lda startm+8+12*192,x
-    sta startm+12*192,x
-    lda startm+8+13*192,x
-    sta startm+13*192,x
-    lda startm+8+14*192,x
-    sta startm+14*192,x
-    lda startm+8+15*192,x
-    sta startm+15*192,x
-    lda startm+8+16*192,x
-    sta startm+16*192,x
-    lda startm+8+17*192,x
-    sta startm+17*192,x
-    lda startm+8+18*192,x
-    sta startm+18*192,x
-    lda startm+8+19*192,x
-    sta startm+19*192,x
-    inx
-    cpx #192-8
+    lda startm+8,y
+    sta startm,y
+    lda startm+8+1*192,y
+    sta startm+1*192,y
+    lda startm+8+2*192,y
+    sta startm+2*192,y
+    lda startm+8+3*192,y
+    sta startm+3*192,y
+    lda startm+8+4*192,y
+    sta startm+4*192,y
+    lda startm+8+5*192,y
+    sta startm+5*192,y
+    lda startm+8+6*192,y
+    sta startm+6*192,y
+    lda startm+8+7*192,y
+    sta startm+7*192,y
+    lda startm+8+8*192,y
+    sta startm+8*192,y
+    lda startm+8+9*192,y
+    sta startm+9*192,y
+    lda startm+8+10*192,y
+    sta startm+10*192,y
+    lda startm+8+11*192,y
+    sta startm+11*192,y
+    lda startm+8+12*192,y
+    sta startm+12*192,y
+    lda startm+8+13*192,y
+    sta startm+13*192,y
+    lda startm+8+14*192,y
+    sta startm+14*192,y
+    lda startm+8+15*192,y
+    sta startm+15*192,y
+    lda startm+8+16*192,y
+    sta startm+16*192,y
+    lda startm+8+17*192,y
+    sta startm+17*192,y
+    lda startm+8+18*192,y
+    sta startm+18*192,y
+    lda startm+8+19*192,y
+    sta startm+19*192,y
+    iny
+    cpy #192-8
     bne @loop
+    lda #.LOBYTE(startm+8*23)
+    sta scrp
+    lda #.HIBYTE(startm+8*23)
+    sta scrp+1
+@nextch:
     lda #0
+    ldy #7
 @loop1:
-    sta startm,x
-    sta startm+1*192,x
-    sta startm+2*192,x
-    sta startm+3*192,x
-    sta startm+4*192,x
-    sta startm+5*192,x
-    sta startm+6*192,x
-    sta startm+7*192,x
-    sta startm+8*192,x
-    sta startm+9*192,x
-    sta startm+10*192,x
-    sta startm+11*192,x
-    sta startm+12*192,x
-    sta startm+13*192,x
-    sta startm+14*192,x
-    sta startm+15*192,x
-    sta startm+16*192,x
-    sta startm+17*192,x
-    sta startm+18*192,x
-    sta startm+19*192,x
-    inx
-    cpx #192
-    bne @loop1
+    sta (scrp),y
+    dey
+    bpl @loop1
+    lda scrp
+    clc
+    adc #192
+    sta scrp
+    bcc @noc
+    inc scrp+1
+@noc:
+    lda scrp+1
+    cmp #$20
+    bne @nextch
     rts
 
 shiftpetascii:

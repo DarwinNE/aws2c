@@ -2,6 +2,8 @@
 #define __VIC40COL_H__
 
 extern void initGraphic(void);
+extern void normalText(void);
+
 extern void clrscr(void);
 extern void negative(void);
 extern void positive(void);
