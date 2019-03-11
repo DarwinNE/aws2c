@@ -30,4 +30,4 @@ run
 
 ## Conclusion
 
-This is an example of a minimalist 40-column driver for the Olivetti M20.
+This is an example of a minimalist 40-column driver for the Commodore VIC-20.
