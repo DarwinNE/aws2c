@@ -797,7 +797,7 @@ unsigned int process_functions(char *line, unsigned int scanpos)
             sprintf(token, "%d", value);
             strcon(function_res,token);
         } else {
-            printf("Function not recognized %s\n", token);
+            printf("Function not recognized %s in line\n[%s]\n", token,line);
             ++no_of_errors;
         }
 
