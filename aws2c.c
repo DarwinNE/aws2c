@@ -31,6 +31,8 @@ old Commodore machines.
 #include "compress.h"
 
 #define VERSION "1.5, September 2018 - July 2019"
+#define AREYOUSURE "Are you sure? Type 'Y' and return if yes.\\n"
+#define EXITRESTART "'E' and return to exit, anything else to restart.\\n"
 
 /* TO DO
 
@@ -598,6 +600,9 @@ message* read_messages(FILE *f, int size)
         if(verbose)
             printf("Message %d [%s]\n",msg[i].code,msg[i].txt);
     }
+    if(compress_messages==true)
+        analyze(AREYOUSURE);
+        analyze(EXITRESTART);
     return msg;
 }
 
@@ -1624,8 +1629,15 @@ unsigned int action_quit(FILE *f, char *line, unsigned int scanpos)
 /** EXIT */
 unsigned int action_exit(FILE *f, char *line, unsigned int scanpos)
 {
-    fprintf(f, TAB TAB 
-        "writeln(\"'E' and return to exit, anything else to restart.\\n\");\n");
+    if(compress_messages==true) {
+        if(hardcoded_messages==true) {
+            fprintf(f, TAB TAB "show_message(exitrestart);\n");
+        } else {
+            fprintf(f, TAB TAB "write_textsl(exitrestart);\n");
+        }
+    } else {
+        fprintf(f, TAB TAB "writeln(\"%s\");\n",EXITRESTART);
+    }
     fprintf(f, TAB TAB "GETS(playerInput,BUFFERSIZE);\n");
     fprintf(f, TAB TAB "if(playerInput[0]=='E' || playerInput[0]=='e') {\n");
     fprintf(f, TAB TAB TAB "leave(); exit(0);\n");
@@ -2233,6 +2245,7 @@ void output_header(FILE *of)
     fprintf(of,"extern unsigned int verb;\nextern unsigned int noun1;\nextern unsigned int noun2;\n"
         "extern unsigned int adve;\nextern unsigned int actor;\nextern unsigned int adjective;\n");
     fprintf(of, "unsigned int dummy;\n");
+    fprintf(of, "unsigned char cdummy;\n");
     fprintf(of, "#define CARRIED 1500\n");
     fprintf(of, "#define WEARED 1600\n");
     fprintf(of,"\n");
@@ -2370,15 +2383,15 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize)
 
     if(osize>255) {
         fprintf(of,"unsigned int search_object(unsigned int o)\n{\n");
-        fprintf(of,TAB "unsigned int i;\n");
+        fprintf(of,TAB "unsigned int idx;\n");
 
     } else {
         fprintf(of,"unsigned char search_object(unsigned int o)\n{\n");
-        fprintf(of,TAB "unsigned char i;\n");
+        fprintf(of,TAB "#define idx cdummy\n");
     }
-    fprintf(of,TAB "for(i=0; i<OSIZE;++i)\n");
-    fprintf(of,TAB TAB "if(obj[i].code==o)\n");
-    fprintf(of,TAB TAB TAB "return i;\n");
+    fprintf(of,TAB "for(idx=0; idx<OSIZE;++idx)\n");
+    fprintf(of,TAB TAB "if(obj[idx].code==o)\n");
+    fprintf(of,TAB TAB TAB "return idx;\n");
     fprintf(of,TAB "return 0;\n}\n\n");
 
     fprintf(of,"unsigned int search_room(unsigned int r)\n{\n");
@@ -2416,16 +2429,6 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize)
     fprintf(of, TAB "counter[122]=%d;\n",header->maxcarryingw);
     fprintf(of, TAB "for(j=0; j<OSIZE;++j)\n");
     fprintf(of, TAB TAB "obj[j].position=original_position[j];\n");
-    fprintf(of, "}\n\n");
-
-    fprintf(of, "boolean are_you_sure(void)\n{\n"); 
-    fprintf(of, TAB 
-        "writeln(\"Are you sure? Type 'Y' and return if yes.\\n\");\n");
-    fprintf(of, TAB "GETS(playerInput,BUFFERSIZE);\n");
-    fprintf(of, TAB "if(playerInput[0]=='Y' || playerInput[0]=='y') {\n");
-    fprintf(of, TAB TAB "return 1;\n");
-    fprintf(of, TAB "}\n");
-    fprintf(of, TAB "return 0;\n");
     fprintf(of, "}\n\n");
 
     if(hardcoded_messages==false) {
@@ -2485,6 +2488,25 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize)
         fprintf(of,TAB "writeln(\"\");\n");
         fprintf(of, "}\n\n");
     }
+
+    fprintf(of, "boolean are_you_sure(void)\n{\n");
+    if(compress_messages==true) {
+        if(hardcoded_messages==true) {
+            fprintf(of, TAB "show_message(areyousure);\n");
+        } else {
+            fprintf(of, TAB "write_textsl(areyousure);\n");
+        }
+    } else {
+        fprintf(of, TAB "writeln(\"%s\");\n",AREYOUSURE);
+    }
+    fprintf(of, TAB "GETS(playerInput,BUFFERSIZE);\n");
+    fprintf(of, TAB "if(playerInput[0]=='Y' || playerInput[0]=='y') {\n");
+    fprintf(of, TAB TAB "return 1;\n");
+    fprintf(of, TAB "}\n");
+    fprintf(of, TAB "return 0;\n");
+    fprintf(of, "}\n\n");
+
+
     fprintf(of,"void inventory(void)\n{\n");
     fprintf(of,TAB "boolean gs=false;\n");
     if(osize>255)
@@ -2813,6 +2835,15 @@ unsigned int output_messages(FILE *of, message* msg, unsigned int msize)
     unsigned int i,j;
     unsigned int size_d=0;
     unsigned int totalsize=0;
+    if(compress_messages==true) {
+        fprintf(of, "char areyousure[]={");
+        totalsize+=compress(of, encodechar(AREYOUSURE));
+        fprintf(of, "};\n");
+        fprintf(of, "char exitrestart[]={");
+        totalsize+=compress(of, encodechar(EXITRESTART));
+        fprintf(of, "};\n");
+    }
+
     if(compress_messages==true||hardcoded_messages==true) {
         for(i=0; i<msize;++i) {
             fprintf(of, "char message%d[]=",msg[i].code);
