@@ -30,7 +30,7 @@ old Commodore machines.
 #include "aws.h"
 #include "compress.h"
 
-#define VERSION "1.4, September 2018 - February 2019"
+#define VERSION "1.5, September 2018 - July 2019"
 
 /* TO DO
 
@@ -76,6 +76,8 @@ boolean need_hold=false;
 boolean need_cvna=false;
 boolean need_sendallroom=false;
 boolean need_unwear=false;
+boolean need_iscarrsome=false;
+boolean need_iswearsome=false;
 
 
 typedef struct conv_t {
@@ -971,6 +973,9 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
     start_function();
     tt=scanpos=process_functions(line, scanpos);
     sp=peek_token(line, scanpos);
+    /* A certain complexity comes from the search of shortcuts.
+       One must peek into the next tokens to see if they correspond to
+       something recognized. */
     if(shortcuts==true&&(strcmp(next,"AND")==0)) {
         sp=peek_token(line, sp);
         if(strcmp(next,"NOUN")==0) {
@@ -1189,6 +1194,14 @@ unsigned int decision_no2gt(FILE *f, char *line, unsigned int scanpos)
     fprintf(f, "noun2>%s", function_res);
     return scanpos;
 }
+/** NO2LT */
+unsigned int decision_no2lt(FILE *f, char *line, unsigned int scanpos)
+{
+    start_function();
+    scanpos=process_functions(line, scanpos);
+    fprintf(f, "noun2>0&&noun2<%s", function_res);
+    return scanpos;
+}
 /** CTRGT */
 unsigned int decision_ctrgt(FILE *f, char *line, unsigned int scanpos)
 {
@@ -1208,6 +1221,28 @@ unsigned int decision_ctrgt(FILE *f, char *line, unsigned int scanpos)
     scanpos=process_functions(line, scanpos);
 
     fprintf(f, "counter[%s]>%s", arg1,function_res);
+    free(arg1);
+    return scanpos;
+}
+/** CTRLT */
+unsigned int decision_ctrlt(FILE *f, char *line, unsigned int scanpos)
+{
+    char *arg1;
+    unsigned int l;
+    start_function();
+    scanpos=process_functions(line, scanpos);
+    l=strlen(function_res);
+    arg1=(char *) calloc(l+1,sizeof(char));
+    if(arg1==NULL) {
+        printf("Error allocating memory!\n");
+        exit(1);
+    }
+    strcpy(arg1,function_res);
+
+    start_function();
+    scanpos=process_functions(line, scanpos);
+
+    fprintf(f, "counter[%s]<%s", arg1,function_res);
     free(arg1);
     return scanpos;
 }
@@ -1293,6 +1328,34 @@ unsigned int decision_isnotwearing(FILE *f, char *line, unsigned int scanpos)
     scanpos=process_functions(line, scanpos);
     fprintf(f, "get_object_position(%s)!=WEARED",
         function_res);
+    return scanpos;
+}
+/** ISCARRSOME */
+unsigned int decision_iscarrsome(FILE *f, char *line, unsigned int scanpos)
+{
+    fprintf(f, "iscarrsome()");
+    need_iscarrsome=true;
+    return scanpos;
+}
+/** ISCARRNOTH */
+unsigned int decision_iscarrnoth(FILE *f, char *line, unsigned int scanpos)
+{
+    fprintf(f, "!iscarrsome()");
+    need_iscarrsome=true;
+    return scanpos;
+}
+/** ISWEARSOME */
+unsigned int decision_iswearsome(FILE *f, char *line, unsigned int scanpos)
+{
+    fprintf(f, "iswearsome()");
+    need_iswearsome=true;
+    return scanpos;
+}
+/** ISWEARNOTH */
+unsigned int decision_iswearnoth(FILE *f, char *line, unsigned int scanpos)
+{
+    fprintf(f, "!iswearsome()");
+    need_iswearsome=true;
     return scanpos;
 }
 /** OBJLOCEQ */
@@ -1895,16 +1958,16 @@ void process_aws(FILE *f, char *line)
     shortcuts=true;
 
     if(strcmp(token, "IF")!=0) {
-        printf("Unrecognised start of aws condition %s instead of IF.\n",
-            token);
+        printf("Unrecognised start of aws condition %s instead of IF.\n"
+            "Line [%s]", token, line);
         ++no_of_errors;
         return;
     }
     fprintf(f,TAB "// %s\n",line);
     fprintf(f,TAB "if(");
-    while(1) {
+    while(1) {  // DECISIONS
         scanpos=get_token(line, scanpos);
-        if(strcmp(token,"AT")==0) {
+        if(strcmp(token,"AT")==0 || strcmp(token,"ROOMEQ")==0) {
             scanpos=decision_at(f, line, scanpos);
         } else if(strcmp(token,"NOTAT")==0) {
             scanpos=decision_notat(f, line, scanpos);
@@ -1948,8 +2011,12 @@ void process_aws(FILE *f, char *line)
             scanpos=decision_no1lt(f, line, scanpos);
         } else if(strcmp(token,"NO2GT")==0) {
             scanpos=decision_no2gt(f, line, scanpos);
+        } else if(strcmp(token,"NO2LT")==0) {
+            scanpos=decision_no2lt(f, line, scanpos);
         } else if(strcmp(token,"CTRGT")==0) {
             scanpos=decision_ctrgt(f, line, scanpos);
+        } else if(strcmp(token,"CTRLT")==0) {
+            scanpos=decision_ctrlt(f, line, scanpos);
         } else if(strcmp(token,"IN")==0) {
             scanpos=decision_in(f, line, scanpos);
         } else if(strcmp(token,"HERE")==0) {
@@ -1972,6 +2039,14 @@ void process_aws(FILE *f, char *line)
             scanpos=decision_iswearing(f, line, scanpos);
         } else if(strcmp(token,"ISNOTWEARING")==0) {
             scanpos=decision_isnotwearing(f, line, scanpos);
+        } else if(strcmp(token,"ISCARRSOME")==0) {
+            scanpos=decision_iscarrsome(f, line, scanpos);
+        } else if(strcmp(token,"ISCARRNOTH")==0) {
+            scanpos=decision_iscarrnoth(f, line, scanpos);
+        } else if(strcmp(token,"ISWEARSOME")==0) {
+            scanpos=decision_iswearsome(f, line, scanpos);
+        } else if(strcmp(token,"ISWEARNOTH")==0) {
+            scanpos=decision_iswearnoth(f, line, scanpos);
         } else if(strcmp(token,"OBJLOCEQ")==0) {
             scanpos=decision_objloceq(f, line, scanpos);
         } else if(strcmp(token,"OBJLOCGT")==0) {
@@ -2253,6 +2328,20 @@ void output_optional_func(FILE *of)
     if(need_hold) {
         fprintf(of, "void hold(unsigned int p)\n{\n");
         fprintf(of, TAB "for(dummy=0; dummy<p; ++dummy) {wait1s();}\n");
+        fprintf(of, "}\n");
+    }
+    if(need_iscarrsome) {
+        fprintf(of, "char iscarrsome(void)\n{\n");
+        fprintf(of, TAB "for(dummy=0; dummy<OSIZE; ++dummy)\n");
+        fprintf(of, TAB TAB "if(obj[dummy]==WEARED) return true;\n");
+        fprintf(of, TAB "return false;\n");
+        fprintf(of, "}\n");
+    }
+    if(need_iswearsome) {
+        fprintf(of, "char iswearsome(void)\n{\n");
+        fprintf(of, TAB "for(dummy=0; dummy<OSIZE; ++dummy)\n");
+        fprintf(of, TAB TAB "if(obj[dummy]==CARRIED) return true;\n");
+        fprintf(of, TAB "return false;\n");
         fprintf(of, "}\n");
     }
 }
@@ -2603,6 +2692,8 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize)
     fprintf(of, "}\n\n");
 
     fprintf(of, "void hold(unsigned int p);\n");
+    fprintf(of, "char iscarrsome(void);\n");
+    fprintf(of, "char iswearsome(void);\n");
 
 }
 

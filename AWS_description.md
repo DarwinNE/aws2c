@@ -532,8 +532,8 @@ Decision |aws2c?| Decision becomes `true` if...
 `NO1LT n`| X    |  the first name in the phrase has a code less than `n`
 `NO2EQ n`| X    |  the second name in the phrase has a code equal to `n`
 `NO2GT n`| X    |  the second name in the phrase has a code greater than `n`
-`NO2LT n`|      |  the second name in the phrase has a code less than `n`
-`ROOMEQ r`|     |  the player is in room `r`
+`NO2LT n`| X    |  the second name in the phrase has a code less than `n`
+`ROOMEQ r`|X    |  the player is in room `r`
 `ROOMGT r`|X    |  the player is in a room greater than `r`
 `ROOMLT r`|X    |  the player is in room lower than `r`
 `VBNOEQ v`|X    |  the verb in the phrase has a code equal to `v`
@@ -550,7 +550,7 @@ Decision |aws2c?| Decision becomes `true` if...
 `ADVELT a`|     |  the phrase contains an adverb less than than `a`
 `CTREQ c x`|X   |  counter `c` is equal to `x`
 `CTRGT c x`|X   |  counter `c` is greater than `x`
-`CTRLT c x`|    |  counter `c` is less than `x`
+`CTRLT c x`|X   |  counter `c` is less than `x`
 `TURNEQ x`|     |  turn is equal to `x`
 `TURNGT x`|     |  turn is greater than `x`
 `TURNLT x`|     |  turn is less than `x`
@@ -570,6 +570,16 @@ Decision |aws2c?| Decision becomes `true` if...
 `WEIGEQ o x`|   | object `o` has a weight `x`
 `WEIGGT o x`|   | object `o` has a weight greater than `x`
 `WEIGLT o x`|   | object `o` has a weight less than `x`
+`ISWEREABLE o`| | object `o` can be worn
+`ISNOTWEREABLE o`|| object `o` can not be worn
+`ISMOVABLE o`| X| true if object `o` can be moved
+`ISNOTMOVABLE o`|X| true if object `o` can not be moved
+`ISWEARING o` | X | true if the player wears object `o`
+`ISNOTWEARING o`|X| true if the player does not wear object `o`
+`ISCARRSOME` |X | true if the player carries at least one object
+`ISCARRNOTH` |X | true if the player does not carry any object
+`ISWEARSOME` |X | true if the player carries at least one object
+`ISWEARNOTH` |X | true if the player does not carry any object
 `PROB x`  | X   | with a probability `x` (in percent)
 
 NOTE: X in the second column means that this command is implemented in `aws2c`, I means that it is ignored (but a warning message appears).
