@@ -256,7 +256,7 @@ void output_decoder(FILE *fout)
 
     fprintf(fout,"boolean decode(void)\n");
     fprintf(fout,"{\n");
-    fprintf(fout,"    char c;\n");
+    fprintf(fout,"    register char c;\n");
     fprintf(fout,"    unsigned char k=0;\n");
     fprintf(fout,"    do {\n");
     fprintf(fout,"        c=hufget();\n");

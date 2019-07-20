@@ -5,10 +5,14 @@
 The Adventure Writing System (AWS) is a tool put together by Aristide Torrelli 
 to easily write interactive fiction games.
 
-Aristide describes his tool here: http://www.aristidetorrelli.it/aws3/Avventure.html
+Aristide describes his tool here: 
+http://www.aristidetorrelli.it/aws3/Avventure.html
 
 I thought it would have been fun to put together a converter that creates
 a standard C source from the files produced by the AWS tool.
+
+A detailed english description of the AWS format is available in the 
+AWS_description.md file.
 
 ## Install
 
@@ -16,7 +20,8 @@ To compile the tool, you will need `gcc` and the `make` utility installed in
 your system. If you use a Unix operating system, most probably it is the case.
 If you use Windows, you may find Cygwin helpful.
 
-Just download the source archive and type `make`. That will create the `aws2c` executable.
+Just download the source archive and type `make`. That will create the `aws2c` 
+executable.
 
 ## Basic usage
 
@@ -85,14 +90,23 @@ This game is an English translation of "Pattuglia all'alba", adapted by A. Torre
 
 ### La piramide di Iunnuh
 
-This game was published as a type-in BASIC program for the TI99/4A by Aristide Torrelli (MCmicrocomputer 33, sett. 1984) and then ported to the ZX Spectrum by Manlio Severi (MCmicrocomputer 35, nov. 1984). It was one of the very fist Italian adventure games and it had a certain success at the time.
+This game was published as a type-in BASIC program for the TI99/4A by Aristide 
+Torrelli (MCmicrocomputer 33, sett. 1984) and then ported to the ZX Spectrum by 
+Manlio Severi (MCmicrocomputer 35, nov. 1984). It was one of the very fist 
+Italian adventure games and it had a certain success at the time.
 
 It was originally written in Basic, but Aristide decided in 2014 to write a version in AWS that I am using here as an example.
 
-By the way, basing myself from the original published BASIC version of the game, I converted it in Java in 2011 and in C in 2018. I also translated the game in English. I did this before developing `aws2c` and you can find the result of my efforts here: http://davbucci.chez-alice.fr/index.php?argument=varie/innuh/innuh.inc&language=English
+By the way, basing myself from the original published BASIC version of the game, 
+I converted it in Java in 2011 and in C in 2018. I also translated the game in 
+English. I did this before developing `aws2c` and you can find the result of my 
+efforts here: 
+http://davbucci.chez-alice.fr/index.php?argument=varie/innuh/innuh.inc&language=English
 
 ### La piramide di Iunnuh 2
 
-This is a much longer and deep adventure game that A. Torrelli did in 2014 for the thirtieth anniversary of his first game. I translated it in English and it's an example of how you can 
+This is a much longer and deep adventure game that A. Torrelli did in 2014 for 
+the thirtieth anniversary of his first game. I translated it in English and it
+is another example of how you can convert an adventure into an executable.
 
 ### 

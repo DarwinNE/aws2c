@@ -1,6 +1,6 @@
 /*
 
-    AWS to C converter 1.0 by Davide Bucci
+    AWS to C converter by Davide Bucci
 
 AWS stands for Adventure Writing System and is a program developed by
 Aristide Torrelli to write interactive fiction games:
@@ -31,14 +31,14 @@ old Commodore machines.
 #include "compress.h"
 
 #define VERSION "1.5, September 2018 - July 2019"
-#define AREYOUSURE "Are you sure? Type 'Y' and return if yes.\\n"
-#define EXITRESTART "'E' and return to exit, anything else to restart.\\n"
+#define AREYOUSURE "Are you sure? Type 'Y' and return if yes."
+#define EXITRESTART "'E' and return to exit, anything else to restart."
 
 /* TO DO
 
 - Finish implementing the remaining actions, functions and decisions.
 - Free the allocated memory before quitting the program.
-- Test, test, test!
+- Test, test!
 
 */
 
@@ -69,6 +69,10 @@ boolean add_clrscr=true;
 
 boolean complete_shortcut=false;
 
+/* Some functions are included in the code only if necessary. Those flags
+   take care of them so they can be included in the code if they have been
+   used.
+*/
 boolean need_searchw=false;
 boolean need_vov=false;
 boolean need_vovn=false;
@@ -80,6 +84,7 @@ boolean need_sendallroom=false;
 boolean need_unwear=false;
 boolean need_iscarrsome=false;
 boolean need_iswearsome=false;
+boolean need_checkexit=false;
 
 
 typedef struct conv_t {
@@ -530,7 +535,7 @@ info *read_header(FILE *f)
     getlinep(f);
     in->name=calloc(strlen(buffer)+1,sizeof(char));
     strcpy(in->name,buffer);
-
+    
     getlinep(f);
     in->author=calloc(strlen(buffer)+1,sizeof(char));
     strcpy(in->author,buffer);
@@ -571,6 +576,14 @@ info *read_header(FILE *f)
 
     getlinep(f);
     sscanf(buffer, "%d",&(in->maxcarryings));
+
+    if(compress_messages==true) {
+        analyze(encodechar(in->name));
+        analyze(encodechar(in->author));
+        analyze(encodechar(in->date));
+        analyze(encodechar(in->description));
+    }
+
     return in;
 }
 
@@ -794,9 +807,9 @@ unsigned int process_functions(char *line, unsigned int scanpos)
         scanpos=process_functions(line,scanpos);
         strcon(function_res,")");
     } else if(strcmp(token,"WEIG")==0) {
-        strcon(function_res,"obj[search_object(");
+        strcon(function_res,"search_object_p(");
         scanpos=process_functions(line,scanpos);
-        strcon(function_res,")].weight");
+        strcon(function_res,")->weight");
     } else if(strcmp(token,"ACTORNO")==0) {
         strcon(function_res,"actor");
     } else {
@@ -1153,9 +1166,11 @@ unsigned int decision_notavai(FILE *f, char *line, unsigned int scanpos)
     unsigned int counter,value;
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, "(get_object_position(%s)!=current_position)&&",
+    fprintf(f, "!object_is_available(%s)",function_res);
+
+    /*fprintf(f, "(get_object_position(%s)!=current_position)&&",
         function_res);
-    fprintf(f, "(object_is_carried(%s)==false)", function_res);
+    fprintf(f, "(object_is_carried(%s)==false)", function_res);*/
 
     return scanpos;
 }
@@ -1304,7 +1319,7 @@ unsigned int decision_ismovable(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, "obj[search_object(%s)].isnotmovable==false",
+    fprintf(f, "search_object_p(%s)->isnotmovable==false",
         function_res);
     return scanpos;
 }
@@ -1313,7 +1328,7 @@ unsigned int decision_isnotmovable(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, "obj[search_object(%s)].isnotmovable",
+    fprintf(f, "search_object_p(%s)->isnotmovable",
         function_res);
     return scanpos;
 }
@@ -1629,19 +1644,8 @@ unsigned int action_quit(FILE *f, char *line, unsigned int scanpos)
 /** EXIT */
 unsigned int action_exit(FILE *f, char *line, unsigned int scanpos)
 {
-    if(compress_messages==true) {
-        if(hardcoded_messages==true) {
-            fprintf(f, TAB TAB "show_message(exitrestart);\n");
-        } else {
-            fprintf(f, TAB TAB "write_textsl(exitrestart);\n");
-        }
-    } else {
-        fprintf(f, TAB TAB "writeln(\"%s\");\n",EXITRESTART);
-    }
-    fprintf(f, TAB TAB "GETS(playerInput,BUFFERSIZE);\n");
-    fprintf(f, TAB TAB "if(playerInput[0]=='E' || playerInput[0]=='e') {\n");
-    fprintf(f, TAB TAB TAB "leave(); exit(0);\n");
-    fprintf(f, TAB TAB "}");
+    need_checkexit=true;
+    fprintf(f, TAB TAB "checkexit();\n");
     fprintf(f, TAB TAB "restart(); goto return1;\n");
     return scanpos;
 }
@@ -1859,9 +1863,9 @@ unsigned int action_swap(FILE *f, char *line, unsigned int scanpos)
 
     fprintf(f, TAB TAB "dummy=get_object_position(%s);\n",arg1);
     fprintf(f, TAB TAB
-        "obj[search_object(%s)].position=obj[search_object(%s)].position;\n",
+        "search_object_p(%s)->position=get_object_position(%s);\n",
         arg1,function_res);
-    fprintf(f, TAB TAB "obj[search_object(%s)].position=dummy;\n",
+    fprintf(f, TAB TAB "search_object_p(%s)->position=dummy;\n",
         function_res);
     free(arg1);
     return scanpos;
@@ -1885,14 +1889,14 @@ unsigned int action_obj(FILE *f, char *line, unsigned int scanpos)
     scanpos=process_functions(line, scanpos);
     if(compress_messages==true) {
         if(hardcoded_messages==false) {
-            fprintf(f,TAB TAB "write_text(obj[search_object(%s)].desc);\n",
+            fprintf(f,TAB TAB "write_text(search_object_p(%s)->desc);\n",
                 function_res);
         } else {
-            fprintf(f,TAB TAB "show_message(obj[search_object(%s)].desc);\n",
+            fprintf(f,TAB TAB "show_message(search_object_p(%s)->desc);\n",
                 function_res);
         }
     } else {
-        fprintf(f, TAB TAB "writeln(obj[search_object(%s)].desc);",
+        fprintf(f, TAB TAB "writeln(search_object_p(%s)->desc);",
             function_res);
     }
     return scanpos;
@@ -2357,6 +2361,23 @@ void output_optional_func(FILE *of)
         fprintf(of, TAB "return false;\n");
         fprintf(of, "}\n");
     }
+    if(need_checkexit) {
+        fprintf(of, "void checkexit(void)\n{\n");
+        if(compress_messages==true) {
+            if(hardcoded_messages==true) {
+                fprintf(of, TAB "show_message(exitrestart);\n");
+            } else {
+                fprintf(of, TAB "write_textsl(exitrestart);\n");
+            }
+        } else {
+            fprintf(of, TAB "writeln(\"%s\");\n",EXITRESTART);
+        }
+        fprintf(of, TAB "GETS(playerInput,BUFFERSIZE);\n");
+        fprintf(of, TAB "if(playerInput[0]=='E' || playerInput[0]=='e'){\n");
+        fprintf(of, TAB TAB "leave(); exit(0);\n");
+        fprintf(of, TAB "}\n");
+        fprintf(of, "}\n");
+    }
 }
 
 void output_utility_func(FILE *of, info *header, int rsize, int osize)
@@ -2393,6 +2414,11 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize)
     fprintf(of,TAB TAB "if(obj[idx].code==o)\n");
     fprintf(of,TAB TAB TAB "return idx;\n");
     fprintf(of,TAB "return 0;\n}\n\n");
+
+    fprintf(of,"object *search_object_p(unsigned int o)\n");
+    fprintf(of,"{\n");
+    fprintf(of,TAB "return &obj[search_object(o)];\n");
+    fprintf(of,"}\n");
 
     fprintf(of,"unsigned int search_room(unsigned int r)\n{\n");
     fprintf(of,TAB "unsigned int i;\n");
@@ -2572,7 +2598,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize)
 
     fprintf(of, "boolean get(unsigned int o)\n");
     fprintf(of, "{\n");
-    fprintf(of, TAB "odummy=&obj[search_object(o)];\n");
+    fprintf(of, TAB "odummy=search_object_p(o);\n");
 
     fprintf(of, TAB "if(odummy->position!=current_position) {\n");
     if(hardcoded_messages==false)
@@ -2628,20 +2654,20 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize)
     /* Get current position of an object */
     fprintf(of, "unsigned int get_object_position(unsigned char c)\n");
     fprintf(of, "{\n");
-    fprintf(of, "    return obj[search_object(c)].position;\n");
+    fprintf(of, "    return search_object_p(c)->position;\n");
     fprintf(of, "}\n");
     /* Check if an object is here */
     fprintf(of, "boolean object_is_here(unsigned int c)\n");
     fprintf(of, "{\n");
     fprintf(of,
-        "    return obj[search_object(c)].position==current_position;\n");
+        "    return get_object_position(c)==current_position;\n");
     fprintf(of, "}\n");
     
     /* Check if an object is carried */
     fprintf(of, "boolean object_is_carried(unsigned int c)\n");
     fprintf(of, "{\n");
     fprintf(of,
-        "    return obj[search_object(c)].position==CARRIED;\n");
+        "    return get_object_position(c)==CARRIED;\n");
     fprintf(of, "}\n");
     /* Check if an object is available */
     fprintf(of, "boolean object_is_available(unsigned int c)\n");
@@ -2652,7 +2678,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize)
     /* Set current position of an object */
     fprintf(of, "void set_object_position(unsigned int c, int pos)\n");
     fprintf(of, "{\n");
-    fprintf(of, "    obj[search_object(c)].position=pos;\n");
+    fprintf(of, "    search_object_p(c)->position=pos;\n");
     fprintf(of, "}\n");
     /* Bring here an object */
     fprintf(of, "void bring_object_here(unsigned int c)\n");
@@ -2689,7 +2715,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize)
         "boolean cvna(unsigned int v, unsigned int n, unsigned int o);\n");
 
     fprintf(of, "void drop(unsigned int o)\n{\n");
-    fprintf(of, TAB  "odummy=&obj[search_object(o)];\n");
+    fprintf(of, TAB  "odummy=search_object_p(o);\n");
 
     fprintf(of, TAB  "if(odummy->position==CARRIED){\n");
     fprintf(of, TAB TAB "odummy->position=current_position;\n");
@@ -2716,7 +2742,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize)
     fprintf(of, "void hold(unsigned int p);\n");
     fprintf(of, "char iscarrsome(void);\n");
     fprintf(of, "char iswearsome(void);\n");
-
+    fprintf(of, "void checkexit(void);\n");
 }
 
 /** Create the code for the dictionary in the output file.
@@ -2830,7 +2856,8 @@ unsigned int output_rooms(FILE *of, room* world, unsigned int rsize)
 /** Create the code for the messages in the output file. 
     Return the total size in byte occupied by the messages.
 */
-unsigned int output_messages(FILE *of, message* msg, unsigned int msize)
+unsigned int output_messages(FILE *of, message* msg, unsigned int msize,
+    info *header)
 {
     unsigned int i,j;
     unsigned int size_d=0;
@@ -2841,6 +2868,18 @@ unsigned int output_messages(FILE *of, message* msg, unsigned int msize)
         fprintf(of, "};\n");
         fprintf(of, "char exitrestart[]={");
         totalsize+=compress(of, encodechar(EXITRESTART));
+        fprintf(of, "};\n");
+        fprintf(of, "char headername[]={");
+        totalsize+=compress(of, encodechar(header->name));
+        fprintf(of, "};\n");
+        fprintf(of, "char headerauthor[]={");
+        totalsize+=compress(of, encodechar(header->author));
+        fprintf(of, "};\n");
+        fprintf(of, "char headerdate[]={");
+        totalsize+=compress(of, encodechar(header->date));
+        fprintf(of, "};\n");
+        fprintf(of, "char headerdescription[]={");
+        totalsize+=compress(of, encodechar(header->description));
         fprintf(of, "};\n");
     }
 
@@ -2947,10 +2986,26 @@ void output_greetings(FILE *f, info *header)
 {
     fprintf(f, "\nvoid greetings(void)\n{\n");
     fprintf(f, TAB "evidence2();\n");
-    fprintf(f, TAB "writeln(\"%s\\n\");\n", encodechar(header->name));
-    fprintf(f, TAB "writesameln(\"%s\");\n", encodechar(header->author));
-    fprintf(f, TAB "writeln(\"  %s\\n\");\n", encodechar(header->date));
-    fprintf(f, TAB "writeln(\"%s\\n\");\n", encodechar(header->description));
+
+    if(compress_messages==true) {
+        if(hardcoded_messages==true) {
+            fprintf(f, TAB "show_message(headername);\n");
+            fprintf(f, TAB "show_message(headerauthor);\n");
+            fprintf(f, TAB "show_message(headerdate);\n");
+            fprintf(f, TAB "show_message(headerdescription);\n");
+        } else {
+            fprintf(f, TAB "write_textsl(headername);\n");
+            fprintf(f, TAB "write_textsl(headerauthor);\n");
+            fprintf(f, TAB "write_textsl(headerdate);\n");
+            fprintf(f, TAB "write_textsl(headerdescription);\n");
+        }
+    } else {
+        fprintf(f, TAB "writeln(\"%s\\n\");\n", encodechar(header->name));
+        fprintf(f, TAB "writesameln(\"%s\");\n", encodechar(header->author));
+        fprintf(f, TAB "writeln(\"  %s\\n\");\n", encodechar(header->date));
+        fprintf(f, TAB "writeln(\"%s\\n\");\n", 
+            encodechar(header->description));
+    }
     fprintf(f, TAB "writesameln(\"AWS \");\n");
     fprintf(f, TAB "writeln(\"%s\");\n", encodechar(header->version));
     fprintf(f, TAB "normaltxt();\n");
@@ -3341,7 +3396,7 @@ int main(int argc, char **argv)
     }
     output_dictionary(of, dictionary, dsize);
     rsize_bytes=output_rooms(of, world, rsize);
-    msize_bytes=output_messages(of, msg, msize);
+    msize_bytes=output_messages(of, msg, msize, header);
     output_objects(of, objects, osize);
     output_utility_func(of,header,rsize, osize);
     output_greetings(of, header);
