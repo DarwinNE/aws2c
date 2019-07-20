@@ -1,10 +1,10 @@
 all: modern c64
 
 iunnuh2.c: Iunnuh2Maledizione.AWS
-	../aws2c -c -d -m Iunnuh2Maledizione.AWS iunnuh2.c
+	../aws2c -d -m Iunnuh2Maledizione.AWS iunnuh2.c
 
 iunnuh2_en.c: Iunnuh2TheCurse.AWS
-	../aws2c -c -d -m Iunnuh2TheCurse.AWS iunnuh2_en.c
+	../aws2c -d -m Iunnuh2TheCurse.AWS iunnuh2_en.c
 
 iunnuh2_no_utf8.c: Iunnuh2Maledizione.AWS
 	../aws2c -c -d -m -s Iunnuh2Maledizione.AWS iunnuh2_no_utf8.c
@@ -23,4 +23,4 @@ c64: inout.c iunnuh2_no_utf8.c iunnuh2_no_utf8_en.c
 
 
 clean:
-	rm iunnuh2.c iunnuh2 iunnuh2_no_utf8.c
+	rm iunnuh2.c iunnuh2_it iunnuh2_no_utf8.c iunnuh2_en.c iunnuh2_en iunnuh2_no_utf8_en.c

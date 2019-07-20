@@ -1332,6 +1332,24 @@ unsigned int decision_isnotmovable(FILE *f, char *line, unsigned int scanpos)
         function_res);
     return scanpos;
 }
+/** ISWEARABLE */
+unsigned int decision_iswearable(FILE *f, char *line, unsigned int scanpos)
+{
+    start_function();
+    scanpos=process_functions(line, scanpos);
+    fprintf(f, "search_object_p(%s)->iswereable==true",
+        function_res);
+    return scanpos;
+}
+/** ISNOTWEARABLE */
+unsigned int decision_isnotwearable(FILE *f, char *line, unsigned int scanpos)
+{
+    start_function();
+    scanpos=process_functions(line, scanpos);
+    fprintf(f, "search_object_p(%s)->iswereable==false",
+        function_res);
+    return scanpos;
+}
 /** ISWEARING */
 unsigned int decision_iswearing(FILE *f, char *line, unsigned int scanpos)
 {
@@ -1420,6 +1438,29 @@ unsigned int decision_objlocgt(FILE *f, char *line, unsigned int scanpos)
     scanpos=process_functions(line, scanpos);
 
     fprintf(f, TAB TAB "get_object_position(%s)>%s",
+        arg1, function_res);
+    free(arg1);
+    return scanpos;
+}
+/** OBJLOCLT */
+unsigned int decision_objloclt(FILE *f, char *line, unsigned int scanpos)
+{
+    char *arg1;
+    unsigned int l;
+    start_function();
+    scanpos=process_functions(line, scanpos);
+    l=strlen(function_res);
+    arg1=(char *) calloc(l+1,sizeof(char));
+    if(arg1==NULL) {
+        printf("Error allocating memory!\n");
+        exit(1);
+    }
+    strcpy(arg1,function_res);
+
+    start_function();
+    scanpos=process_functions(line, scanpos);
+
+    fprintf(f, TAB TAB "get_object_position(%s)<%s",
         arg1, function_res);
     free(arg1);
     return scanpos;
@@ -2051,6 +2092,10 @@ void process_aws(FILE *f, char *line)
             scanpos=decision_ismovable(f, line, scanpos);
         } else if(strcmp(token,"ISNOTMOVABLE")==0) {
             scanpos=decision_isnotmovable(f, line, scanpos);
+        } else if(strcmp(token,"ISWEARABLE")==0) {
+            scanpos=decision_iswearable(f, line, scanpos);
+        } else if(strcmp(token,"ISNOTWEARABLE")==0) {
+            scanpos=decision_isnotwearable(f, line, scanpos);
         } else if(strcmp(token,"ISWEARING")==0) {
             scanpos=decision_iswearing(f, line, scanpos);
         } else if(strcmp(token,"ISNOTWEARING")==0) {
@@ -2067,6 +2112,8 @@ void process_aws(FILE *f, char *line)
             scanpos=decision_objloceq(f, line, scanpos);
         } else if(strcmp(token,"OBJLOCGT")==0) {
             scanpos=decision_objlocgt(f, line, scanpos);
+        } else if(strcmp(token,"OBJLOCLT")==0) {
+            scanpos=decision_objloclt(f, line, scanpos);
         } else if(strcmp(token,"ACTOR")==0) {
             scanpos=decision_actor(f, line, scanpos);
         } else if(strcmp(token,"ACTOREQ")==0) {
@@ -2586,7 +2633,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize)
         "p=world[search_room(current_position)].directions[dir];\n");
     fprintf(of, TAB
         "if(p) {\n");
-    fprintf(of, TAB TAB "next_position=p;");
+    fprintf(of, TAB TAB "next_position=p;\n");
     fprintf(of, TAB TAB "marker[120]=false;\n");
     fprintf(of, TAB TAB "return 1;\n");
     fprintf(of, TAB "} else \n");

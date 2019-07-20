@@ -1846,6 +1846,10 @@ unsigned char search_object(unsigned int o)
     return 0;
 }
 
+object *search_object_p(unsigned int o)
+{
+    return &obj[search_object(o)];
+}
 unsigned int search_room(unsigned int r)
 {
     unsigned int i;
@@ -1930,7 +1934,8 @@ unsigned int move(unsigned int dir)
     unsigned char p;
     p=world[search_room(current_position)].directions[dir];
     if(p) {
-        next_position=p;        marker[120]=false;
+        next_position=p;
+        marker[120]=false;
         return 1;
     } else 
         show_message(message1008);
@@ -1939,7 +1944,7 @@ unsigned int move(unsigned int dir)
 
 boolean get(unsigned int o)
 {
-    odummy=&obj[search_object(o)];
+    odummy=search_object_p(o);
     if(odummy->position!=current_position) {
         show_message(message1006);
         return true;
@@ -1967,15 +1972,15 @@ boolean cvn(unsigned int v, unsigned int n);
 void sendallroom(unsigned int s);
 unsigned int get_object_position(unsigned char c)
 {
-    return obj[search_object(c)].position;
+    return search_object_p(c)->position;
 }
 boolean object_is_here(unsigned int c)
 {
-    return obj[search_object(c)].position==current_position;
+    return get_object_position(c)==current_position;
 }
 boolean object_is_carried(unsigned int c)
 {
-    return obj[search_object(c)].position==CARRIED;
+    return get_object_position(c)==CARRIED;
 }
 boolean object_is_available(unsigned int c)
 {
@@ -1983,7 +1988,7 @@ boolean object_is_available(unsigned int c)
 }
 void set_object_position(unsigned int c, int pos)
 {
-    obj[search_object(c)].position=pos;
+    search_object_p(c)->position=pos;
 }
 void bring_object_here(unsigned int c)
 {
@@ -1996,7 +2001,7 @@ void amsm(unsigned char p, unsigned char c, boolean v, char *m)
 boolean cvna(unsigned int v, unsigned int n, unsigned int o);
 void drop(unsigned int o)
 {
-    odummy=&obj[search_object(o)];
+    odummy=search_object_p(o);
     if(odummy->position==CARRIED){
         odummy->position=current_position;
         --counter[119];
@@ -2311,14 +2316,14 @@ boolean low_cond(void)
     }
 
     // IF verb 50 AND no1lt 22 AND ismovable no1 THEN get no1 OKAY ENDIF  PRENDI
-    if(verb==50) if((noun1>0&&noun1<22)) if(obj[search_object(noun1)].isnotmovable==false) {
+    if(verb==50) if((noun1>0&&noun1<22)) if(search_object_p(noun1)->isnotmovable==false) {
         if(get(noun1)) goto return1;
         show_message(message1000);
         goto return1;
     }
 
     // IF verb 50 AND no1lt 22 AND isnotmovable no1 THEN get no1 WAIT ENDIF  PRENDI
-    if(verb==50) if((noun1>0&&noun1<22)) if(obj[search_object(noun1)].isnotmovable) {
+    if(verb==50) if((noun1>0&&noun1<22)) if(search_object_p(noun1)->isnotmovable) {
         if(get(noun1)) goto return1;
         goto return1;
     }
@@ -2769,14 +2774,14 @@ boolean low_cond(void)
 
     // IF verb 70 AND noun 29 AND avai 100 AND set? 23 THEN obj 100  mess 163 WAIT ENDIF  ESAMINA  TORCIA  accesa
     if(cvna(70,29,100)) if(marker[23]) {
-        show_message(obj[search_object(100)].desc);
+        show_message(search_object_p(100)->desc);
         show_message(message163);
         goto return1;
     }
 
     // IF verb 70 AND noun 29 AND avai 100 AND res? 23 THEN obj 100  mess 164 WAIT ENDIF  ESAMINA  TORCIA  spenta
     if(cvna(70,29,100)) if(marker[23]==false) {
-        show_message(obj[search_object(100)].desc);
+        show_message(search_object_p(100)->desc);
         show_message(message164);
         goto return1;
     }

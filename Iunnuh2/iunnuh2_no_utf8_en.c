@@ -1922,7 +1922,8 @@ unsigned int move(unsigned int dir)
     unsigned char p;
     p=world[search_room(current_position)].directions[dir];
     if(p) {
-        next_position=p;        marker[120]=false;
+        next_position=p;
+        marker[120]=false;
         return 1;
     } else 
         show_message(message1008);

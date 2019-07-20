@@ -556,7 +556,7 @@ Decision |aws2c?| Decision becomes `true` if...
 `TURNLT x`|     |  turn is less than `x`
 `OBJLOCEQ o x`|X|  the object `o` is in the room `x`
 `OBJLOCGT o x`|X|  the object `o` is in the room greater than `x`
-`OBJLOCLT o x`| |  the object `o` is in the room less than `x`
+`OBJLOCLT o x`|X|  the object `o` is in the room less than `x`
 `ISWEARING o` |X|  the player is wearing object `o`
 `ISWEARABLE o`|X|  the object `o` is wereable
 `ISNOTWEARING o`|X|  the player is not wearing object `o`
