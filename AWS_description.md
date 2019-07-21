@@ -562,8 +562,8 @@ Decision |aws2c?| Decision becomes `true` if...
 `ISNOTWEARING o`|X|  the player is not wearing object `o`
 `ISNOTWEARABLE o`| |  the object `o` is not wereable
 `CONNEQ r d x`|X| there is a connection between rooms `r` and `x` in the direction `d`
-`CONNGT r d x`| | there is a connection between rooms `r` and a room greater than `x` in the direction `d`
-`CONNLT r d x`| | there is a connection between rooms `r` and a room less than `x` in the direction `d`
+`CONNGT r d x`|X| there is a connection between rooms `r` and a room greater than `x` in the direction `d`
+`CONNLT r d x`|X| there is a connection between rooms `r` and a room less than `x` in the direction `d`
 `CONNCORREQ d x`| | there is a connection between the current room and `x` in the direction `d`
 `CONNCORRGT d x`| | there is a connection between the current room and a room greater than `x` in the direction `d`
 `CONNCORRLT d x`| | there is a connection between the current room and a room less than `x` in the direction `d`

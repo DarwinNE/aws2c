@@ -982,6 +982,28 @@ unsigned int decision_equ(FILE *f, char *line, unsigned int scanpos)
     free(arg1);
     return scanpos;
 }
+/** NOTEQU? */
+unsigned int decision_notequ(FILE *f, char *line, unsigned int scanpos)
+{
+    char *arg1;
+    unsigned int l;
+    start_function();
+    scanpos=process_functions(line, scanpos);
+    l=strlen(function_res);
+    arg1=(char *) calloc(l+1,sizeof(char));
+    if(arg1==NULL) {
+        printf("Error allocating memory!\n");
+        exit(1);
+    }
+    strcpy(arg1,function_res);
+
+    start_function();
+    scanpos=process_functions(line, scanpos);
+
+    fprintf(f, "counter[%s]!=%s", arg1,function_res);
+    free(arg1);
+    return scanpos;
+}
 /** VERB */
 unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
 {
@@ -2108,6 +2130,8 @@ void process_aws(FILE *f, char *line)
             scanpos=decision_notin(f, line, scanpos);
         } else if(strcmp(token,"EQU?")==0) {
             scanpos=decision_equ(f, line, scanpos);
+        } else if(strcmp(token,"NOTEQU?")==0) {
+            scanpos=decision_notequ(f, line, scanpos);
         } else if(strcmp(token,"CTREQ")==0) {
             scanpos=decision_equ(f, line, scanpos);
         } else if(strcmp(token,"VERB")==0) {
