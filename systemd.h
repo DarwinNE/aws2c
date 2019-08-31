@@ -75,6 +75,132 @@
     /* Prepare the terminal to leave the program execution. */
     #define leave() fputs(cyan, stdout)
 
+#elif defined(PET)  /* Definitions to be used for the Commodore PET computer 
+    with a 80-column display */
+
+    #include<conio.h>
+    #include<stdio.h>
+
+    #define BUFFERSIZE 128
+    #define B_SIZE 160
+
+    #define SHIFTPETSCII \
+        if((c>=0x61 && c<=0x7A)) c^=0x20; else if((c>=0x41 && c<=0x5A)) c|=0x80
+
+    #define waitscreen()
+
+    // The number of columns of the screen
+    #define NCOL 80
+
+    #define green       ""
+    #define red         ""
+    #define cyan        ""
+    #define blue        ""
+    #define yellow      ""
+    #define pink        ""
+
+    #define switch80col ""
+
+    /* Macro to wait for a key */
+    #define waitkey() cgetc()
+
+    /* Define the style of the input text */
+    #define inputtxt()
+
+    /* Define the style of the first evidenced text */
+    #define evidence1() PUTC(18)
+
+    /* Define the style of the second evidenced text */
+    #define evidence2()
+
+    /* Define the style of the third evidenced text */
+    #define evidence3()
+
+    /* Define the style of the normal text */
+    #define normaltxt() PUTC(146)
+
+    /* Clear the screen */
+    #define cls() clrscr()
+
+    /* Wait for one second */
+    #define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
+        retTime);}
+
+    /* Init the terminal */
+
+    #define init_term() {\
+//        char i;\
+        clrscr();\
+        normaltxt();\
+//        for(i=0;i<256;++i) putc((i), stdout); \
+    }
+
+    /* Prepare the terminal to leave the program execution. */
+    #define leave()
+    
+#elif defined(PET40)  /* Definitions to be used for the Commodore PET computer
+    with a 40-column display */
+
+    #include<conio.h>
+    #include<stdio.h>
+
+    #define BUFFERSIZE 128
+    #define B_SIZE 160
+
+    #define SHIFTPETSCII \
+        if((c>=0x61 && c<=0x7A)) c^=0x20; else if((c>=0x41 && c<=0x5A)) c|=0x80
+
+    #define waitscreen()
+
+    // The number of columns of the screen
+    #define NCOL 40
+
+    #define green       ""
+    #define red         ""
+    #define cyan        ""
+    #define blue        ""
+    #define yellow      ""
+    #define pink        ""
+
+    #define switch80col ""
+
+    /* Macro to wait for a key */
+    #define waitkey() cgetc()
+
+    /* Define the style of the input text */
+    #define inputtxt()
+
+    /* Define the style of the first evidenced text */
+    #define evidence1() PUTC(18)
+
+    /* Define the style of the second evidenced text */
+    #define evidence2()
+
+    /* Define the style of the third evidenced text */
+    #define evidence3()
+
+    /* Define the style of the normal text */
+    #define normaltxt() PUTC(146)
+
+    /* Clear the screen */
+    #define cls() clrscr()
+
+    /* Wait for one second */
+    #define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
+        retTime);}
+
+    /* Init the terminal */
+
+    #define init_term() {\
+//        char i;\
+        clrscr();\
+        normaltxt();\
+//        for(i=0;i<256;++i) putc((i), stdout); \
+    }
+
+    /* Prepare the terminal to leave the program execution. */
+    #define leave()
+
 #elif defined(C64)
 
     #include<conio.h>

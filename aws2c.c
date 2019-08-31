@@ -300,9 +300,9 @@ char *getlinep(FILE *f)
         return NULL;
     }
     sl=strlen(buffer);
-    if(buffer[sl - 2]=='\r')    // This is needed for Windows
+    if(sl>=2 && buffer[sl - 2]=='\r')    // This is needed for Windows
         buffer[sl - 2] = '\0';  // style newline code (\r\n).
-    else
+    else if(sl>=1)
         buffer[sl - 1] = '\0';
     return buffer;
 }
@@ -3461,6 +3461,7 @@ int main(int argc, char **argv)
         return 1;
     }
     printf("Read header: ");
+    fflush(stdout);
     if ((header=read_header(f))==NULL)
         exit(1);
 
@@ -3519,8 +3520,12 @@ int main(int argc, char **argv)
     osize=get_objects_number(f);
     printf("%d\n",osize);
     printf("Read objects: ");
-    if((objects=read_objects(f, osize))==NULL)
-        exit(1);
+    if((objects=read_objects(f, osize))==NULL) {
+        printf("No readable objects in this game!\n");
+        //exit(1);
+        objects=(object*)calloc(1, sizeof(object));
+        osize=0;
+    }
     fclose(f);
     printf("done\n");
 
