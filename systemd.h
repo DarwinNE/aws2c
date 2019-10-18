@@ -338,6 +338,49 @@
 
     /* Prepare the terminal to leave the program execution. */
     #define leave() cputs(cyan)
+#elif defined(CX16)
+
+    #include <stdio.h>
+
+    #define BUFFERSIZE 80
+    #define B_SIZE 240
+
+    #define SHIFTPETSCII \
+        if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20
+
+    #define waitscreen()
+
+    /* The number of columns of the screen */
+    #define NCOL 80
+    /* The number of available rows of the screen. If undefined, it is
+       not checked
+    */
+    #define NROW 45
+    extern unsigned char rowc;
+
+    #define green       "\x1E"
+    #define red         "\x1C"
+    #define cyan        "\x9F"
+    #define blue        "\x1F"
+    #define yellow      "\x9E"
+    #define pink        "\x96"
+
+
+    #define waitkey() getchar()
+    #define inputtxt(green)
+    #define evidence1(red)
+    #define evidence2(yellow)
+    #define evidence3(pink)
+    #define cls()
+
+    #define normaltxt(cyan)
+    #define tab() printf("\t")
+    #define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
+        retTime);}
+    #define init_term() {\
+        normaltxt();printf("\n\n");}
+
+    #define leave()
 
 #elif defined(VIC20)
 
@@ -489,6 +532,36 @@
     #define normaltxt() fputs("\x1b[0m\x1b[30m\x1b[47m", stdout)
     #define tab() fputs("\t")
     #define wait1s() \
+        {unsigned int retTime = time(0) + 1;while (time(0) < retTime);}
+    #define init_term() {fputs("\x1b[2J", stdout);normaltxt();}
+
+    #define leave() fputs("\x1b[0m\n\n", stdout);
+#elif defined(RC2014)
+    #include <stdio.h>
+    #define BUFFERSIZE 40
+    #define B_SIZE 40
+
+    #define SHIFTPETSCII
+
+    #define PUTS(s) wtr(s)
+    #define DEFINEWTR
+    #define waitscreen()
+
+    // The number of columns of the screen
+    #define NCOL 80
+    //#define NROW 22
+    //extern unsigned char rowc;
+
+    #define waitkey() getchar(); rowc=0
+    #define inputtxt()  fputs("\x1b[0m\x1b[32m\x1b[47m", stdout)
+    #define evidence1() fputs("\x1b[1m\x1b[37m\x1b[41m", stdout)
+    #define evidence2() fputs("\x1b[0m\x1b[34m\x1b[47m", stdout)
+    #define evidence3() fputs("\x1b[0m\x1b[35m\x1b[47m", stdout)
+    #define cls()
+
+    #define normaltxt() fputs("\x1b[0m\x1b[30m\x1b[47m", stdout)
+    #define tab() //fputs("\t")
+    #define wait1s() // \
         {unsigned int retTime = time(0) + 1;while (time(0) < retTime);}
     #define init_term() {fputs("\x1b[2J", stdout);normaltxt();}
 

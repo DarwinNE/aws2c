@@ -2793,7 +2793,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize)
     fprintf(of, "void sendallroom(unsigned int s);\n");
 
     /* Get current position of an object */
-    fprintf(of, "unsigned int get_object_position(unsigned char c)\n");
+    fprintf(of, "unsigned int get_object_position(unsigned int c)\n");
     fprintf(of, "{\n");
     fprintf(of, "    return search_object_p(c)->position;\n");
     fprintf(of, "}\n");
