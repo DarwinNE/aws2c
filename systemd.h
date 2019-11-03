@@ -552,7 +552,7 @@
     //#define NROW 22
     //extern unsigned char rowc;
 
-    #define waitkey() getchar(); rowc=0
+    #define waitkey() getchar()
     #define inputtxt()  fputs("\x1b[0m\x1b[32m\x1b[47m", stdout)
     #define evidence1() fputs("\x1b[1m\x1b[37m\x1b[41m", stdout)
     #define evidence2() fputs("\x1b[0m\x1b[34m\x1b[47m", stdout)
@@ -596,6 +596,41 @@
 
     #define leave()
 
+#elif defined(CPC) /* Definitions for Amstrad CPC computers */
+
+    #include<stdio.h>
+    #include <sys/ioctl.h>        // required for switching the screen mode
+    #include <cpc.h>
+
+    #define BUFFERSIZE 256
+    #define B_SIZE 240
+
+    #define SHIFTPETSCII
+
+    #define waitscreen()
+
+    // The number of columns of the screen
+    #define NCOL 80
+
+    #define waitkey() getchar()
+    #define inputtxt() printf("")
+    #define evidence1() printf("\x18")
+    #define end_evidence1() printf("\x18")
+    #define evidence2() printf("")
+    #define evidence3() printf("")
+    #define cls() printf("\x0C")
+
+    #define normaltxt() printf("")
+    #define tab() fputs("\t", stdout)
+    #define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
+        retTime);}
+    #define init_term() {printf("\x04\x02");}
+    //int mode=2;console_ioctl(IOCTL_GENCON_SET_MODE, &mode);}
+
+    #define leave()
+    /* Strangely enough, the \n char is not printed when one hits return */
+    #define GETS(buffer, size) fgets((buffer),(size),stdin); PUTC('\n')
+
 #else /* Definitions for modern ANSI terminals */
 
     #include<stdio.h>
@@ -636,6 +671,9 @@
 
 #endif
 
+#ifndef end_evidence1
+    #define end_evidence1()
+#endif
 
 #ifndef PUTC
     #define PUTC(c) putc((c), stdout)

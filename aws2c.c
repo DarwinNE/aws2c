@@ -3248,8 +3248,9 @@ void output_gamecycle(FILE *f, int osize)
         fprintf(f, TAB TAB TAB
             "writesameln(cr->short_d);\n");
     }
-    fprintf(f,TAB TAB TAB "writesameln(\"  \");\n");
+    fprintf(f, TAB TAB TAB "end_evidence1();\n");
     fprintf(f,TAB TAB TAB  "normaltxt();\n");
+    fprintf(f,TAB TAB TAB "writesameln(\"  \");\n");
 
     if(compress_messages==true) {
         if(hardcoded_messages==true) {
