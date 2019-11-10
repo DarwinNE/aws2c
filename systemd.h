@@ -3,9 +3,14 @@
 
 /*  This file shows an example of how to tailor the different macros so that
     the program can be compiled on modern machines (ANSI terminal) with gcc,
-    as well as on vintage Commodores by using Cc65.
+    as well as on vintage Commodores by using Cc65 and many Z80 machines with
+    Z88dk.
 
-    If the C128 option is active, the code for the C128
+    Code should be self explicative. For exemple C128 option is active, the
+    chunk of #define for the C128 is selected
+
+    NOTE: choose all buffer sizes less than 256.
+
 */
 
 #include<time.h>
@@ -511,8 +516,6 @@
     #define BUFFERSIZE 128
     #define B_SIZE 192
 
-    #define SHIFTPETSCII
-
     #define PUTS(s) wtr(s)
     #define DEFINEWTR
     #define waitscreen()
@@ -540,8 +543,6 @@
     #include <stdio.h>
     #define BUFFERSIZE 40
     #define B_SIZE 40
-
-    #define SHIFTPETSCII
 
     #define PUTS(s) wtr(s)
     #define DEFINEWTR
@@ -574,8 +575,6 @@
     #define BUFFERSIZE 256
     #define B_SIZE 240
 
-    #define SHIFTPETSCII
-
     #define waitscreen()
 
     // The number of columns of the screen
@@ -605,8 +604,6 @@
     #define BUFFERSIZE 256
     #define B_SIZE 240
 
-    #define SHIFTPETSCII
-
     #define waitscreen()
 
     // The number of columns of the screen
@@ -631,14 +628,41 @@
     /* Strangely enough, the \n char is not printed when one hits return */
     #define GETS(buffer, size) fgets((buffer),(size),stdin); PUTC('\n')
 
+#elif defined(MSX) /* Definitions for MSX computers */
+    
+    #include <stdio.h>
+    #define BUFFERSIZE 40
+    #define B_SIZE 40
+
+    #define PUTS(s) wtr(s)
+    #define DEFINEWTR
+    #define waitscreen()
+
+    // The number of columns of the screen
+    #define NCOL 32
+    #define NROW 24
+    extern unsigned char rowc;
+
+    #define waitkey() getchar()
+    #define inputtxt() 
+    #define evidence1() 
+    #define evidence2() 
+    #define evidence3() 
+    #define cls()
+
+    #define normaltxt() 
+    #define tab() //fputs("\t")
+    #define wait1s() // \
+        {unsigned int retTime = time(0) + 1;while (time(0) < retTime);}
+    #define init_term() {}
+
+    #define leave() 
+
 #else /* Definitions for modern ANSI terminals */
 
     #include<stdio.h>
     #define BUFFERSIZE 256
     #define B_SIZE 240
-
-
-    #define SHIFTPETSCII
 
     #define waitscreen()
 
@@ -669,6 +693,10 @@
 
     #define leave() printf("\033[0m\n\n")
 
+#endif
+
+#ifndef SHIFTPETSCII
+    #define SHIFTPETSCII
 #endif
 
 #ifndef end_evidence1
