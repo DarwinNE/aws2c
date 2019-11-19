@@ -18,10 +18,10 @@
 
 char playerInput[BUFFERSIZE];
 char wordbuffer[NCOL];
-unsigned char colc;
+EFFSHORTINDEX colc;
 
 #ifdef NROW
-unsigned char rowc;
+EFFSHORTINDEX rowc;
 #endif
 
 unsigned int verb;
@@ -35,8 +35,8 @@ extern word dictionary[];
 
 /* The current position in the line */
 
-unsigned char ls, lc;
-unsigned char pc;
+EFFSHORTINDEX ls, lc;
+EFFSHORTINDEX pc;
 
 #ifdef DEFINEWTR
 void wtr(const char *s)

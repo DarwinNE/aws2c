@@ -41,8 +41,14 @@ typedef struct word_d {
     word_type t;
 } word;
 
+#ifndef BYTEROOMCODE
+    typedef unsigned int room_code;
+#else
+    typedef unsigned char room_code;
+#endif
+
 typedef struct room_d {
-    unsigned int code;
+    room_code code;
     char *long_d;
     #ifndef AVOID_SDESC
     char *s;
@@ -50,12 +56,12 @@ typedef struct room_d {
     char *short_d;
 
     #ifndef DIR_REDUCED
-    // north, sud, east, west, up, down, north east, north west, south east,
-    // south west
-    unsigned int directions[10];
+        // north, sud, east, west, up, down, north east, north west, south east,
+        // south west
+        unsigned int directions[10];
     #else
-    // north, sud, east, west, up, down
-    unsigned int directions[6];
+        // north, sud, east, west, up, down
+        unsigned int directions[6];
     #endif
 } room;
 
@@ -64,13 +70,23 @@ typedef struct message_d {
     char *txt;
 } message;
 
+#ifndef BYTEOBJCODE
+    typedef unsigned int obj_code;
+#else
+    typedef unsigned char obj_code;
+#endif
+
 typedef struct object_d {
-    unsigned int code;
-    char *s;
+    obj_code code;
+    #ifndef NOLONGDESC
+        char *s;
+    #endif
     char *desc;
-    unsigned int weight;
-    unsigned int size;
-    unsigned int position;
+    #ifndef NOSIZEWEIGHT    // Don't consider size and weight.
+        unsigned int weight;
+        unsigned int size;
+    #endif
+    unsigned int position;      // Never a byte, as carried =1500, weared=1600
     boolean isnotmovable;
     boolean isnotwereable;
 } object;

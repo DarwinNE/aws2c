@@ -209,10 +209,10 @@ void output_decoder(FILE *fout)
     int i;
     node *np;
     fprintf(fout,"char *compressed;\n");
-    fprintf(fout,"unsigned char bpointer;\n");
+    fprintf(fout,"EFFSHORTINDEX bpointer;\n");
     fprintf(fout,"unsigned int cpointer;\n");
     fprintf(fout,"char decompress_b[B_SIZE+1];\n");
-    fprintf(fout,"unsigned char currbyte;\n\n");
+    fprintf(fout,"EFFSHORTINDEX currbyte;\n\n");
 
     np=create_tree();
     stackp=0;
@@ -231,7 +231,7 @@ void output_decoder(FILE *fout)
 
     fprintf(fout,"};\n\n");
 
-    fprintf(fout,"unsigned char iii;\n");
+    fprintf(fout,"EFFSHORTINDEX iii;\n");
     fprintf(fout,"char hufget(void)\n");
     fprintf(fout,"{\n");
     fprintf(fout,"    iii=NUM_NODES-1;\n");
@@ -257,7 +257,7 @@ void output_decoder(FILE *fout)
     fprintf(fout,"boolean decode(void)\n");
     fprintf(fout,"{\n");
     fprintf(fout,"    register char c;\n");
-    fprintf(fout,"    unsigned char k=0;\n");
+    fprintf(fout,"    EFFSHORTINDEX k=0;\n");
     fprintf(fout,"    do {\n");
     fprintf(fout,"        c=hufget();\n");
     fprintf(fout,"        SHIFTPETSCII;\n");

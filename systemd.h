@@ -11,6 +11,10 @@
 
     NOTE: choose all buffer sizes less than 256.
 
+    CV_IS_A_FUNCTION is a macro that if defined makes sort that a function is
+        called to check a thing like "verb==v". With some compilers it may be
+        an advantage (e.g. cc65) in terms of size, while it's not the case 
+        for other compilers (e.f. Z88dk).
 */
 
 #include<time.h>
@@ -22,6 +26,7 @@
 
     #define BUFFERSIZE 128
     #define B_SIZE 160
+    #define CV_IS_A_FUNCTION
 
     #define SHIFTPETSCII \
         if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20
@@ -88,6 +93,7 @@
 
     #define BUFFERSIZE 128
     #define B_SIZE 160
+    #define CV_IS_A_FUNCTION
 
     #define SHIFTPETSCII \
         if((c>=0x61 && c<=0x7A)) c^=0x20; else if((c>=0x41 && c<=0x5A)) c|=0x80
@@ -148,6 +154,7 @@
 
     #include<conio.h>
     #include<stdio.h>
+    #define CV_IS_A_FUNCTION
 
     #define BUFFERSIZE 128
     #define B_SIZE 160
@@ -210,6 +217,7 @@
 
     #include<conio.h>
     #include <stdio.h>
+    #define CV_IS_A_FUNCTION
 
     #define BUFFERSIZE 40
     #define B_SIZE 80
@@ -284,6 +292,7 @@
 
     #include<conio.h>
     #include <stdio.h>
+    #define CV_IS_A_FUNCTION
 
     #define BUFFERSIZE 80
     #define B_SIZE 240
@@ -349,6 +358,7 @@
 
     #define BUFFERSIZE 80
     #define B_SIZE 240
+    #define CV_IS_A_FUNCTION
 
     #define SHIFTPETSCII \
         if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20
@@ -394,6 +404,7 @@
 
     #define BUFFERSIZE 44
     #define B_SIZE 88
+    #define CV_IS_A_FUNCTION
 
     #define SHIFTPETSCII \
         if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20
@@ -455,6 +466,7 @@
 
     #define BUFFERSIZE 37
     #define B_SIZE 80
+    #define CV_IS_A_FUNCTION
 
     #define SHIFTPETSCII \
         if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20
@@ -515,6 +527,7 @@
     #include <stdio.h>
     #define BUFFERSIZE 128
     #define B_SIZE 192
+    #define EFFSHORTINDEX unsigned int
 
     #define PUTS(s) wtr(s)
     #define DEFINEWTR
@@ -543,6 +556,7 @@
     #include <stdio.h>
     #define BUFFERSIZE 40
     #define B_SIZE 40
+    #define EFFSHORTINDEX unsigned int
 
     #define PUTS(s) wtr(s)
     #define DEFINEWTR
@@ -603,6 +617,7 @@
 
     #define BUFFERSIZE 256
     #define B_SIZE 240
+    #define EFFSHORTINDEX unsigned int
 
     #define waitscreen()
 
@@ -637,6 +652,7 @@
     #define PUTS(s) wtr(s)
     #define DEFINEWTR
     #define waitscreen()
+    #define EFFSHORTINDEX unsigned int
 
     // The number of columns of the screen
     #define NCOL 32
@@ -693,6 +709,10 @@
 
     #define leave() printf("\033[0m\n\n")
 
+#endif
+
+#ifndef EFFSHORTINDEX
+    #define EFFSHORTINDEX unsigned char
 #endif
 
 #ifndef SHIFTPETSCII
