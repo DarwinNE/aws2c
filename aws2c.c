@@ -2887,11 +2887,18 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     fprintf(of, "    return search_object_p(c)->position;\n");
     fprintf(of, "}\n");
     /* Check if an object is here */
-    fprintf(of, "boolean object_is_here(EFFSHORTINDEX c)\n");
-    fprintf(of, "{\n");
+    fprintf(of, "#ifdef CV_IS_A_FUNCTION\n");
+    fprintf(of, TAB "boolean object_is_here(EFFSHORTINDEX c)\n");
+    fprintf(of, TAB "{\n");
     fprintf(of,
-        "    return get_object_position(c)==current_position;\n");
-    fprintf(of, "}\n");
+        TAB "    return get_object_position(c)==current_position;\n");
+    fprintf(of, TAB "}\n");
+    fprintf(of, "#else\n");
+    fprintf(of,
+        TAB "#define object_is_here(c) get_object_position(c)==current_position\n");
+        fprintf(of, "#endif\n");
+
+    
     
     /* Check if an object is carried */
     fprintf(of, "boolean object_is_carried(EFFSHORTINDEX c)\n");

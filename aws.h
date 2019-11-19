@@ -58,10 +58,10 @@ typedef struct room_d {
     #ifndef DIR_REDUCED
         // north, sud, east, west, up, down, north east, north west, south east,
         // south west
-        unsigned int directions[10];
+        room_code directions[10];
     #else
         // north, sud, east, west, up, down
-        unsigned int directions[6];
+        room_code directions[6];
     #endif
 } room;
 
@@ -86,7 +86,7 @@ typedef struct object_d {
         unsigned int weight;
         unsigned int size;
     #endif
-    unsigned int position;      // Never a byte, as carried =1500, weared=1600
+    unsigned int position;      // Always int, as carried =1500, weared=1600
     boolean isnotmovable;
     boolean isnotwereable;
 } object;
