@@ -528,6 +528,7 @@
     #define BUFFERSIZE 128
     #define B_SIZE 192
     #define EFFSHORTINDEX unsigned int
+    #define FASTCALL __z88dk_fastcall
 
     #define PUTS(s) wtr(s)
     #define DEFINEWTR
@@ -557,6 +558,7 @@
     #define BUFFERSIZE 40
     #define B_SIZE 40
     #define EFFSHORTINDEX unsigned int
+    #define FASTCALL __z88dk_fastcall
 
     #define PUTS(s) wtr(s)
     #define DEFINEWTR
@@ -618,6 +620,7 @@
     #define BUFFERSIZE 256
     #define B_SIZE 240
     #define EFFSHORTINDEX unsigned int
+    #define FASTCALL __z88dk_fastcall
 
     #define waitscreen()
 
@@ -646,33 +649,37 @@
 #elif defined(MSX) /* Definitions for MSX computers */
     
     #include <stdio.h>
+    #include <msx.h>
     #define BUFFERSIZE 40
     #define B_SIZE 40
 
-    #define PUTS(s) wtr(s)
+    #define FASTCALL __z88dk_fastcall
     #define DEFINEWTR
     #define waitscreen()
     #define EFFSHORTINDEX unsigned int
 
     // The number of columns of the screen
-    #define NCOL 32
+    #define NCOL 37
     #define NROW 24
     extern unsigned char rowc;
 
     #define waitkey() getchar()
     #define inputtxt() 
-    #define evidence1() 
+    #define evidence1()
     #define evidence2() 
     #define evidence3() 
     #define cls()
 
-    #define normaltxt() 
+    #define normaltxt()
     #define tab() //fputs("\t")
     #define wait1s() // \
         {unsigned int retTime = time(0) + 1;while (time(0) < retTime);}
-    #define init_term() {}
-
-    #define leave() 
+    #define init_term() {msx_screen(0);}
+    #define leave()
+    
+    #define PUTC(c) fputc_cons(c)
+    #define PUTS(s) wtr(s)
+    #define GETS(buffer, size) fgets_cons((buffer),(size));
 
 #else /* Definitions for modern ANSI terminals */
 
@@ -731,6 +738,10 @@
 #endif
 #ifndef GETS
     #define GETS(buffer, size) fgets((buffer),(size),stdin);
+#endif
+
+#ifndef FASTCALL
+    #define FASTCALL
 #endif
 
 #endif

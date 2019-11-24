@@ -39,7 +39,7 @@ EFFSHORTINDEX ls, lc;
 EFFSHORTINDEX pc;
 
 #ifdef DEFINEWTR
-void wtr(const char *s)
+void wtr(const char *s) FASTCALL
 {
     int i;
     for(i=0; s[i]!='\0';++i)
@@ -51,7 +51,7 @@ void wtr(const char *s)
 /** Write a string without adding a newline. Process some codes to put in
     evidence the text and handle the word wrapping.
 */
-void writesameln(char *line)
+void writesameln(char *line) FASTCALL
 {
     char c,d;
     pc=0;
@@ -121,7 +121,7 @@ void zeror(void)
 
 /** Same as writesameln, but adds a newline at the end of the message.
 */
-void writeln(char* line)
+void writeln(char* line) FASTCALL
 {
     writesameln(line);
     PUTC('\n');
@@ -163,7 +163,7 @@ char s[BUFFERSIZE];
 
 /** Main parser.
 */
-void interrogationAndAnalysis(unsigned int num_of_words)
+void interrogationAndAnalysis(unsigned int num_of_words) FASTCALL
 {
     unsigned int i, k;
     char c;

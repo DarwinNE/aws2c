@@ -70,6 +70,7 @@ boolean dont_care_size_weight=false;
 boolean no_obj_long_desc=true;
 
 boolean complete_shortcut=false;
+boolean checked_noun1_greater_zero=false;
 
 /* Some functions are included in the code only if necessary. Those flags
    take care of them so they can be included in the code if they have been
@@ -493,16 +494,16 @@ object* read_objects(FILE *f, int size)
 
         getlinep(f);
         if(strcmp(buffer,"FALSE")) {
-            obj[i].isnotmovable=false;
+    //        obj[i].attributes|=ISNOTMOVABLE;
         } else {
-            obj[i].isnotmovable=true;
+            obj[i].attributes|=ISNOTMOVABLE;
         }
 
         getlinep(f);
-        if(strcmp(buffer,"FALSE")) {
-            obj[i].isnotwereable=false;
+        if(strcmp(buffer,"TRUE")) {
+ //           obj[i].isnotwereable=false;
         } else {
-            obj[i].isnotwereable=true;
+            obj[i].attributes|=ISWEREABLE;
         }
         if(verbose)
             printf("Object %d [%s]\n",obj[i].code,obj[i].desc);
@@ -1255,6 +1256,7 @@ unsigned int decision_no1gt(FILE *f, char *line, unsigned int scanpos)
     start_function();
     scanpos=process_functions(line, scanpos);
     fprintf(f, "noun1>%s", function_res);
+    checked_noun1_greater_zero=true;
     return scanpos;
 }
 /** NO1LT */
@@ -1262,7 +1264,11 @@ unsigned int decision_no1lt(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, "(noun1>0&&noun1<%s)", function_res);
+    if(checked_noun1_greater_zero) {
+        fprintf(f, "noun1<%s", function_res);
+    } else {
+        fprintf(f, "(noun1>0&&noun1<%s)", function_res);
+    }
     return scanpos;
 }
 /** NO2GT */
@@ -1378,7 +1384,7 @@ unsigned int decision_ismovable(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, "search_object_p(%s)->isnotmovable==false",
+    fprintf(f, "search_object_p(%s)->attributes&ISNOTMOVABLE==false",
         function_res);
     return scanpos;
 }
@@ -1387,7 +1393,7 @@ unsigned int decision_isnotmovable(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, "search_object_p(%s)->isnotmovable",
+    fprintf(f, "search_object_p(%s)->attributes&ISNOTMOVABLE",
         function_res);
     return scanpos;
 }
@@ -1396,7 +1402,7 @@ unsigned int decision_iswearable(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, "search_object_p(%s)->iswereable==true",
+    fprintf(f, "search_object_p(%s)->attributes&ISWEREABLE!=0",
         function_res);
     return scanpos;
 }
@@ -1405,7 +1411,7 @@ unsigned int decision_isnotwearable(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, "search_object_p(%s)->iswereable==false",
+    fprintf(f, "search_object_p(%s)->attributes&ISWEREABLE==0",
         function_res);
     return scanpos;
 }
@@ -1688,7 +1694,7 @@ unsigned int action_goto(FILE *f, char *line, unsigned int scanpos)
     scanpos=process_functions(line, scanpos);
     fprintf(f, TAB TAB "jump(%s);\n",function_res);
     //fprintf(f, TAB TAB "return 1;\n");
-    fprintf(f, TAB TAB "goto return1;\n");
+    fprintf(f, TAB TAB "return;\n");
     return scanpos;
 }
 
@@ -1804,7 +1810,7 @@ unsigned int action_quit(FILE *f, char *line, unsigned int scanpos)
     fprintf(f, TAB TAB "if(are_you_sure()) {\n");
     fprintf(f, TAB TAB TAB "leave(); exit(0);\n");
     fprintf(f, TAB TAB "}\n");
-    fprintf(f, TAB TAB "goto return1;\n");
+    fprintf(f, TAB TAB "return;\n");
     return scanpos;
 }
 /** EXIT */
@@ -1812,7 +1818,7 @@ unsigned int action_exit(FILE *f, char *line, unsigned int scanpos)
 {
     need_checkexit=true;
     fprintf(f, TAB TAB "checkexit();\n");
-    fprintf(f, TAB TAB "restart(); goto return1;\n");
+    fprintf(f, TAB TAB "restart(); return;\n");
     return scanpos;
 }
 /** INVE */
@@ -1874,7 +1880,7 @@ unsigned int action_okay(FILE *f, char *line, unsigned int scanpos)
     else
         fprintf(f, TAB TAB "show_message(message1000);\n");
     //fprintf(f, TAB TAB "return 1;\n");
-    fprintf(f, TAB TAB "goto return1;\n");
+    fprintf(f, TAB TAB "return;\n");
     return scanpos;
 }
 /** PRIN */
@@ -1929,7 +1935,7 @@ unsigned int action_get(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, TAB TAB "if(get(%s)) goto return1;\n", function_res);
+    fprintf(f, TAB TAB "if(get(%s)) return;\n", function_res);
 
     return scanpos;
 }
@@ -2043,7 +2049,7 @@ unsigned int action_swap(FILE *f, char *line, unsigned int scanpos)
 /** WAIT */
 unsigned int action_wait(FILE *f, char *line, unsigned int scanpos)
 {
-    fprintf(f, TAB TAB "goto return1;\n");
+    fprintf(f, TAB TAB "return;\n");
     return scanpos;
 }
 /** LF */
@@ -2080,7 +2086,7 @@ unsigned int action_wear(FILE *f, char *line, unsigned int scanpos)
     fprintf(f, TAB TAB "odummy=&obj[dummy];\n");
 
     fprintf(f, TAB TAB
-        "if(odummy->isnotwereable==false&&(odummy->position==CARRIED||"
+        "if((odummy->attributes&ISWEREABLE)!=0&&(odummy->position==CARRIED||"
         "odummy->position==current_position)){\n");
     fprintf(f, TAB TAB TAB"odummy->position=WEARED;\n");
     fprintf(f, TAB TAB TAB "++counter[118];\n");
@@ -2089,13 +2095,13 @@ unsigned int action_wear(FILE *f, char *line, unsigned int scanpos)
         fprintf(f, TAB TAB TAB "show_message(1019);\n");
     else
         fprintf(f, TAB TAB TAB "show_message(message1019);\n");
-    fprintf(f, TAB TAB TAB "goto return1;\n");
+    fprintf(f, TAB TAB TAB "return;\n");
     fprintf(f, TAB TAB "} else {\n");
     if(hardcoded_messages==false)
         fprintf(f, TAB TAB TAB "show_message(1010);\n");
     else
         fprintf(f, TAB TAB TAB "show_message(message1010);\n");
-    fprintf(f, TAB TAB TAB "goto return1;\n");
+    fprintf(f, TAB TAB TAB "return;\n");
     fprintf(f, TAB TAB "}\n");
     return scanpos;
 }
@@ -2105,7 +2111,7 @@ unsigned int action_unwear(FILE *f, char *line, unsigned int scanpos)
     start_function();
     scanpos=process_functions(line, scanpos);
     need_unwear=true;
-    fprintf(f, TAB TAB "if(unwear(%s)) goto return1;\n", function_res);
+    fprintf(f, TAB TAB "if(unwear(%s)) return;\n", function_res);
     return scanpos;
 }
 /** STRE */
@@ -2149,6 +2155,9 @@ void process_aws(FILE *f, char *line)
         ++no_of_errors;
         return;
     }
+    /* In some cases a NO1GT condition may imply that noun1>0, that can be 
+       skipped processing a NO1LT condition. */
+    checked_noun1_greater_zero=false;
     fprintf(f,TAB "// %s\n",line);
     fprintf(f,TAB "if(");
     while(1) {  // DECISIONS
@@ -2433,7 +2442,8 @@ void output_header(FILE *of, int maxroomcode, int maxobjcode)
         fprintf(of,"#define BYTEROOMCODE\n");
     }
     if(maxobjcode<256) {
-        fprintf(of,"#define BYTEOBJCODE\n");
+        printf("maxobjcode: %d\n",maxobjcode);
+        fprintf(of,"#define BYTEOBJCODE pipo\n");
     }
 
     fprintf(of,"#define AVOID_SDESC\n");
@@ -2454,7 +2464,7 @@ void output_optional_func(FILE *of)
 {
     if(need_searchw) {
         fprintf(of,"char *nonestr=\"\";\n");
-        fprintf(of,"char *searchw(unsigned int w)\n{\n");
+        fprintf(of,"char *searchw(unsigned int w) FASTCALL\n{\n");
         fprintf(of, TAB "int i;\n");
         fprintf(of, TAB "for(i=0;i<DSIZE;++i)\n");
         fprintf(of, TAB TAB "if(w==dictionary[i].code)\n");
@@ -2463,7 +2473,7 @@ void output_optional_func(FILE *of)
         fprintf(of, "}\n");
     }
     if(need_unwear) {
-        fprintf(of, "boolean unwear(unsigned int o)\n{\n");
+        fprintf(of, "boolean unwear(unsigned int o) FASTCALL\n{\n");
         fprintf(of, TAB "dummy=search_object(o);\n");
         fprintf(of, TAB "odummy=&obj[dummy];\n");
 
@@ -2519,7 +2529,7 @@ void output_optional_func(FILE *of)
     if(need_cv) {
         /* Check for a verb */
         fprintf(of, "#ifdef CV_IS_A_FUNCTION\n");
-        fprintf(of, "boolean cv(unsigned int v)\n");
+        fprintf(of, "boolean cv(unsigned int v) FASTCALL\n");
         fprintf(of, "{\n");
         fprintf(of, "    return verb==v;\n");
         fprintf(of, "}\n");
@@ -2536,7 +2546,7 @@ void output_optional_func(FILE *of)
         fprintf(of, "}\n");
     }
     if(need_sendallroom) {
-        fprintf(of, "void sendallroom(unsigned int s)\n{\n");
+        fprintf(of, "void sendallroom(unsigned int s) FASTCALL\n{\n");
         fprintf(of, TAB "for(dummy=0; dummy<OSIZE;++dummy){\n");
         fprintf(of, TAB TAB "odummy=&obj[dummy];\n");
         fprintf(of, TAB TAB
@@ -2553,7 +2563,7 @@ void output_optional_func(FILE *of)
         fprintf(of, "}\n");
     }
     if(need_hold) {
-        fprintf(of, "void hold(unsigned int p)\n{\n");
+        fprintf(of, "void hold(unsigned int p) FASTCALL\n{\n");
         fprintf(of, TAB "for(dummy=0; dummy<p; ++dummy) {wait1s();}\n");
         fprintf(of, "}\n");
     }
@@ -2595,6 +2605,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
 {
     fprintf(of,"room_code current_position;\n");
     fprintf(of,"room_code next_position;\n");
+    fprintf(of,"boolean retv;\n");
     fprintf(of,"extern EFFSHORTINDEX ls;\n");
     fprintf(of,"extern char playerInput[];\n");
     
@@ -2604,19 +2615,19 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     fprintf(of,"object *odummy;\n\n");
     /* Introduces the prototype here, functions will be included only if 
        necessary, after having analyzed the file. */
-    fprintf(of,"char *searchw(unsigned int w);\n");
-    fprintf(of, "boolean unwear(unsigned int o);\n");
+    fprintf(of,"char *searchw(unsigned int w) FASTCALL;\n");
+    fprintf(of, "boolean unwear(unsigned int o) FASTCALL;\n");
 
     fprintf(of,"void printnewline(void)\n{");
     fprintf(of,TAB "writeln(\"\");\n}\n\n");
     
     
     if(osize>255) {
-        fprintf(of,"unsigned int search_object(unsigned int o)\n{\n");
+        fprintf(of,"unsigned int search_object(unsigned int o) FASTCALL\n{\n");
         fprintf(of,TAB "unsigned int idx;\n");
 
     } else {
-        fprintf(of,"EFFSHORTINDEX search_object(unsigned int o)\n{\n");
+        fprintf(of,"EFFSHORTINDEX search_object(unsigned int o) FASTCALL\n{\n");
         fprintf(of,TAB "EFFSHORTINDEX idx;\n");
     }
     fprintf(of,TAB "for(idx=0; idx<OSIZE;++idx)\n");
@@ -2624,16 +2635,16 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     fprintf(of,TAB TAB TAB "return idx;\n");
     fprintf(of,TAB "return 0;\n}\n\n");
 
-    fprintf(of,"object *search_object_p(unsigned int o)\n");
+    fprintf(of,"object *search_object_p(unsigned int o) FASTCALL\n");
     fprintf(of,"{\n");
     fprintf(of,TAB "return &obj[search_object(o)];\n");
     fprintf(of,"}\n");
 
     if(max_room_code>255) {
-        fprintf(of,"unsigned int search_room(unsigned int r)\n{\n");
+        fprintf(of,"unsigned int search_room(unsigned int r) FASTCALL\n{\n");
         fprintf(of,TAB "unsigned int idx;\n");
     } else {
-        fprintf(of,"EFFSHORTINDEX search_room(EFFSHORTINDEX r)\n{\n");
+        fprintf(of,"EFFSHORTINDEX search_room(EFFSHORTINDEX r) FASTCALL\n{\n");
         fprintf(of,TAB "EFFSHORTINDEX idxl;\n");
     }
 
@@ -2674,7 +2685,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
 
     if(hardcoded_messages==false) {
         if(compress_messages==true) {
-            fprintf(of,"void write_textsl(char *m)\n{\n");
+            fprintf(of,"void write_textsl(char *m) FASTCALL\n{\n");
             fprintf(of,TAB "char r;\n");
             fprintf(of,TAB "cpointer=0;\n");
             fprintf(of,TAB "bpointer=0;\n");
@@ -2689,7 +2700,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
             fprintf(of,TAB "printnewline();\n");
             fprintf(of, "}\n");
         }
-        fprintf(of,"void show_messagenlf(unsigned int m)\n{\n");
+        fprintf(of,"void show_messagenlf(unsigned int m) FASTCALL\n{\n");
         fprintf(of,TAB "unsigned int i;\n");
         fprintf(of,TAB "for(i=0; i<MSIZE;++i)\n");
         fprintf(of,TAB TAB "if(msg[i].code==m){\n");
@@ -2702,13 +2713,13 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
         fprintf(of, TAB TAB "}\n");
         fprintf(of, "}\n\n");
 
-        fprintf(of,"void show_message(unsigned int m)\n{\n");
+        fprintf(of,"void show_message(unsigned int m) FASTCALL\n{\n");
         fprintf(of,TAB "show_messagenlf(m);\n");
         fprintf(of,TAB "printnewline();\n");
         fprintf(of, "}\n\n");
     } else {
 
-        fprintf(of,"void show_messagenlf(char *m)\n{\n");
+        fprintf(of,"void show_messagenlf(char *m) FASTCALL\n{\n");
         if(compress_messages==true) {
             fprintf(of,TAB "boolean o;\n");
             fprintf(of,TAB "cpointer=0;\n");
@@ -2724,7 +2735,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
         }
         fprintf(of, "}\n\n");
 
-        fprintf(of,"void show_message(char *m)\n{\n");
+        fprintf(of,"void show_message(char *m) FASTCALL\n{\n");
         fprintf(of,TAB "show_messagenlf(m);\n");
         fprintf(of,TAB "printnewline();\n");
         fprintf(of, "}\n\n");
@@ -2791,7 +2802,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     else
         fprintf(of,TAB "if(gs==false) show_message(message1033);\n}\n\n");
 
-    fprintf(of, "void move(unsigned char dir)\n");
+    fprintf(of, "void move(unsigned char dir) FASTCALL\n");
     fprintf(of, "{\n");
     if(max_room_code>255)
         fprintf(of, TAB "unsigned int p;\n");
@@ -2811,7 +2822,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
         fprintf(of, TAB TAB "show_message(message1008);\n");
     fprintf(of, "\n}\n\n");
 
-    fprintf(of, "boolean get(unsigned int o)\n");
+    fprintf(of, "boolean get(unsigned int o) FASTCALL\n");
     fprintf(of, "{\n");
     fprintf(of, TAB "odummy=search_object_p(o);\n");
 
@@ -2822,7 +2833,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
         fprintf(of, TAB TAB "show_message(message1006);\n");
     fprintf(of, TAB TAB "return true;\n");
     /* Euh... should not be isnotmovable==true here??? */
-    fprintf(of, TAB "} else if(odummy->isnotmovable==false) {\n");
+    fprintf(of, TAB "} else if((odummy->attributes&ISNOTMOVABLE)==0) {\n");
     if(hardcoded_messages==false)
         fprintf(of, TAB TAB "show_message(1005);\n");
     else
@@ -2881,44 +2892,48 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     /* Send all objects to a room in particular */
     fprintf(of, "void sendallroom(unsigned int s);\n");
 
-    /* Get current position of an object */
-    fprintf(of, "unsigned int get_object_position(EFFSHORTINDEX c)\n");
-    fprintf(of, "{\n");
-    fprintf(of, "    return search_object_p(c)->position;\n");
-    fprintf(of, "}\n");
-    /* Check if an object is here */
     fprintf(of, "#ifdef CV_IS_A_FUNCTION\n");
-    fprintf(of, TAB "boolean object_is_here(EFFSHORTINDEX c)\n");
+     /* Get current position of an object */
+    fprintf(of, TAB "unsigned int get_object_position(obj_code c) FASTCALL\n");
+    fprintf(of, TAB "{\n");
+    fprintf(of, TAB "    return search_object_p(c)->position;\n");
+    fprintf(of, TAB "}\n");
+    /* Check if an object is here */
+    fprintf(of, TAB "boolean object_is_here(obj_code c) FASTCALL\n");
     fprintf(of, TAB "{\n");
     fprintf(of,
         TAB "    return get_object_position(c)==current_position;\n");
     fprintf(of, TAB "}\n");
+        /* Check if an object is carried */
+    fprintf(of, TAB "boolean object_is_carried(obj_code c) FASTCALL\n");
+    fprintf(of, TAB "{\n");
+    fprintf(of,
+        TAB "    return get_object_position(c)==CARRIED;\n");
+    fprintf(of, TAB "}\n");
     fprintf(of, "#else\n");
     fprintf(of,
-        TAB "#define object_is_here(c) get_object_position(c)==current_position\n");
-        fprintf(of, "#endif\n");
-
-    
-    
-    /* Check if an object is carried */
-    fprintf(of, "boolean object_is_carried(EFFSHORTINDEX c)\n");
-    fprintf(of, "{\n");
+        TAB "#define object_is_here(c) search_object_p(c)->position"
+            "==current_position\n");
     fprintf(of,
-        "    return get_object_position(c)==CARRIED;\n");
-    fprintf(of, "}\n");
+        TAB "#define get_object_position(c) search_object_p(c)->position\n");
+    fprintf(of,
+        TAB "#define object_is_carried(c) "
+            "search_object_p(c)->position==CARRIED\n");
+    fprintf(of, "#endif\n");
+
     /* Check if an object is available */
-    fprintf(of, "boolean object_is_available(EFFSHORTINDEX c)\n");
+    fprintf(of, "boolean object_is_available(obj_code c) FASTCALL\n");
     fprintf(of, "{\n");
     fprintf(of,
         "    return object_is_here(c)||object_is_carried(c);\n");
     fprintf(of, "}\n");
     /* Set current position of an object */
-    fprintf(of, "void set_object_position(EFFSHORTINDEX c, int pos)\n");
+    fprintf(of, "void set_object_position(obj_code c, int pos)\n");
     fprintf(of, "{\n");
     fprintf(of, "    search_object_p(c)->position=pos;\n");
     fprintf(of, "}\n");
     /* Bring here an object */
-    fprintf(of, "void bring_object_here(EFFSHORTINDEX c)\n");
+    fprintf(of, "void bring_object_here(obj_code c) FASTCALL\n");
     fprintf(of, "{\n");
     fprintf(of, "    set_object_position(c,current_position);\n");
     fprintf(of, "}\n");
@@ -2951,7 +2966,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     fprintf(of,
         "boolean cvna(unsigned int v, unsigned int n, unsigned int o);\n");
 
-    fprintf(of, "void drop(unsigned int o)\n{\n");
+    fprintf(of, "void drop(unsigned int o) FASTCALL\n{\n");
     fprintf(of, TAB  "odummy=search_object_p(o);\n");
 
     fprintf(of, TAB  "if(odummy->position==CARRIED){\n");
@@ -2973,12 +2988,12 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
         fprintf(of, "unsigned int");
     else
         fprintf(of, "EFFSHORTINDEX");
-    fprintf(of, " p)\n{\n");
+    fprintf(of, " p) FASTCALL\n{\n");
     fprintf(of, TAB "next_position=p;\n");
     fprintf(of, TAB "marker[120]=false;\n");
     fprintf(of, "}\n\n");
 
-    fprintf(of, "void hold(unsigned int p);\n");
+    fprintf(of, "void hold(unsigned int p) FASTCALL;\n");
     fprintf(of, "char iscarrsome(void);\n");
     fprintf(of, "char iswearsome(void);\n");
     fprintf(of, "void checkexit(void);\n");
@@ -3011,13 +3026,15 @@ void output_dictionary(FILE *of, word* dictionary, unsigned int dsize)
 */
 int get_max_room_code(room* world, unsigned int rsize)
 {
-    int maxcode=-1;
+    int maxcode=0;
     unsigned int i;
 
     for(i=0; i<rsize;++i) {
         if(world[i].code>maxcode)
             maxcode=world[i].code;
     }
+    printf("Maxroom - obj: %d\n",maxcode);
+
     return maxcode;
 }
 
@@ -3026,7 +3043,7 @@ int get_max_room_code(room* world, unsigned int rsize)
 */
 int get_max_object_code(object* obj, unsigned int osize)
 {
-    int maxcode=-1;
+    int maxcode=0;
     unsigned int i;
 
     for(i=0; i<osize;++i) {
@@ -3230,14 +3247,12 @@ void output_objects(FILE *of, object* obj, unsigned int osize)
         } else {
             fprintf(of, "%d,",obj[i].position);
         }
-        if(obj[i].isnotmovable==true)
-            fprintf(of, "true,");
-        else
-            fprintf(of, "false,");
-        if(obj[i].isnotwereable==true)
-            fprintf(of, "true}");
-        else
-            fprintf(of, "false}");
+        fprintf(of, "0");
+        if(obj[i].attributes&ISNOTMOVABLE)
+            fprintf(of, "+ISNOTMOVABLE");
+        if(obj[i].attributes&ISWEREABLE)
+            fprintf(of, "+ISWEREABLE");
+        fprintf(of, "}");
 
         if(i<osize-1)
             fprintf(of,",");
@@ -3252,15 +3267,14 @@ void output_objects(FILE *of, object* obj, unsigned int osize)
 void output_hicond(FILE *f, char **cond, int size)
 {
     int i;
-    fprintf(f,"boolean hi_cond(void)\n{\n");
+    fprintf(f,"void hi_cond(void)\n{\n");
+    fprintf(f, TAB "retv=true;\n");
+
     for(i=0; i<size; ++i) {
         process_aws(f,cond[i]);
     }
-    fprintf(f, TAB "return false;\n");
-    /*  Use of goto allows to spare a few bytes instead of putting a return 1
-        every time in the code. The difference can be considerable in big
-        adventures, as there are plenty of WAIT commands. */
-    fprintf(f, TAB "return1: return true;\n");
+    fprintf(f, TAB "retv=false;");
+    fprintf(f, TAB "return;\n");
     fprintf(f,"}\n");
 }
 
@@ -3268,16 +3282,17 @@ void output_hicond(FILE *f, char **cond, int size)
 void output_lowcond(FILE *f, char **cond,  int size)
 {
     int i;
-    fprintf(f,"boolean low_cond(void)\n{\n");
+    fprintf(f,"void low_cond(void)\n{\n");
+    fprintf(f, TAB "retv=true;\n");
+
     for(i=0; i<size; ++i) {
         process_aws(f,cond[i]);
     }
-    fprintf(f, TAB "return false;\n");
-    /*  Use of goto allows to spare a few bytes instead of putting a return 1
-        every time in the code. The difference can be considerable in big
+    fprintf(f, TAB "retv=false;\n");
+    fprintf(f, TAB "return;\n");
+    /*  Use a global variable for keeping track of the return value. 
+        The difference can be considerable in big
         adventures, as there are plenty of WAIT commands. */
-    fprintf(f, TAB "return1: return true;\n");
-
     fprintf(f,"}\n");
 }
 
@@ -3287,7 +3302,9 @@ void output_local(FILE *f, localc* cond,  int size)
     unsigned int i;
     unsigned int oldroom=-1;
     boolean first=true;
-    fprintf(f,"boolean local_cond(void)\n{\n");
+    fprintf(f,"void local_cond(void)\n{\n");
+    fprintf(f, TAB "retv=true;");
+
     fprintf(f, TAB "switch(current_position) {\n");
     for(i=0; i<size; ++i) {
         if(oldroom!=cond[i].room) {
@@ -3302,11 +3319,8 @@ void output_local(FILE *f, localc* cond,  int size)
     }
     fprintf(f, TAB "}\n");
 
-    fprintf(f, TAB "return false;\n");
-    /*  Use of goto allows to spare a few bytes instead of putting a return 1
-        every time in the code. The difference can be considerable in big
-        adventures, as there are plenty of WAIT commands. */
-    fprintf(f, TAB "return1: return true;\n");
+    fprintf(f, TAB "retv=false;");
+    fprintf(f, TAB "return;\n");
     fprintf(f,"}\n");
 }
 
@@ -3414,8 +3428,8 @@ void output_gamecycle(FILE *f, int osize)
     fprintf(f, TAB TAB "--counter[126];\n");
     fprintf(f, TAB TAB "--counter[127];\n");
     fprintf(f, TAB TAB "--counter[128];\n");
-
-    fprintf(f, TAB TAB "if(hi_cond()) continue;\n");
+    fprintf(f, TAB TAB "hi_cond();\n");
+    fprintf(f, TAB TAB "if(retv) continue;\n");
     fprintf(f, TAB TAB "printnewline();\n");
 
     if(hardcoded_messages==false)
@@ -3424,8 +3438,10 @@ void output_gamecycle(FILE *f, int osize)
         fprintf(f, TAB TAB "if(ls==0) "
             "show_message(message1012);\n");
     fprintf(f, TAB TAB "interrogationAndAnalysis(DSIZE);\n");
-    fprintf(f, TAB TAB "if(local_cond()) continue;\n");
-    fprintf(f, TAB TAB "if(low_cond()) continue;\n");
+    fprintf(f, TAB TAB "local_cond();\n");
+    fprintf(f, TAB TAB "if(retv) continue;\n");
+    fprintf(f, TAB TAB "low_cond();\n");
+    fprintf(f, TAB TAB "if(retv) continue;\n");
     if(hardcoded_messages==false)
         fprintf(f, TAB TAB "show_message(verb==0?1009:1010);\n");
     else
@@ -3657,7 +3673,6 @@ int main(int argc, char **argv)
     printf("Create the output file\n");
     of=fopen(argv[argumentr+1],"w");
     if(of==NULL) {
-        printf("Could not create output file.\n");
         return 1;
     }
     no_of_errors=0;

@@ -76,6 +76,9 @@ typedef struct message_d {
     typedef unsigned char obj_code;
 #endif
 
+#define ISNOTMOVABLE  1
+#define ISWEREABLE 2
+        
 typedef struct object_d {
     obj_code code;
     #ifndef NOLONGDESC
@@ -87,8 +90,7 @@ typedef struct object_d {
         unsigned int size;
     #endif
     unsigned int position;      // Always int, as carried =1500, weared=1600
-    boolean isnotmovable;
-    boolean isnotwereable;
+    unsigned char attributes;
 } object;
 
 typedef struct tree_d {
