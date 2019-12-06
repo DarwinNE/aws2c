@@ -620,7 +620,6 @@
     #define BUFFERSIZE 256
     #define B_SIZE 240
     #define EFFSHORTINDEX unsigned int
-    #define FASTCALL __z88dk_fastcall
 
     #define waitscreen()
 

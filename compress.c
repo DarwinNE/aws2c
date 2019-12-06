@@ -236,21 +236,19 @@ void output_decoder(FILE *fout)
     fprintf(fout,"{\n");
     fprintf(fout,"    iii=NUM_NODES-1;\n");
     fprintf(fout,"    while(1) {\n");
-    fprintf(fout,"        if(huftree[iii].c!=255)\n");
-    fprintf(fout,"            return huftree[iii].c;\n");
-    fprintf(fout,"        if(bpointer==0) {\n");
-    fprintf(fout,"           currbyte=compressed[cpointer];\n");
-    fprintf(fout,"        }\n");
-    fprintf(fout,"        if(++bpointer==8) {\n");
-    fprintf(fout,"           bpointer=0;\n");
-    fprintf(fout,"           ++cpointer;\n");
-    fprintf(fout,"        }\n");
     fprintf(fout,"        if(currbyte&0x1) {\n");
     fprintf(fout,"            iii=huftree[iii].son1idx;\n");
     fprintf(fout,"        } else {\n");
     fprintf(fout,"            iii=huftree[iii].son0idx;\n");
     fprintf(fout,"        }\n");
-    fprintf(fout,"        currbyte>>=1;\n");
+    fprintf(fout,"        if(++bpointer==8) {\n");
+    fprintf(fout,"            bpointer=0;\n");
+    fprintf(fout,"            currbyte=compressed[++cpointer];\n");
+    fprintf(fout,"        } else {\n");
+    fprintf(fout,"            currbyte>>=1;\n");
+    fprintf(fout,"        }\n");
+    fprintf(fout,"        if(huftree[iii].c!=255)\n");
+    fprintf(fout,"            return huftree[iii].c;\n");
     fprintf(fout,"    }\n");
     fprintf(fout,"}\n\n");
 
@@ -258,6 +256,8 @@ void output_decoder(FILE *fout)
     fprintf(fout,"{\n");
     fprintf(fout,"    register char c;\n");
     fprintf(fout,"    EFFSHORTINDEX k=0;\n");
+    fprintf(fout,"    if(bpointer==0)\n");
+    fprintf(fout,"       currbyte=compressed[cpointer];\n");
     fprintf(fout,"    do {\n");
     fprintf(fout,"        c=hufget();\n");
     fprintf(fout,"        SHIFTPETSCII;\n");
