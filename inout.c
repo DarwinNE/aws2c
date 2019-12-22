@@ -229,4 +229,3 @@ void interrogationAndAnalysis(unsigned int num_of_words) FASTCALL
         the next time the function is called */
     ls=0;
 }
-

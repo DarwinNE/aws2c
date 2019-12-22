@@ -32,11 +32,13 @@ following example:
 
 where `adventure.aws` contains the game in the AWS format and the `adventure.c`
 is the generated file. To compile it, you will need the `aws.h`, `inout.c`,
-`inout.h` and `systemd.h` files, provided with the tool:
+`inout.h` and `systemd.h` files, provided with the tool, as well as 
+`loadsave.c` and `loadsave.h` if you need to provide the save/load facility:
 
-`gcc adventure.c inout.c -o adventure`
+`gcc adventure.c inout.c loadsave.c -o adventure`
 
-to obtain an executable called `adventure`.
+to obtain an executable called `adventure`. AWS2C also creates a file called
+`config.h` that contains some configuration settings for the project.
 
 An example of a file that can be renamed as `systemd.h` and used for compiling
 games to modern Unix terminals is `modern.h`.

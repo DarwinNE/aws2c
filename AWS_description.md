@@ -605,8 +605,8 @@ Action   |aws2c?| Description
 `DESC r` |      | Describe room `r`
 `LOOK`   | X    | Describe current room
 `LF`     | X    | Print a line feed
-`SAVE`   | I    | Save the game
-`LOAD`   | I    | Load the game
+`SAVE`   | *    | Save the game
+`LOAD`   | *    | Load the game
 `PICT`   | I    | Game with pictures (if they are present!)
 `TEXT`   | I    | Text-only game
 `MESS m` | X    | Print message `m` and a line feed
@@ -650,7 +650,8 @@ Action   |aws2c?| Description
 `FCOLO f` |     | Set `f` as foreground colour
 `BCOLO b` |     | Set `b` as background colour
 
-NOTE: X in the second column means that this command is implemented in `aws2c`, I means that it is ignored (but a warning message appears).
+NOTE: X in the second column means that this command is implemented in `aws2c`, I means that it is ignored (but a warning message appears). * means that it is implemented in some platforms.
+
 ## Functions
 
 Functions return a numerical value. They can be used as argument of decisions or actions and can be employed recursively, i.e. a function can be an argument of another function.

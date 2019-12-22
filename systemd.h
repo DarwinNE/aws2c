@@ -11,6 +11,15 @@
 
     NOTE: choose all buffer sizes less than 256.
 
+    inputtxt is called just before the prompt
+
+    evidence1 is called just before writing the name of the current room.
+
+    evidence2 is called just before the game title and the list of objects
+        available in a certain room.
+
+    evidence3 is called just before writing the directions allowed.
+    
     CV_IS_A_FUNCTION is a macro that if defined makes sort that a function is
         called to check a thing like "verb==v". With some compilers it may be
         an advantage (e.g. cc65) in terms of size, while it's not the case 
@@ -18,6 +27,20 @@
 */
 
 #include<time.h>
+
+#define SIMPLELOAD {\
+        PUTS("Enter file name: ");\
+        GETS(playerInput, BUFFERSIZE);\
+        if(loadgame(playerInput, RSIZE, OSIZE))\
+            PUTS("Error!\n");\
+    }
+
+#define SIMPLESAVE {\
+        PUTS("Enter file name: ");\
+        GETS(playerInput, BUFFERSIZE);\
+        if(savegame(playerInput, RSIZE, OSIZE))\
+            PUTS("Error!\n");\
+    }
 
 #ifdef C128  /* Definitions to be used for the Commodore 128 computer */
 
@@ -27,6 +50,9 @@
     #define BUFFERSIZE 128
     #define B_SIZE 160
     #define CV_IS_A_FUNCTION
+
+    #define LOAD SIMPLELOAD
+    #define SAVE SIMPLESAVE
 
     #define SHIFTPETSCII \
         if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20
@@ -51,28 +77,18 @@
     /* Define the style of the input text */
     #define inputtxt() fputs(green, stdout)
 
-    /* Define the style of the first evidenced text */
     #define evidence1() fputs(red, stdout)
-
-    /* Define the style of the second evidenced text */
     #define evidence2() fputs(yellow, stdout)
-
-    /* Define the style of the third evidenced text */
     #define evidence3() fputs(pink, stdout)
-
-    /* Define the style of the normal text */
     #define normaltxt() fputs(cyan, stdout)
-
-    /* Clear the screen */
     #define cls() clrscr()
 
-    /* Wait for one second */
     #define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
         retTime);}
 
     /* Init the terminal */
     #define PT80COL 215
-    #define PTFST 53296
+    #define PTFST 53296L
     #define init_term() {\
         if (*(char*)PT80COL==0) {\
             fputs(switch80col, stdout);\
@@ -139,12 +155,7 @@
 
     /* Init the terminal */
 
-    #define init_term() {\
-//        char i;\
-        clrscr();\
-        normaltxt();\
-//        for(i=0;i<256;++i) putc((i), stdout); \
-    }
+    #define init_term()
 
     /* Prepare the terminal to leave the program execution. */
     #define leave()
@@ -166,6 +177,7 @@
 
     // The number of columns of the screen
     #define NCOL 40
+    #define NROW 24
 
     #define green       ""
     #define red         ""
@@ -177,7 +189,7 @@
     #define switch80col ""
 
     /* Macro to wait for a key */
-    #define waitkey() cgetc()
+    #define waitkey() cgetc(); rowc=0
 
     /* Define the style of the input text */
     #define inputtxt()
@@ -203,12 +215,7 @@
 
     /* Init the terminal */
 
-    #define init_term() {\
-//        char i;\
-        clrscr();\
-        normaltxt();\
-//        for(i=0;i<256;++i) putc((i), stdout); \
-    }
+    #define init_term()
 
     /* Prepare the terminal to leave the program execution. */
     #define leave()
@@ -222,6 +229,9 @@
     #define BUFFERSIZE 40
     #define B_SIZE 80
 
+    #define LOAD SIMPLELOAD
+    #define SAVE SIMPLESAVE
+
     #define SHIFTPETSCII \
         if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20
 
@@ -233,7 +243,6 @@
        not checked
     */
     #define NROW 21
-    extern unsigned char rowc;
 
     #define green       "\x1E"
     #define red         "\x1C"
@@ -308,7 +317,6 @@
        not checked
     */
     #define NROW 21
-    extern unsigned char rowc;
 
     #define green       "\x1E"
     #define red         "\x1C"
@@ -371,7 +379,6 @@
        not checked
     */
     #define NROW 45
-    extern unsigned char rowc;
 
     #define green       "\x1E"
     #define red         "\x1C"
@@ -417,7 +424,6 @@
        not checked
     */
     #define NROW 19
-    extern unsigned char rowc;
 
     #define green       "\x1E"
     #define red         "\x1C"
@@ -479,7 +485,6 @@
        not checked
     */
     #define NROW 21
-    extern unsigned char rowc;
 
     /* Macro to wait for a key */
     #define waitkey() cgetc40ch(); rowc=0
@@ -537,10 +542,9 @@
     // The number of columns of the screen
     #define NCOL 64
     #define NROW 19
-    extern unsigned char rowc;
 
     #define waitkey() getchar(); rowc=0
-    #define inputtxt()  fputs("\x1b[0m\x1b[32m\x1b[47m", stdout)
+    #define inputtxt()  fputs("\x1b[0m\x1b[34m\x1b[47m", stdout)
     #define evidence1() fputs("\x1b[1m\x1b[37m\x1b[41m", stdout)
     #define evidence2() fputs("\x1b[0m\x1b[34m\x1b[47m", stdout)
     #define evidence3() fputs("\x1b[0m\x1b[35m\x1b[47m", stdout)
@@ -560,14 +564,10 @@
     #define EFFSHORTINDEX unsigned int
     #define FASTCALL __z88dk_fastcall
 
-    #define PUTS(s) wtr(s)
-    #define DEFINEWTR
     #define waitscreen()
 
     // The number of columns of the screen
     #define NCOL 80
-    //#define NROW 22
-    //extern unsigned char rowc;
 
     #define waitkey() getchar()
     #define inputtxt()  fputs("\x1b[0m\x1b[32m\x1b[47m", stdout)
@@ -578,8 +578,7 @@
 
     #define normaltxt() fputs("\x1b[0m\x1b[30m\x1b[47m", stdout)
     #define tab() //fputs("\t")
-    #define wait1s() // \
-        {unsigned int retTime = time(0) + 1;while (time(0) < retTime);}
+    #define wait1s()
     #define init_term() {fputs("\x1b[2J", stdout);normaltxt();}
 
     #define leave() fputs("\x1b[0m\n\n", stdout);
@@ -588,8 +587,11 @@
 
     #include<stdio.h>
 
-    #define BUFFERSIZE 256
+    #define BUFFERSIZE 255
     #define B_SIZE 240
+
+    #define LOAD SIMPLELOAD
+    #define SAVE SIMPLESAVE
 
     #define waitscreen()
 
@@ -617,7 +619,7 @@
     #include <sys/ioctl.h>        // required for switching the screen mode
     #include <cpc.h>
 
-    #define BUFFERSIZE 256
+    #define BUFFERSIZE 255
     #define B_SIZE 240
     #define EFFSHORTINDEX unsigned int
 
@@ -639,7 +641,6 @@
     #define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
         retTime);}
     #define init_term() {printf("\x04\x02");}
-    //int mode=2;console_ioctl(IOCTL_GENCON_SET_MODE, &mode);}
 
     #define leave()
     /* Strangely enough, the \n char is not printed when one hits return */
@@ -660,9 +661,8 @@
     // The number of columns of the screen
     #define NCOL 37
     #define NROW 24
-    extern unsigned char rowc;
 
-    #define waitkey() getchar()
+    #define waitkey() getchar(); rowc=0
     #define inputtxt() 
     #define evidence1()
     #define evidence2() 
@@ -671,8 +671,8 @@
 
     #define normaltxt()
     #define tab() //fputs("\t")
-    #define wait1s() // \
-        {unsigned int retTime = time(0) + 1;while (time(0) < retTime);}
+    #define wait1s()
+
     #define init_term() {msx_screen(0);}
     #define leave()
     
@@ -680,14 +680,101 @@
     #define PUTS(s) wtr(s)
     #define GETS(buffer, size) fgets_cons((buffer),(size));
 
-#else /* Definitions for modern ANSI terminals */
-
+#elif defined(D68kmac) /* Definitions for 68k Macintoshes */
     #include<stdio.h>
-    #define BUFFERSIZE 256
+    #include<string.h>
+    #include"../68kmac/SplashWindow.h"
+    #define BUFFERSIZE 255
     #define B_SIZE 240
 
     #define waitscreen()
 
+    // The number of columns of the screen
+    #define NCOL 80
+    #define NROW 24
+
+    #define waitkey() getchar(); rowc=0
+    #define inputtxt() printf("\033[1m")
+    #define evidence1() printf("\033[4m")
+    #define evidence2() printf("\033[1m")
+    #define evidence3() printf("\033[3m")
+    #define cls()
+
+    #define normaltxt() printf("\033[0m")
+    #define tab() //fputs("\t")
+    #define wait1s()
+
+    #define init_term() {splash();}
+    #define leave()
+    #define GETS(buffer, size) fflush(stdout);\
+        fgets((buffer),(size),stdin)
+
+#elif defined(AMIGA)
+    #include<stdio.h>
+    #define BUFFERSIZE 255
+    #define B_SIZE 240
+
+    #define LOAD SIMPLELOAD
+    #define SAVE SIMPLESAVE
+
+    #define waitscreen()
+    // The number of columns of the screen
+    #define NCOL 64
+    #define NROW 20
+
+    #define waitkey() getchar(); rowc=0
+    #define inputtxt() printf("\033[1m\033[31m")
+    #define evidence1() printf("\033[1m\033[4m")
+    #define evidence2() printf("\033[1m\033[32m")
+    #define evidence3() printf("\033[3m\033[33m")
+    #define cls()
+
+    #define normaltxt() printf("\033[0m\033[31m")
+    #define tab() printf("\t")
+    #define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
+        retTime);}
+    #define init_term() {\
+        normaltxt();printf("\n\n");}
+
+    #define leave() printf("\033[0m\n\n")
+#elif defined(NOANSI) /* Definitions for a plain text terminal, with no ansi
+                         support */
+
+    #include<stdio.h>
+
+    #define BUFFERSIZE 128  
+    #define B_SIZE 120
+
+    #define waitscreen()
+
+    // The number of columns of the screen
+    #define NCOL 80
+    #define NROW 24
+
+    #define waitkey() getchar(); rowc=0
+    #define inputtxt()
+    #define evidence1()
+    #define evidence2()
+    #define evidence3()
+    #define cls()
+
+    #define normaltxt()
+    #define tab() fputs("\t", stdout)
+    #define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
+        retTime);}
+    #define init_term() {fputs("\n\n", stdout);}
+
+    #define leave()
+
+#else /* Definitions for modern ANSI terminals */
+    #include<stdio.h>
+    #define BUFFERSIZE 255
+    #define B_SIZE 240
+
+    #define LOAD SIMPLELOAD
+    #define SAVE SIMPLESAVE
+
+    #define waitscreen()
     // The number of columns of the screen
     #define NCOL 80
 
@@ -714,7 +801,10 @@
         normaltxt();printf("\n\n");}
 
     #define leave() printf("\033[0m\n\n")
+#endif
 
+#ifdef NROW
+    extern unsigned char rowc;
 #endif
 
 #ifndef EFFSHORTINDEX
@@ -737,6 +827,14 @@
 #endif
 #ifndef GETS
     #define GETS(buffer, size) fgets((buffer),(size),stdin);
+#endif
+
+#ifndef LOAD
+    #define LOAD PUTS("Loading is not supported on this platform.")
+#endif
+
+#ifndef SAVE
+    #define SAVE PUTS("Saving is not supported on this platform.")
 #endif
 
 #ifndef FASTCALL

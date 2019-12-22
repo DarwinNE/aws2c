@@ -56,10 +56,12 @@ typedef struct room_d {
     char *short_d;
 
     #ifndef DIR_REDUCED
+        #define NDIR 10
         // north, sud, east, west, up, down, north east, north west, south east,
         // south west
         room_code directions[10];
     #else
+        #define NDIR 6
         // north, sud, east, west, up, down
         room_code directions[6];
     #endif
