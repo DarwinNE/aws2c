@@ -7,11 +7,12 @@
     Some basic configuration can also be done by adjusting the systemdef.h file
     to your needs.
 
-    Davide Bucci, October 2018-January 2019
+    Davide Bucci, October 2018-December 2019
 */
 
 #include <stdio.h>
 #include <string.h>
+#include "config.h"
 #include "systemd.h"
 #include "aws.h"
 #include "inout.h"
@@ -41,9 +42,8 @@ EFFSHORTINDEX pc;
 #ifdef DEFINEWTR
 void wtr(const char *s) FASTCALL
 {
-    int i;
-    for(i=0; s[i]!='\0';++i)
-        fputc(s[i],stdout);
+    for(; *s!='\0';++s)
+        fputc(*s,stdout);
 }
 #endif
 
@@ -131,21 +131,31 @@ void writeln(char* line) FASTCALL
     colc=0;
 }
 
+/* 'Eat' a carriage return that may be present at the end of a string.
+*/
+char *eatcr(char *s) FASTCALL
+{
+    char *os=s;
+    for(;*s!='\0';++s)
+        if(*s=='\n'||*s=='\r') {
+            *s='\0';
+            break;
+        }
+    return os;
+}
+
 /** Read a line of text and return the length of the line (remove the \n char).
 */
 unsigned int readln(void)
 {
-    unsigned int lc;
     inputtxt();
     writesameln("> ");
     GETS(playerInput,BUFFERSIZE);
     normaltxt();
     lc=strlen(playerInput);
     // remove the '\n'
-    if(lc>0) {
-        playerInput[lc-1]='\0';
-        --lc;
-    }
+    eatcr(playerInput);
+
     #ifdef NROW
     rowc=0;
     #endif
@@ -163,13 +173,14 @@ char s[BUFFERSIZE];
 
 /** Main parser.
 */
-void interrogationAndAnalysis(unsigned int num_of_words) FASTCALL
+void interrogationAndAnalysis()
 {
     unsigned int i, k;
     char c;
+    word* te;
 
     if(ls==0) {
-        lc=readln();
+        readln();
     }
     verb=0;
     noun1=0;
@@ -181,10 +192,11 @@ void interrogationAndAnalysis(unsigned int num_of_words) FASTCALL
     while(ls<lc) {
         for(k=0; ls<lc && k<BUFFERSIZE; ++ls) {
             c=playerInput[ls];
-            if(c==' ' || c=='\'') {
+            if(c==' ') {
                 ++ls;
                 break;
             }
+            
             if(c>='a' && c<='z')
                 c-='a'-'A';  // Convert to uppercase
 
@@ -193,10 +205,11 @@ void interrogationAndAnalysis(unsigned int num_of_words) FASTCALL
         s[k]='\0';
         // s now contains the word. Search to find
         // if it is recognized or not.
-        for(i=0;i<num_of_words; ++i) {
-            if(strcmp(s,dictionary[i].w)==0) {
-                k=dictionary[i].code;
-                switch (dictionary[i].t) {
+        for(i=0;i<DSIZE; ++i) {
+            te=&dictionary[i];
+            if(strcmp(s,te->w)==0) {
+                k=te->code;
+                switch (te->t) {
                     case VERB:
                         verb=k;
                         break;

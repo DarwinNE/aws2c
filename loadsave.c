@@ -10,6 +10,7 @@
 #include"systemd.h"
 #include"aws.h"
 #include"loadsave.h"
+#include"inout.h"
 
 extern room_code current_position;
 extern room_code next_position;
@@ -18,48 +19,44 @@ extern int counter[];
 extern object obj[];
 extern room world[];
 
-#define BUFSIZE 40
-char buffer[BUFSIZE+1];
+extern char playerInput[];
 
+FILE *f;
+
+/*  I know there is atoi, but I tried them and my barebone implementation
+    allows to spare a good 100 bytes on the 6502 with Cc65.
+*/
 int s2i(char *s)
 {
-    int i=0;
-    int sign=1;
-    int val=0;
+    int sign=1, val=0;
 
-    if(s[i]=='-') {
+    if(*s=='-') {
         sign=-1;
-        ++i;
+        ++s;
     }
-    while(s[i]!='\0') {
-        if(s[i]<'0' || s[i]>'9')
+    while(*s!='\0') {
+        if(*s<'0' || *s>'9')
             break;
-        val=val*10+(s[i++]-'0');
+        val=val*10+(*s++-'0');
     }
     return val*sign;
 }
 
 char *i2s(char *s, int v)
 {
-    int i=0,j=0;
-    int m=0;
-    int r;
+    int i=0, j=0;
+    char r;
 
     if(v<0) {
         s[i++]='-';
         v=-v;
-        j=1;
-    } else if(v==0) {
-        s[i++]='0';
-        s[i]='\0';
-        return s;
+        ++j;
     }
-    while(v>0) {
+    do {
         r=v%10;
+        s[i++]='0'+v%10;
         v=v/10;
-        s[i++]='0'+r;
-        ++m;
-    }
+    } while(v>0);
     s[i--]='\0';
     while(i>j) {
         r=s[i];
@@ -71,113 +68,92 @@ char *i2s(char *s, int v)
     return s;
 }
 
-/* 'Eat' a carriage return that may be present at the end of a string.
-*/
-char *eatcr(char *s)
+void wri(int v)
 {
-    int i;
-    for(i=0;s[i]!='\0';++i)
-        if(s[i]=='\n'||s[i]=='\r') {
-            s[i]='\0';
-            break;
-        }
-    return s;
+    fputs(i2s(playerInput,v),f);
+    fputs("\n",f);
 }
 
 /*  Save the current game.
-    rsize: number of rooms in the game.
-    osize: number of objects in the game.
     Return value:
     0 - Everything was OK.
     1 - Could not open file.
 */
-int savegame(char *filename, int rsize, int osize)
+int savegame(char *filename)
 {
-    unsigned int i,j,t;
-    FILE *f;
+    unsigned int i,j;
 
     f=fopen(eatcr(filename),"w");
-    if(f==NULL)
+    if(f==NULL) {
+        PUTS("Can not open file ");
         return 1;
+    }
     fputs("SAVEDAWS2.1\n",f);
-    fputs(i2s(buffer,(int)current_position),f);
-    fputs("\n",f);
+    wri((int)current_position);
 
     for(i=0;i<129;++i) {
-        fputs(i2s(buffer,(int)counter[i]),f);
-        fputs("\n",f);
+        wri((int)counter[i]);
     }
 
     for(i=0;i<129;++i) {
-        t=(int)marker[i];
-        fputs(i2s(buffer,t),f);
-        fputs("\n",f);
+        wri((int)marker[i]);
     }
 
-    for(i=0;i<osize;++i) {
-        t=(int)obj[i].position;
-        fputs(i2s(buffer,t),f);
-        fputs("\n",f);
+    for(i=0;i<OSIZE;++i) {
+        wri((int)obj[i].position);
     }
-    for(i=0;i<rsize;++i)
-        for(j=0;j<NDIR;++j) {
-            t=(int)world[i].directions[j];
-            fputs(i2s(buffer,t),f);
-            fputs("\n",f);
-        }
-    
+    for(i=0;i<RSIZE;++i)
+        for(j=0;j<NDIR;++j)
+            wri((int)world[i].directions[j]);
+
     fclose(f);
     return 0;
 }
 
+int rei(void)
+{
+    fgets(playerInput, BUFFERSIZE, f);
+    return s2i(playerInput);
+}
+
 /*  Load a game.
-    rsize: number of rooms in the game.
-    osize: number of objects in the game.
     Return value:
     0 - Everything was OK.
     1 - Could not open input file.
     2 - Incorrect format.
     3 - Can't read file contents.
 */
-int loadgame(char *filename, int rsize, int osize)
+int loadgame(char *filename)
 {
-    int i,j,t;
-    FILE *f;
+    int i,j;
 
     f=fopen(eatcr(filename),"r");
-    if(f==NULL)
+    if(f==NULL) {
+        PUTS("Can not open file ");
         return 1;
+    }
 
-    fgets(buffer, BUFSIZE, f);
-    if(strcmp(buffer, "SAVEDAWS2.1\n")!=0) {
+    fgets(playerInput, BUFFERSIZE, f);
+    if(strcmp(playerInput, "SAVEDAWS2.1\n")!=0) {
+        PUTS("Incorrect format ");
         fclose(f);
         return 2;
     }
 
-    fgets(buffer, BUFSIZE, f);
-    t=s2i(buffer);
-    next_position=(room_code) t;
+    next_position=(room_code) rei();
 
-    for(i=0;i<129;++i) {
-        fgets(buffer, BUFSIZE, f);
-        counter[i]=s2i(buffer);
-    }
+    for(i=0;i<129;++i)
+        counter[i]=rei();
 
-    for(i=0;i<129;++i) {
-        fgets(buffer, BUFSIZE, f);
-        marker[i]=(boolean)s2i(buffer);
-    }
+    for(i=0;i<129;++i)
+        marker[i]=rei();
 
-    for(i=0;i<osize;++i) {
-        fgets(buffer, BUFSIZE, f);
-        obj[i].position=s2i(buffer);
-    }
-    
-    for(i=0;i<rsize;++i)
-        for(j=0;j<NDIR;++j) {
-            fgets(buffer, BUFSIZE, f);
-            world[i].directions[j]=(room_code) s2i(buffer);
-        }
+    for(i=0;i<OSIZE;++i)
+        obj[i].position=rei();
+
+    for(i=0;i<RSIZE;++i)
+        for(j=0;j<NDIR;++j) 
+            world[i].directions[j]=(room_code) rei();
     
     fclose(f);
     marker[120]=false;   /* Describe again the current location */

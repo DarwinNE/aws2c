@@ -31,14 +31,14 @@
 #define SIMPLELOAD {\
         PUTS("Enter file name: ");\
         GETS(playerInput, BUFFERSIZE);\
-        if(loadgame(playerInput, RSIZE, OSIZE))\
+        if(loadgame(playerInput))\
             PUTS("Error!\n");\
     }
 
 #define SIMPLESAVE {\
         PUTS("Enter file name: ");\
         GETS(playerInput, BUFFERSIZE);\
-        if(savegame(playerInput, RSIZE, OSIZE))\
+        if(savegame(playerInput))\
             PUTS("Error!\n");\
     }
 
@@ -53,6 +53,8 @@
 
     #define LOAD SIMPLELOAD
     #define SAVE SIMPLESAVE
+    //#define FASTCALL __fastcall__
+    #define FASTCALL2 __fastcall__
 
     #define SHIFTPETSCII \
         if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20
@@ -110,6 +112,8 @@
     #define BUFFERSIZE 128
     #define B_SIZE 160
     #define CV_IS_A_FUNCTION
+    #define LOAD SIMPLELOAD
+    #define SAVE SIMPLESAVE
 
     #define SHIFTPETSCII \
         if((c>=0x61 && c<=0x7A)) c^=0x20; else if((c>=0x41 && c<=0x5A)) c|=0x80
@@ -169,6 +173,9 @@
 
     #define BUFFERSIZE 128
     #define B_SIZE 160
+
+    #define LOAD SIMPLELOAD
+    #define SAVE SIMPLESAVE
 
     #define SHIFTPETSCII \
         if((c>=0x61 && c<=0x7A)) c^=0x20; else if((c>=0x41 && c<=0x5A)) c|=0x80
@@ -306,6 +313,9 @@
     #define BUFFERSIZE 80
     #define B_SIZE 240
 
+    #define LOAD SIMPLELOAD
+    #define SAVE SIMPLESAVE
+
     #define SHIFTPETSCII \
         if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20
 
@@ -368,6 +378,9 @@
     #define B_SIZE 240
     #define CV_IS_A_FUNCTION
 
+    #define LOAD SIMPLELOAD
+    #define SAVE SIMPLESAVE
+
     #define SHIFTPETSCII \
         if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20
 
@@ -412,6 +425,9 @@
     #define BUFFERSIZE 44
     #define B_SIZE 88
     #define CV_IS_A_FUNCTION
+
+   // #define LOAD SIMPLELOAD
+   // #define SAVE SIMPLESAVE
 
     #define SHIFTPETSCII \
         if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20
@@ -474,6 +490,9 @@
     #define B_SIZE 80
     #define CV_IS_A_FUNCTION
 
+    //#define LOAD SIMPLELOAD
+    //#define SAVE SIMPLESAVE
+
     #define SHIFTPETSCII \
         if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20
 
@@ -534,6 +553,8 @@
     #define B_SIZE 192
     #define EFFSHORTINDEX unsigned int
     #define FASTCALL __z88dk_fastcall
+    #define LOAD SIMPLELOAD
+    #define SAVE SIMPLESAVE
 
     #define PUTS(s) wtr(s)
     #define DEFINEWTR
@@ -622,6 +643,8 @@
     #define BUFFERSIZE 255
     #define B_SIZE 240
     #define EFFSHORTINDEX unsigned int
+    #define LOAD SIMPLELOAD
+    #define SAVE SIMPLESAVE
 
     #define waitscreen()
 
@@ -657,6 +680,8 @@
     #define DEFINEWTR
     #define waitscreen()
     #define EFFSHORTINDEX unsigned int
+    #define LOAD SIMPLELOAD
+    #define SAVE SIMPLESAVE
 
     // The number of columns of the screen
     #define NCOL 37
@@ -673,7 +698,7 @@
     #define tab() //fputs("\t")
     #define wait1s()
 
-    #define init_term() {msx_screen(0);}
+    #define init_term() {/*msx_set_mode(mode_0);*/}
     #define leave()
     
     #define PUTC(c) fputc_cons(c)
@@ -686,7 +711,8 @@
     #include"../68kmac/SplashWindow.h"
     #define BUFFERSIZE 255
     #define B_SIZE 240
-
+    #define LOAD SIMPLELOAD
+    #define SAVE SIMPLESAVE
     #define waitscreen()
 
     // The number of columns of the screen
@@ -710,33 +736,45 @@
         fgets((buffer),(size),stdin)
 
 #elif defined(AMIGA)
-    #include<stdio.h>
-    #define BUFFERSIZE 255
-    #define B_SIZE 240
+        
+    #include <proto/exec.h>
+    #include <proto/dos.h>
+    #include <stdio.h>
+   // #include "amigastub.h"
+
+   // extern int __nocommandline;
+   // extern int __oslibversion;
 
     #define LOAD SIMPLELOAD
     #define SAVE SIMPLESAVE
 
+    #define BUFFERSIZE 255
+    #define B_SIZE 240
+
     #define waitscreen()
     // The number of columns of the screen
-    #define NCOL 64
-    #define NROW 20
+    #define NCOL 60
+    #define NROW 18
+
+  
+    #define PUTC(c) printf("%c",c)
+    #define PUTS(s) printf("%s",s)
+    #define GETS(buffer, size) gets(buffer) // Meh!!! I don't like that.
 
     #define waitkey() getchar(); rowc=0
-    #define inputtxt() printf("\033[1m\033[31m")
-    #define evidence1() printf("\033[1m\033[4m")
-    #define evidence2() printf("\033[1m\033[32m")
-    #define evidence3() printf("\033[3m\033[33m")
+    #define inputtxt() PUTS("\033[1m\033[31m")
+    #define evidence1() PUTS("\033[1m\033[4m")
+    #define evidence2() PUTS("\033[1m\033[32m")
+    #define evidence3() PUTS("\033[3m\033[33m")
     #define cls()
 
-    #define normaltxt() printf("\033[0m\033[31m")
-    #define tab() printf("\t")
+    #define normaltxt() PUTS("\033[0m\033[31m")
+    #define tab() PUTS("\t")
     #define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
         retTime);}
-    #define init_term() {\
-        normaltxt();printf("\n\n");}
+    #define init_term() normaltxt()
 
-    #define leave() printf("\033[0m\n\n")
+    #define leave()
 #elif defined(NOANSI) /* Definitions for a plain text terminal, with no ansi
                          support */
 
@@ -746,7 +784,8 @@
     #define B_SIZE 120
 
     #define waitscreen()
-
+    #define LOAD SIMPLELOAD
+    #define SAVE SIMPLESAVE
     // The number of columns of the screen
     #define NCOL 80
     #define NROW 24

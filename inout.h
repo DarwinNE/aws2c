@@ -6,7 +6,8 @@
 void writesameln(char *line) FASTCALL;
 void writeln(char* line) FASTCALL;
 unsigned int readln(void);
-void interrogationAndAnalysis(unsigned int num_of_words) FASTCALL;
+char *eatcr(char *s) FASTCALL;
+void interrogationAndAnalysis(void);
 void clear(void);
 #ifdef NROW
 void zeror(void);
