@@ -12,6 +12,8 @@ Iunnuh." To compile it you will need the following things:
 routines
 - the file `systemdef.h` that contains macros to change colour on the terminal 
 you are using and other important settings.
+- the files `loadsave.h` and `loadsave.c` that contain routines useful to load
+and save the game.
 
 You can use the provided `aws.h`, `inout.c`, `inout.h` and `systemdef.h` files, 
 or you can  customise them to your needs if you want to.
@@ -28,6 +30,6 @@ If everything goes as expected, you should have obtained the source file
 `iunnuh.c` containing the game to be compiled. To obtain an executable,
 type:
 
-`gcc innuh.c inout.c -o innuh`
+`gcc innuh.c inout.c loadsave.c -o innuh`
 
 and enjoy the game by typing `./iunnuh`

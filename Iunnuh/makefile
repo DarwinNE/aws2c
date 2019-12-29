@@ -1,4 +1,4 @@
-all: modern c64 vic-20
+all: modern
 
 innuh.c: Innuh.AWS
 	../aws2c Innuh.AWS innuh.c
@@ -13,7 +13,7 @@ c64: innuh_no_utf8.c inout.c
 	cl65 -t c64 -D C64 innuh_no_utf8.c inout.c loadsave.c -o innuh-64.prg
 
 vic-20: innuh_no_utf8.c inout.c
-	cl65 -t vic20 -C vic20-32k_exp.cfg -D VIC20 innuh_no_utf8.c inout.c -o innuh-vic20.prg
+	cl65 -t vic20 -C vic20-16k_exp.cfg -D VIC20 -T -Os -r innuh_no_utf8.c inout.c -o innuh-vic20.prg
 
 clean:
-	rm innuh.c innuh_no_utf8.c
+	rm innuh.c innuh_no_utf8.c *.o
