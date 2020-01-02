@@ -775,6 +775,35 @@
     #define init_term() normaltxt()
 
     #define leave()
+#elif defined(SAMC) /* Definitions for Sam Coupé */
+
+    #include<stdio.h>
+
+    #define BUFFERSIZE 128  
+    #define B_SIZE 120
+
+    #define waitscreen()
+    #define LOAD SIMPLELOAD
+    #define SAVE SIMPLESAVE
+    // The number of columns of the screen
+    #define NCOL 32
+    #define NROW 20
+
+    #define waitkey() getchar(); rowc=0
+    #define inputtxt()
+    #define evidence1()
+    #define evidence2()
+    #define evidence3()
+    #define cls()
+
+    #define normaltxt()
+    #define tab() fputs("\t", stdout)
+    #define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
+        retTime);}
+    #define init_term() {fputs("\n\n", stdout);}
+
+    #define leave()
+
 #elif defined(NOANSI) /* Definitions for a plain text terminal, with no ansi
                          support */
 
