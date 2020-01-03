@@ -47,13 +47,14 @@ void wtr(const char *s) FASTCALL
 }
 #endif
 
-
 /** Write a string without adding a newline. Process some codes to put in
     evidence the text and handle the word wrapping.
 */
+    char c,d;
+
+
 void writesameln(char *line) FASTCALL
 {
-    char c,d;
     pc=0;
 
     while(1){
@@ -136,7 +137,8 @@ void writeln(char* line) FASTCALL
 char *eatcr(char *s) FASTCALL
 {
     char *os=s;
-    for(;*s!='\0';++s)
+    lc=0;
+    for(;*s!='\0';++s, ++lc)
         if(*s=='\n'||*s=='\r') {
             *s='\0';
             break;
@@ -152,7 +154,7 @@ unsigned int readln(void)
     writesameln("> ");
     GETS(playerInput,BUFFERSIZE);
     normaltxt();
-    lc=strlen(playerInput);
+    //lc=strlen(playerInput);
     // remove the '\n'
     eatcr(playerInput);
 

@@ -251,13 +251,20 @@
     */
     #define NROW 21
 
-    #define green       "\x1E"
-    #define red         "\x1C"
+    #ifdef ALTFONT
+    #define _C64_ADDRS_F 19
+    #else
+    #define _C64_ADDRS_F 23
+    #endif
+
+    #define red         "\x1C\x1C"   // If just one char, it goes crazy (why?)
     #define cyan        "\x9F"
+    #define green       "\x1E"
     #define blue        "\x1F"
     #define yellow      "\x9E"
     #define pink        "\x96"
 
+    #define normaltxt() fputs(cyan, stdout)
 
     /* Macro to wait for a key */
     #define waitkey() cgetc(); rowc=0
@@ -265,17 +272,9 @@
     /* Define the style of the input text */
     #define inputtxt() fputs(green, stdout)
 
-    /* Define the style of the first evidenced text */
     #define evidence1() fputs(red, stdout)
-
-    /* Define the style of the second evidenced text */
     #define evidence2() fputs(yellow, stdout)
-
-    /* Define the style of the third evidenced text */
     #define evidence3() fputs(pink, stdout)
-
-    /* Define the style of the normal text */
-    #define normaltxt() fputs(cyan, stdout)
 
     /* Clear the screen */
     #define cls() clrscr();zeror()
@@ -290,16 +289,18 @@
     // Restore default VIC-II config (lower case)
     // This is useful if there is loader that goes in a graphic mode.
 
+
     #define init_term() {\
         *(char*)PTRBRD = 0x00;\
         *(char*)PTRCLR = 0x00;\
-        clrscr();\
-        normaltxt();\
         POKE(56578U, 63);\
         POKE(56576U, 151);\
-        POKE(53272U, 23);\
+        POKE(53272U, _C64_ADDRS_F);\
         POKE(53265U, 27);\
+        clrscr();\
+        normaltxt();\
     }
+
 
     /* Prepare the terminal to leave the program execution. */
     #define leave() asm("jmp $FCE2")

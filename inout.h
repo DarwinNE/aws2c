@@ -9,6 +9,7 @@ unsigned int readln(void);
 char *eatcr(char *s) FASTCALL;
 void interrogationAndAnalysis(void);
 void clear(void);
+
 #ifdef NROW
 void zeror(void);
 #endif

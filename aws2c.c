@@ -47,6 +47,9 @@ char buffer[BUFFERSIZE];
 char function_res[BUFFERSIZE];
 #define TAB "    "
 
+room* world;
+unsigned int rsize;
+
 
 #define start_function() function_res[0]='\0';
 
@@ -71,6 +74,8 @@ boolean no_obj_long_desc=true;
 
 boolean complete_shortcut=false;
 boolean checked_noun1_greater_zero=false;
+boolean dont_issue_message=false;
+
 
 /* Some functions are included in the code only if necessary. Those flags
    take care of them so they can be included in the code if they have been
@@ -90,6 +95,10 @@ boolean need_unwear=false;
 boolean need_iscarrsome=false;
 boolean need_iswearsome=false;
 boolean need_checkexit=false;
+boolean need_amsm=false;
+boolean need_as=false;
+boolean need_ar=false;
+boolean need_ams=false;
 
 
 typedef struct conv_t {
@@ -878,6 +887,7 @@ unsigned int decision_at(FILE *f, char *line, unsigned int scanpos)
                         scanpos=sp;
                         proc=true;
                         complete_shortcut=true;
+                        need_amsm=true;
                         if(hardcoded_messages==false)
                             fprintf(f, "1) amsm(%s,%s,%d,%s);\n\n",
                                 arg1,arg2,polarity,function_res);
@@ -885,8 +895,28 @@ unsigned int decision_at(FILE *f, char *line, unsigned int scanpos)
                             fprintf(f, "1) amsm(%s,%s,%d,message%s);\n\n",
                                 arg1,arg2,polarity,function_res);
                     }
-                }
-            }
+                }/*  else {
+                    if (polarity) {
+                        need_as=true;
+                        proc=true;
+                        fprintf(f, "as(%s,%s)", arg1,arg2);
+                    } else {
+                        need_ar=true;
+                        proc=true;
+                        fprintf(f, "ar(%s,%s)", arg1,arg2);
+                    }
+                }*/
+            } /*else {
+                if (polarity) {
+                    need_as=true;
+                    proc=true;
+                    fprintf(f, "as(%s,%s)", arg1,arg2);
+                } else {
+                    need_ar=true;
+                    proc=true;
+                    fprintf(f, "ar(%s,%s)", arg1,arg2);
+                }                 
+            }*/
         }
     }
     if(proc==false)
@@ -1016,7 +1046,7 @@ unsigned int decision_notequ(FILE *f, char *line, unsigned int scanpos)
 /** VERB */
 unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
 {
-    unsigned int sp,at,tt;
+    unsigned int sp,at,tt, val1, val2;
     boolean proc=false;
     char *arg1,*arg2;
     start_function();
@@ -1063,6 +1093,7 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
                 exit(1);
             }
             strcpy(arg2,function_res);
+
             sp=peek_token(line, scanpos);
             if(strcmp(next,"AND")==0) {
                 sp=peek_token(line, sp);
@@ -1075,21 +1106,65 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
                     proc=true;
                 }
             } else if(strcmp(next,"OR")==0) {
-                //fprintf(f, "verb==%s", arg1);
-                fprintf(f, "cv(%s)", arg1);
+                if(sscanf(arg1, "%d",&val1)==1 && val1<256)
+                    fprintf(f, "cv(%s)", arg1);            
+                else
+                    fprintf(f, "verb==%s", arg1);
+
                 need_cv=true;
                 scanpos=tt;
                 proc=true;
+            } else if(strcmp(next,"THEN")==0) {
+                int lp=sp-5;        // beurk!
+
+                sp=peek_token(line, sp);
+/*                if (sscanf(arg1, "%d", &val1)==1 && val1<256 && 
+                    sscanf(arg2, "%d", &val2)==1 && val2<256 &&
+                    strcmp(next,"MESS")==0)
+                {
+                    start_function();
+                    sp=process_functions(line, sp);
+                    peek_token(line, sp);
+                    if(strcmp(next,"ENDIF")==0) {
+                        scanpos=sp;
+                        proc=true;
+                        complete_shortcut=true;
+                        need_ams=true;
+                        if(hardcoded_messages==false)
+                            fprintf(f, "1) ams(%s,%s,%s);\n\n",
+                                arg1,arg2,function_res);
+                        else
+                            fprintf(f, "1) ams(%s,%s,message%s);\n\n",
+                                arg1,arg2,function_res);
+                    } else {
+                        scanpos=lp;
+                        proc=true;
+                        //complete_shortcut=true;
+                        dont_issue_message=true;
+                        need_ams=true;
+                        if(hardcoded_messages==false)
+                            fprintf(f, "ams(%s,%s,%s)",
+                                arg1,arg2,function_res);
+                        else
+                            fprintf(f, "ams(%s,%s,message%s)",
+                                arg1,arg2,function_res);
+        
+                    }
+                } */
             }
             if(proc==false) {
                 fprintf(f, "cvn(%s,%s)", arg1,arg2);
                 need_cvn=true;
             }
-            free(arg1);
-            free(arg2);
+            if(arg1!=NULL) free(arg1);
+            if(arg2!=NULL) free(arg2);
+        
         } else {
-            //fprintf(f, "verb==%s", function_res);
-            fprintf(f, "cv(%s)", function_res);
+            if(sscanf(function_res, "%d",&val1)==1 && val1<256)
+                fprintf(f, "cv(%s)", function_res);            
+            else
+                fprintf(f, "verb==%s", function_res);
+
             need_cv=true;
         }
     } else if(shortcuts==true&&(strcmp(next,"OR")==0)) {
@@ -1140,7 +1215,7 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
             free(arg2);
         }
     } else {
-        if(shortcuts==true) {
+        if(shortcuts==true &&sscanf(function_res, "%d",&val1)==1 && val1<256) {
             fprintf(f, "cv(%s)", function_res);
             need_cv=true;
         } else {
@@ -1767,6 +1842,9 @@ unsigned int action_mess(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
+    if(dont_issue_message)
+        return scanpos;
+
     if(strcmp("1036",function_res)==0) {
         // Message 1036 is particular: it points to the name1 introduced by
         // the player
@@ -1866,9 +1944,14 @@ unsigned int action_to(FILE *f, char *line, unsigned int scanpos)
 
     start_function();
     scanpos=process_functions(line, scanpos);
-
-    fprintf(f, TAB TAB "set_object_position(%s,%s);\n",
-        arg1, function_res);
+    if(strcmp("0",function_res)==0) {
+        fprintf(f, TAB TAB "set_object_position0(%s);\n", arg1);
+    } else if(strcmp("1500",function_res)==0) {
+        fprintf(f, TAB TAB "set_object_positionC(%s);\n", arg1);
+    } else {
+        fprintf(f, TAB TAB "set_object_position(%s,%s);\n",
+            arg1, function_res);
+    }
     free(arg1);
     return scanpos;
 }
@@ -1986,6 +2069,16 @@ unsigned int action_sendallroom(FILE *f, char *line, unsigned int scanpos)
     need_sendallroom=true;
     return scanpos;
 }
+
+unsigned int search_room(unsigned int r)
+{
+    unsigned int idxl;
+    for(idxl=0; idxl<rsize;++idxl)
+        if(world[idxl].code==r)
+            return idxl;
+    return 0;
+}
+
 /** SETCONN */
 unsigned int action_setconn(FILE *f, char *line, unsigned int scanpos)
 {
@@ -2013,8 +2106,15 @@ unsigned int action_setconn(FILE *f, char *line, unsigned int scanpos)
 
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, TAB TAB "world[search_room(%s)].directions[(%s)-1]=%s;\n",
-        arg1, arg2, function_res);
+    if(sscanf(arg1,"%d",&l)==1 && l>0) {
+        fprintf(f, TAB TAB "world[%d].directions[(%s)-1]=%s;\n",
+            search_room(l), arg2, function_res);    
+    } else {
+        fprintf(f, TAB TAB "world[search_room(%s)].directions[(%s)-1]=%s;\n",
+            arg1, arg2, function_res);
+    }
+    
+
     free(arg1);
     free(arg2);
     return scanpos;
@@ -2160,6 +2260,8 @@ void process_aws(FILE *f, char *line)
     complete_shortcut=false;
     scanpos=get_token(line, scanpos);
     shortcuts=true;
+    dont_issue_message=false;
+
 
     if(strcmp(token, "IF")!=0) {
         printf("Unrecognised start of aws condition %s instead of IF.\n"
@@ -2485,7 +2587,7 @@ void output_header(FILE *of, int maxroomcode, int maxobjcode,
 
 }
 
-void output_optional_func(FILE *of)
+void output_optional_func(FILE *of, int max_room_code)
 {
     if(need_searchw) {
         fprintf(of,"char *nonestr=\"\";\n");
@@ -2554,7 +2656,7 @@ void output_optional_func(FILE *of)
     if(need_cv) {
         /* Check for a verb */
         fprintf(of, "#ifdef CV_IS_A_FUNCTION\n");
-        fprintf(of, "boolean cv(unsigned int v) FASTCALL\n");
+        fprintf(of, "boolean cv(unsigned char v) FASTCALL\n");
         fprintf(of, "{\n");
         fprintf(of, "    return verb==v;\n");
         fprintf(of, "}\n");
@@ -2622,6 +2724,55 @@ void output_optional_func(FILE *of)
         fprintf(of, TAB TAB "leave(); exit(0);\n");
         fprintf(of, TAB "}\n");
         fprintf(of, "}\n");
+    }
+    if(need_amsm) {
+        if(hardcoded_messages==false) {
+            fprintf(of,"void amsm(");
+            if(max_room_code>255)
+                fprintf(of,"unsigned int");
+            else
+                fprintf(of,"EFFSHORTINDEX");
+            fprintf(of," p, EFFSHORTINDEX c, boolean v, unsigned int m)\n");
+
+        } else {
+            fprintf(of,"void amsm(");
+            if(max_room_code>255)
+                fprintf(of,"unsigned int");
+            else
+                fprintf(of,"EFFSHORTINDEX");
+            fprintf(of," p, EFFSHORTINDEX c, boolean v, char *m)\n");
+        }
+
+        fprintf(of, "{\n");
+        fprintf(of,
+            "    if(current_position==p&&marker[c]==v) show_message(m);\n");
+        fprintf(of, "}\n");    
+    }
+    if(need_as) {
+        fprintf(of, "char as(unsigned int p, unsigned char f)\n{\n");
+        fprintf(of, "    return current_position==p&&marker[f];\n");
+        fprintf(of, "}\n");
+    }
+    if(need_ar) {
+        fprintf(of, "char ar(unsigned int p, unsigned char f)\n{\n");
+        fprintf(of, "    return current_position==p&&!marker[f];\n");
+        fprintf(of, "}\n");    
+    }
+    if(need_ams) {
+        if(hardcoded_messages==false) {
+            fprintf(of,"unsigned char ams(unsigned char  v, unsigned char n, "
+                "unsigned int m)\n");
+
+        } else {
+            fprintf(of,"unsigned char ams(unsigned char  v, unsigned char n, "
+                "char* m)\n");;
+        }
+
+        fprintf(of, "{\n");
+        fprintf(of,
+            "    if(verb==v && noun1==n) { show_message(m); return 1;}\n");
+        fprintf(of, "    return 0;\n");    
+        fprintf(of, "}\n");    
     }
 }
 
@@ -2903,10 +3054,18 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
 
     /* Check for a name and an actor */
     fprintf(of, "boolean cva(unsigned int v, unsigned int n);\n");
+    if(hardcoded_messages==false) {
+        fprintf(of,"unsigned char ams(unsigned char  v, unsigned char n, "
+            "unsigned int m);\n");
+
+    } else {
+        fprintf(of,"unsigned char ams(unsigned char  v, unsigned char n, "
+            "char* m);\n");;
+    }
 
     /* Check for a verb */
     fprintf(of, "#ifdef CV_IS_A_FUNCTION\n");
-    fprintf(of, "    boolean cv(unsigned int v);\n");
+    fprintf(of, "    boolean cv(unsigned char v);\n");
     fprintf(of, "#else\n");
     fprintf(of, "    #define cv(v) verb==(v)\n");
     fprintf(of, "#endif\n");
@@ -2954,6 +3113,15 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     fprintf(of, "{\n");
     fprintf(of, "    search_object_p(c)->position=pos;\n");
     fprintf(of, "}\n");
+    fprintf(of, "void set_object_position0(obj_code c) FASTCALL\n");
+    fprintf(of, "{\n");
+    fprintf(of, "    set_object_position(c,0);\n");
+    fprintf(of, "}\n");
+    fprintf(of, "void set_object_positionC(obj_code c) FASTCALL\n");
+    fprintf(of, "{\n");
+    fprintf(of, "    set_object_position(c,1500);\n");
+    fprintf(of, "}\n");
+
     /* Bring here an object */
     fprintf(of, "void bring_object_here(obj_code c) FASTCALL\n");
     fprintf(of, "{\n");
@@ -2968,7 +3136,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
             fprintf(of,"unsigned int");
         else
             fprintf(of,"EFFSHORTINDEX");
-        fprintf(of," p, EFFSHORTINDEX c, boolean v, unsigned int m)\n");
+        fprintf(of," p, EFFSHORTINDEX c, boolean v, unsigned int m);\n");
 
     } else {
         fprintf(of,"void amsm(");
@@ -2976,13 +3144,8 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
             fprintf(of,"unsigned int");
         else
             fprintf(of,"EFFSHORTINDEX");
-        fprintf(of," p, EFFSHORTINDEX c, boolean v, char *m)\n");
+        fprintf(of," p, EFFSHORTINDEX c, boolean v, char *m);\n");
     }
-
-    fprintf(of, "{\n");
-    fprintf(of,
-        "    if(current_position==p&&marker[c]==v) show_message(m);\n");
-    fprintf(of, "}\n");
 
     /* If a name and a noun and avai conditions are given */
     fprintf(of,
@@ -3019,6 +3182,9 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     fprintf(of, "char iscarrsome(void);\n");
     fprintf(of, "char iswearsome(void);\n");
     fprintf(of, "void checkexit(void);\n");
+    fprintf(of, "char as(unsigned int p, unsigned char f);\n");
+    fprintf(of, "char ar(unsigned int p, unsigned char f);\n");
+
 }
 
 /** Create the code for the dictionary in the output file.
@@ -3586,7 +3752,6 @@ int main(int argc, char **argv)
     FILE *f;
     FILE *of;
     unsigned int dsize;
-    unsigned int rsize;
     unsigned int rsize_bytes;
     unsigned int osize;
     unsigned int msize;
@@ -3596,7 +3761,6 @@ int main(int argc, char **argv)
     int max_obj_code;
     info *header;
     word* dictionary;
-    room* world;
     object* objects;
     message* msg;
     char **hicond;
@@ -3714,7 +3878,7 @@ int main(int argc, char **argv)
     output_local(of,localcond, localcondsize);
     output_gamecycle(of, osize);
     create_main(of,header);
-    output_optional_func(of);
+    output_optional_func(of,max_room_code);
     fclose(of);
     printf("File %s created\n",argv[argumentr+1]);
     printf("Size occupied by room descriptions: %d bytes\n", rsize_bytes);
