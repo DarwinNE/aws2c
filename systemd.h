@@ -374,7 +374,13 @@
 #elif defined(CX16)
 
     #include <stdio.h>
+    #include "commanderX16.h"
+    
+    #define PUTC(c) putc_x16(c)
+    #define PUTS(s) puts_x16(s)
+    #define GETS(buffer, size) gets_x16((buffer), (size))
 
+    
     #define BUFFERSIZE 80
     #define B_SIZE 240
     #define CV_IS_A_FUNCTION
@@ -382,39 +388,32 @@
     #define LOAD SIMPLELOAD
     #define SAVE SIMPLESAVE
 
-    #define SHIFTPETSCII \
-        if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20
+ /*   #define SHIFTPETSCII \
+        if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20 */
 
     #define waitscreen()
 
     /* The number of columns of the screen */
-    #define NCOL 80
+    #define NCOL 64
     /* The number of available rows of the screen. If undefined, it is
        not checked
     */
-    #define NROW 45
+    #define NROW 18
 
-    #define green       "\x1E"
-    #define red         "\x1C"
-    #define cyan        "\x9F"
-    #define blue        "\x1F"
-    #define yellow      "\x9E"
-    #define pink        "\x96"
-
-
-    #define waitkey() getchar()
-    #define inputtxt(green)
-    #define evidence1(red)
-    #define evidence2(yellow)
-    #define evidence3(pink)
+    #define waitkey() getc_x16()
+    #define inputtxt() PUTC(ATTR_BOLD);PUTC(COLOR_BLUE)
+    #define evidence1() PUTC(ATTR_BOLD); PUTC(COLOR_RED)
+    #define evidence2() PUTC(COLOR_GREEN)
+    #define evidence3() PUTC(ATTR_ITALICS); PUTC(COLOR_PINK)
     #define cls()
 
-    #define normaltxt(cyan)
+    #define normaltxt() PUTC(ATTR_RESET); PUTC(COLOR_BLACK)
+
     #define tab() printf("\t")
     #define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
         retTime);}
-    #define init_term() {\
-        normaltxt();printf("\n\n");}
+    #define init_term() {init_x16();\
+        normaltxt();PUTS("\n\n");}
 
     #define leave()
 
