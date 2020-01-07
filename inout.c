@@ -18,8 +18,13 @@
 #include "inout.h"
 
 char playerInput[BUFFERSIZE];
+#ifdef NCOL
 char wordbuffer[NCOL];
 EFFSHORTINDEX colc;
+#else
+#define NBUF 50
+char wordbuffer[NBUF];
+#endif
 
 #ifdef NROW
 EFFSHORTINDEX rowc;
@@ -38,7 +43,9 @@ extern word dictionary[];
 
 EFFSHORTINDEX ls, lc;
 EFFSHORTINDEX pc;
-
+#ifndef NCOL
+EFFSHORTINDEX opc;
+#endif
 #ifdef DEFINEWTR
 void wtr(const char *s) FASTCALL
 {
@@ -65,8 +72,20 @@ void writesameln(char *line) FASTCALL
             #ifndef COMPRESSED
             || (c=='\\' && d=='n')
             #endif
-            ) {
-            wordbuffer[pc]='\0';
+            #ifndef NCOL
+            || (pc==NBUF-2)
+            #endif
+            )
+        {
+            #ifndef NCOL
+            if (pc==NBUF-2) {
+                wordbuffer[pc]=c;
+                wordbuffer[pc+1]='\0';
+                opc=pc;
+            } else
+            #endif
+                wordbuffer[pc]='\0';
+            #ifdef NCOL
             if(colc>=NCOL) {
                 PUTC('\n');
                 colc=pc;
@@ -74,6 +93,7 @@ void writesameln(char *line) FASTCALL
                 if(++rowc>NROW) {waitkey(); rowc=0;};
                 #endif
             }
+            #endif
             PUTS(wordbuffer);
             if(c=='\0')
                 return;
@@ -88,17 +108,30 @@ void writesameln(char *line) FASTCALL
                     ++line;
                 #endif
                 PUTC('\n');
+                #ifdef NCOL
                 colc=0;
+                #endif
                 #ifdef NROW
                 if(++rowc>NROW) {waitkey(); rowc=0;};
                 #endif
-            } else if(colc<NCOL-1) {
-                PUTC(' ');
+            } else
+            #ifdef NCOL
+                if(colc<NCOL-1) 
+            #endif
+            {
+                #ifndef NCOL
+                if (opc!=NBUF-2)
+                #endif
+                    PUTC(' ');
+                #ifdef NCOL
                 ++colc;
+                #endif
             }
         } else {
             wordbuffer[pc++]=c;
+            #ifdef NCOL
             ++colc;
+            #endif
         }
     }
 }
@@ -107,7 +140,9 @@ void writesameln(char *line) FASTCALL
 void clear(void)
 {
     cls();
+    #ifdef NCOL
     colc=0;
+    #endif
     #ifdef NROW
     rowc=0;
     #endif
@@ -129,7 +164,9 @@ void writeln(char* line) FASTCALL
     #ifdef NROW
     if(++rowc>NROW) {waitkey(); rowc=0;};
     #endif
+    #ifdef NCOL
     colc=0;
+    #endif
 }
 
 /* 'Eat' a carriage return that may be present at the end of a string.

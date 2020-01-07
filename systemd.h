@@ -394,11 +394,11 @@
     #define waitscreen()
 
     /* The number of columns of the screen */
-    #define NCOL 64
+    //#define NCOL 64
     /* The number of available rows of the screen. If undefined, it is
        not checked
     */
-    #define NROW 18
+    //#define NROW 18
 
     #define waitkey() getc_x16()
     #define inputtxt() PUTC(ATTR_BOLD);PUTC(COLOR_BLUE)
