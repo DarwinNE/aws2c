@@ -59,11 +59,11 @@ typedef struct room_d {
         #define NDIR 10
         // north, sud, east, west, up, down, north east, north west, south east,
         // south west
-        room_code directions[10];
+        room_code directions[NDIR];
     #else
         #define NDIR 6
         // north, sud, east, west, up, down
-        room_code directions[6];
+        room_code directions[NDIR];
     #endif
 } room;
 

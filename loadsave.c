@@ -18,6 +18,7 @@ extern boolean marker[];
 extern int counter[];
 extern object obj[];
 extern room world[];
+extern unsigned int turn;
 
 extern char playerInput[];
 
@@ -51,7 +52,7 @@ int s2i(char *s)
 
 char *i2s(char *s, int v)
 {
-    char r;
+    char r,i=0,j=0;
 
     if(v<0) {
         s[i++]='-';
@@ -93,6 +94,7 @@ int savegame(char *filename) FASTCALL
         return 1;
     }
     fputs("SAVEDAWS2.1\n",f);
+    fputs(GAMEN"\n",f);
     wri((int)current_position);
 
     for(i=0;i<129;++i) {
@@ -105,11 +107,14 @@ int savegame(char *filename) FASTCALL
 
     for(i=0;i<OSIZE;++i) {
         wri((int)obj[i].position);
+
     }
-    for(i=0;i<RSIZE;++i)
+    for(i=0;i<RSIZE;++i) {
         for(j=0;j<NDIR;++j)
             wri((int)world[i].directions[j]);
+    }
 
+    wri(turn);
     fclose(f);
     return 0;
 }
@@ -126,6 +131,7 @@ int rei(void) FASTCALL
     1 - Could not open input file.
     2 - Incorrect format.
     3 - Can't read file contents.
+    4 - Wrong game.
 */
 int loadgame(char *filename) FASTCALL
 {
@@ -140,6 +146,13 @@ int loadgame(char *filename) FASTCALL
         PUTS("Incorrect format ");
         fclose(f);
         return 2;
+    }
+    fgets(playerInput, BUFFERSIZE, f);
+    if(strcmp(playerInput, GAMEN"\n")!=0) {
+        PUTS("Incorrect game: ");
+        PUTS(playerInput);
+        fclose(f);
+        return 4;
     }
 
     next_position=(room_code) rei();
