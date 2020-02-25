@@ -2,22 +2,12 @@
 #include "commanderX16.h"
 
 char exchc;
-char *message = "Press a key to continue";
+char message[] = "Press a key to continue";
 
 void init_x16(void)
 {
-    /* 
-    lda #$80
-    jsr screen_set_mode
-
-    LoadW r0, 0
-    LoadW r1, 0
-    LoadW r2, 0
-    LoadW r3, 0
-    jsr console_init
-    */
     asm("lda #$80");
-    asm("jsr $FF5F");
+    screen_set_mode();
     asm("lda #0");
     asm("sta $02"); // r0
     asm("sta $03");
@@ -28,16 +18,18 @@ void init_x16(void)
     asm("sta $08"); // r3
     asm("sta $09");
     console_init();
-    /*    LoadW r0, pause_message
-	jsr console_set_paging_message
-	*/
-    asm("lda #<_message");
-    asm("sta $02"); // r0
-    asm("lda #>_message");
-    asm("sta $03");
-    asm("jsr $FED5");
-    
+    console_paging();
 }
+
+void console_paging(void)
+{
+    asm("lda #<%v", message);
+    asm("sta $02"); // r0
+    asm("lda #>%v", message);
+    asm("sta $03");
+    console_set_paging_message();
+}
+
 void putc_x16(char c)
 {
     exchc=c;    /* Register A contains the character, at this point. */

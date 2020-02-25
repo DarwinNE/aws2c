@@ -6,9 +6,12 @@ void puts_x16(char *s);
 char *gets_x16(char *buffer, unsigned int size);
 char getc_x16(void);
 void init_x16(void);
+void console_paging(void);
 
 
 #define console_init() asm ("jsr $FEDB")
+#define screen_set_mode() asm("jsr $FF5F");
+#define console_set_paging_message() asm("jsr $FED5");
 
 #define COLOR_GREEN    0x1E
 #define COLOR_RED      0x1C

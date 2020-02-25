@@ -209,17 +209,17 @@ void output_decoder(FILE *fout)
     int i;
     node *np;
     fprintf(fout,"char *compressed;\n");
-    fprintf(fout,"EFFSHORTINDEX bpointer;\n");
+    fprintf(fout,"unsigned char bpointer;\n");
     fprintf(fout,"unsigned int cpointer;\n");
     fprintf(fout,"char decompress_b[B_SIZE+1];\n");
-    fprintf(fout,"EFFSHORTINDEX currbyte;\n\n");
+    fprintf(fout,"unsigned char currbyte;\n\n");
 
     np=create_tree();
     stackp=0;
     explore_tree(np);
     printf("Analyzed: %ld bytes\n",numofchar);
     fprintf(fout, "#define NUM_NODES %d\n", num_nodes);
-    fprintf(fout, "tree huftree[NUM_NODES]={\n");
+    fprintf(fout, "const tree huftree[NUM_NODES]={\n");
     for(i=0;i<num_nodes;++i) {
         if(treearray[i].c!=-1)
             fprintf(fout, "    {%d,%d,%d},\n",treearray[i].c,

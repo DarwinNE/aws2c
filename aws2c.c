@@ -3198,7 +3198,7 @@ void output_dictionary(FILE *of, word* dictionary, unsigned int dsize)
 
     /*  I did a few tests and it seemed to me that it is not worth compressing
         the dictionary. */
-    fprintf(of, "word dictionary[DSIZE]={\n");
+    fprintf(of, "const word dictionary[DSIZE]={\n");
     for(i=0; i<dsize;++i) {
         fprintf(of, TAB "{\"%s\",%d,%d}",dictionary[i].w,
         dictionary[i].code,dictionary[i].t);

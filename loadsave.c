@@ -52,7 +52,7 @@ int s2i(char *s)
 
 char *i2s(char *s, int v)
 {
-    char r,i=0,j=0;
+    unsigned char r,i=0,j=0;
 
     if(v<0) {
         s[i++]='-';

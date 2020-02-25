@@ -91,6 +91,19 @@
     /* Init the terminal */
     #define PT80COL 215
     #define PTFST 53296L
+    #ifdef ALTSPLASH
+    #include"m20sp.h"
+    #define init_term() {\
+        if (*(char*)PT80COL==0) {\
+            fputs(switch80col, stdout);\
+        }\
+        *(char*)PTFST=1;\
+        showsplash();\
+        fputs("\x09\x0E\x08",stdout);\
+        clrscr();\
+        normaltxt();\
+    }
+    #else
     #define init_term() {\
         if (*(char*)PT80COL==0) {\
             fputs(switch80col, stdout);\
@@ -99,7 +112,8 @@
         clrscr();\
         normaltxt();\
     }
-
+    #endif
+    
     /* Prepare the terminal to leave the program execution. */
     #define leave() fputs(cyan, stdout)
 
@@ -251,10 +265,11 @@
     */
     #define NROW 21
 
+    #define _C64_ADDRS_NORMAL 23
     #ifdef ALTFONT
     #define _C64_ADDRS_F 19
     #else
-    #define _C64_ADDRS_F 23
+    #define _C64_ADDRS_F _C64_ADDRS_NORMAL
     #endif
 
     #define red         "\x1C\x1C"   // If just one char, it goes crazy (why?)
@@ -285,7 +300,7 @@
     #define PTRCLR 53281U
     /* Init the terminal */
     #define POKE(addr,val)     (*(unsigned char*) (addr) = (val))
-
+    #define PEEK(addr)     (*(unsigned char*) (addr))
     // Restore default VIC-II config (lower case)
     // This is useful if there is loader that goes in a graphic mode.
 
@@ -295,7 +310,7 @@
         *(char*)PTRCLR = 0x00;\
         POKE(56578U, 63);\
         POKE(56576U, 151);\
-        POKE(53272U, _C64_ADDRS_F);\
+        if(PEEK(0x52)==0) POKE(53272U, _C64_ADDRS_F); else POKE(53272U, _C64_ADDRS_NORMAL);\
         POKE(53265U, 27);\
         clrscr();\
         normaltxt();\
@@ -329,12 +344,12 @@
     */
     #define NROW 21
 
-    #define green       "\x1E"
-    #define red         "\x1C"
-    #define cyan        "\x9F"
-    #define blue        "\x1F"
-    #define yellow      "\x9E"
-    #define pink        "\x96"
+    #define green     "\x1E"
+    #define red       "\x1C"
+    #define cyan      "\x9F"
+    #define blue      "\x1F"
+    #define yellow    "\x9E"
+    #define pink      "\x96"
 
 
     /* Macro to wait for a key */
@@ -388,20 +403,10 @@
     #define LOAD SIMPLELOAD
     #define SAVE SIMPLESAVE
 
- /*   #define SHIFTPETSCII \
-        if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20 */
-
     #define waitscreen()
 
-    /* The number of columns of the screen */
-    //#define NCOL 64
-    /* The number of available rows of the screen. If undefined, it is
-       not checked
-    */
-    //#define NROW 18
-
-    #define waitkey() getc_x16()
-    #define inputtxt() PUTC(ATTR_BOLD);PUTC(COLOR_BLUE)
+    #define waitkey() console_paging();getc_x16()
+    #define inputtxt() console_paging();PUTC(ATTR_BOLD);PUTC(COLOR_BLUE)
     #define evidence1() PUTC(ATTR_BOLD); PUTC(COLOR_RED)
     #define evidence2() PUTC(COLOR_GREEN)
     #define evidence3() PUTC(ATTR_ITALICS); PUTC(COLOR_PINK)
@@ -490,8 +495,8 @@
     #define B_SIZE 80
     #define CV_IS_A_FUNCTION
 
-    //#define LOAD SIMPLELOAD
-    //#define SAVE SIMPLESAVE
+    #define LOAD SIMPLELOAD
+    #define SAVE SIMPLESAVE
 
     #define SHIFTPETSCII \
         if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20
@@ -630,7 +635,12 @@
     #define tab() fputs("\t", stdout)
     #define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
         retTime);}
-    #define init_term() {fputs("\n\n", stdout);}
+#ifdef ALTSPLASH
+    #include"m20sp.h"
+    #define init_term() {system("ss ,,,,1");showsplash();}
+#else
+    #define init_term() {system("ss ,,,,1");}
+#endif
 
     #define leave()
 
@@ -680,12 +690,12 @@
     #define DEFINEWTR
     #define waitscreen()
     #define EFFSHORTINDEX unsigned int
-    #define LOAD SIMPLELOAD
-    #define SAVE SIMPLESAVE
+    //#define LOAD SIMPLELOAD
+    //#define SAVE SIMPLESAVE
 
     // The number of columns of the screen
     #define NCOL 37
-    #define NROW 24
+    #define NROW 22
 
     #define waitkey() getchar(); rowc=0
     #define inputtxt() 
@@ -698,8 +708,19 @@
     #define tab() //fputs("\t")
     #define wait1s()
 
-    #define init_term() {/*msx_set_mode(mode_0);*/}
-    #define leave()
+    // Jump to the BIOS routines to set text mode and colours.
+
+    #define init_term() {\
+        asm("call 0x006C");\
+        asm("ld a, 15"); asm("ld (0xF3E9),a");\
+        asm("ld a, 1"); asm("ld (0xF3EA),a");\
+        asm("ld a, 1"); asm("ld (0xF3EC),a");\
+        asm("call 0x0062");\
+        asm("call 0x0115");\
+    }
+    
+    // Jump to the BIOS Reset routine.
+    #define leave() {asm("call 0x0000");}
     
     #define PUTC(c) fputc_cons(c)
     #define PUTS(s) wtr(s)
@@ -711,8 +732,23 @@
     #include"../68kmac/SplashWindow.h"
     #define BUFFERSIZE 255
     #define B_SIZE 240
-    #define LOAD SIMPLELOAD
-    #define SAVE SIMPLESAVE
+#define LOAD {\
+        if(getFileName(playerInput, BUFFERSIZE, 1)!=NULL) {\
+            if(playerInput[0]=='.') \
+                PUTS("Invalid file name!\n");\
+            else if(loadgame(playerInput))\
+                PUTS("Error!\n");\
+        }\
+    }
+
+#define SAVE {\
+       if(getFileName(playerInput, BUFFERSIZE, 0)!=NULL) {\
+            if(playerInput[0]=='.') \
+                PUTS("Invalid file name!\n");\
+            else if(savegame(playerInput))\
+                PUTS("Error!\n");\
+        }\
+    }
     #define waitscreen()
 
     // The number of columns of the screen
@@ -730,7 +766,7 @@
     #define tab() //fputs("\t")
     #define wait1s()
 
-    #define init_term() {splash();}
+    #define init_term() {splash(); printf("\033]0;" GAMEN "\007");}
     #define leave()
     #define GETS(buffer, size) fflush(stdout);\
         fgets((buffer),(size),stdin)
@@ -830,8 +866,13 @@
     #define tab() fputs("\t", stdout)
     #define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
         retTime);}
-    #define init_term() {fputs("\n\n", stdout);}
 
+#ifdef ALTSPLASH
+    #include"CGASP.H"
+    #define init_term() {showsplash();}
+#else
+    #define init_term() {}
+#endif
     #define leave()
 
 #else /* Definitions for modern ANSI terminals */
@@ -857,6 +898,18 @@
     #define tab() printf("\t")
     #define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
         retTime);}
+#ifdef ALTSPLASH
+    #include"CGASP.H"
+    #define init_term() {showsplash();\
+        printf( "This terminal does not support ANSI codes."\
+        "\033[80D"\
+        "You'll see garbage chars on the screen. If you use MS-DOS, add "\
+        "\033[80D"\
+        "DEVICE=DOS\\ANSI.SYS to your CONFIG.SYS file"\
+        "\033[80D"\
+"\033[80D                                                               ");\
+        normaltxt();printf("\n\n");}
+#else
     #define init_term() {\
         printf( "This terminal does not support ANSI codes."\
         "\033[80D"\
@@ -864,19 +917,18 @@
         "\033[80D"\
         "DEVICE=DOS\\ANSI.SYS to your CONFIG.SYS file"\
         "\033[80D"\
-        "It's supported since MS-DOS 2.0, so no excuses."\
 "\033[80D                                                               ");\
         normaltxt();printf("\n\n");}
-
-    #define leave() printf("\033[0m\n\n")
 #endif
-
-#ifdef NROW
-    extern unsigned char rowc;
+    #define leave() printf("\033[0m\n\n")
 #endif
 
 #ifndef EFFSHORTINDEX
     #define EFFSHORTINDEX unsigned char
+#endif
+
+#ifdef NROW
+    extern EFFSHORTINDEX rowc;
 #endif
 
 #ifndef SHIFTPETSCII
