@@ -27,10 +27,12 @@ old Commodore machines.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
+
 #include "aws.h"
 #include "compress.h"
 
-#define VERSION "1.7, September 2018 - December 2019"
+#define VERSION "1.9, September 2018 - July 2020"
 #define AREYOUSURE "Are you sure? Type 'Y' and return if yes."
 #define EXITRESTART "'E' and return to exit, anything else to restart."
 
@@ -71,10 +73,17 @@ boolean hardcoded_messages=false;
 boolean add_clrscr=true;
 boolean dont_care_size_weight=false;
 boolean no_obj_long_desc=true;
+boolean strip_empty_messages=false;
+boolean no_header=false;
+boolean strip_automatic_counters=false;
+boolean compress5bit_dict=false;
 
 boolean complete_shortcut=false;
 boolean checked_noun1_greater_zero=false;
 boolean dont_issue_message=false;
+boolean no_header_description=false;
+
+
 
 
 /* Some functions are included in the code only if necessary. Those flags
@@ -94,12 +103,25 @@ boolean need_sendallroom=false;
 boolean need_unwear=false;
 boolean need_iscarrsome=false;
 boolean need_iswearsome=false;
-boolean need_checkexit=false;
+boolean need_checkexit=true;
 boolean need_amsm=false;
 boolean need_as=false;
 boolean need_ar=false;
 boolean need_ams=false;
 
+/*  Statistics for optimizations.
+*/
+unsigned int number_of_jumps;
+unsigned int number_of_drops;
+
+/*  Those are flags than in principle can be turned on and off to optimize if
+    a particular function should be defined as a macro instead. This is useful
+    as if it is called only once, the overhead of the function calling
+    mechanism can do more harm than good. Aws2c will determine
+    alone if those options must be turned on or off by checking the statistics.
+*/
+boolean jump_as_function=false;
+boolean drop_as_function=false;
 
 typedef struct conv_t {
     char *orig;
@@ -2553,7 +2575,8 @@ void output_header(FILE *of, int maxroomcode, int maxobjcode,
     fprintf(hf, "#define OSIZE %d\n",osize);
     fprintf(hf, "#define GAMEN \"%s\"\n",name);
 
-
+    if(compress5bit_dict)
+        fprintf(hf,"#define DICT5BIT\n");
  
     if(use_6_directions==true) {
         fprintf(hf,"#define DIR_REDUCED\n");
@@ -2709,7 +2732,7 @@ void output_optional_func(FILE *of, int max_room_code)
         fprintf(of, TAB "return false;\n");
         fprintf(of, "}\n");
     }
-    if(need_checkexit) {
+/*    if(need_checkexit) {
         fprintf(of, "void checkexit(void)\n{\n");
         if(compress_messages==true) {
             if(hardcoded_messages==true) {
@@ -2725,7 +2748,7 @@ void output_optional_func(FILE *of, int max_room_code)
         fprintf(of, TAB TAB "leave(); exit(0);\n");
         fprintf(of, TAB "}\n");
         fprintf(of, "}\n");
-    }
+    }*/
     if(need_amsm) {
         if(hardcoded_messages==false) {
             fprintf(of,"void amsm(");
@@ -2796,8 +2819,10 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     fprintf(of,"char *searchw(unsigned int w) FASTCALL;\n");
     fprintf(of, "boolean unwear(unsigned int o) FASTCALL;\n");
 
-    fprintf(of,"void printnewline(void)\n{");
-    fprintf(of,TAB "writeln(\"\");\n}\n\n");
+    fprintf(of,"void printnewline(void)\n{\n");
+    fprintf(of,TAB "writesameln(\"\\n\");\n}\n\n");
+    fprintf(of,"void printspace(void)\n{\n");
+    fprintf(of,TAB "writesameln(\" \");\n}\n\n");
     
     
     if(osize>255) {
@@ -2938,48 +2963,47 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     fprintf(of, "}\n\n");
 
 
-    fprintf(of,"void inventory(void)\n{\n");
-    fprintf(of,TAB "boolean gs=false;\n");
+    fprintf(of,"#define inventory()\\\n{\\\n");
+    fprintf(of,TAB "boolean gs=false;\\\n");
     if(osize>255)
-        fprintf(of,TAB "unsigned int i;\n");
+        fprintf(of,TAB "unsigned int i;\\\n");
     else
-        fprintf(of,TAB "EFFSHORTINDEX i;\n");
+        fprintf(of,TAB "EFFSHORTINDEX i;\\\n");
 
     if(hardcoded_messages==false)
-        fprintf(of,TAB "show_message(1032);\n");
+        fprintf(of,TAB "show_message(1032);\\\n");
     else
-        fprintf(of,TAB "show_message(message1032);\n");
-    fprintf(of,TAB "for(i = 0; i<OSIZE; ++i) {\n");
-    fprintf(of,TAB TAB "dummy=obj[i].position;\n");
-    fprintf(of,TAB TAB "if(dummy==CARRIED||dummy==WEARED) {\n");
-    fprintf(of,TAB TAB TAB "gs=true;\n");
-    fprintf(of,TAB TAB TAB "evidence2();\n");
+        fprintf(of,TAB "show_message(message1032);\\\n");
+    fprintf(of,TAB "for(i = 0; i<OSIZE; ++i) {\\\n");
+    fprintf(of,TAB TAB "dummy=obj[i].position;\\\n");
+    fprintf(of,TAB TAB "if(dummy==CARRIED||dummy==WEARED) {\\\n");
+    fprintf(of,TAB TAB TAB "gs=true;\\\n");
+    fprintf(of,TAB TAB TAB "evidence2();\\\n");
     if(compress_messages==true) {
         if(hardcoded_messages==false) {
-            fprintf(of,TAB TAB TAB "write_textsl(obj[i].desc);\n");
+            fprintf(of,TAB TAB TAB "write_textsl(obj[i].desc);\\\n");
         } else {
-            fprintf(of,TAB TAB TAB "show_messagenlf(obj[i].desc);\n");
+            fprintf(of,TAB TAB TAB "show_messagenlf(obj[i].desc);\\\n");
         }
     } else {
-        fprintf(of,TAB TAB TAB "writeln(obj[i].desc);\n");
+        fprintf(of,TAB TAB TAB "writeln(obj[i].desc);\\\n");
     }
-    fprintf(of,TAB TAB TAB "normaltxt();\n");
-    fprintf(of,TAB TAB TAB "if(dummy==WEARED){\n");
-    fprintf(of,TAB TAB TAB TAB "writesameln(\"  \");\n");
+    fprintf(of,TAB TAB TAB "normaltxt();\\\n");
+    fprintf(of,TAB TAB TAB "if(dummy==WEARED){\\\n");
+    fprintf(of,TAB TAB TAB TAB "printspace();\\\n");
     if(hardcoded_messages==false)
-        fprintf(of,TAB TAB TAB TAB "show_messagenlf(1018);\n");
+        fprintf(of,TAB TAB TAB TAB "show_messagenlf(1018);\\\n");
     else
-        fprintf(of,TAB TAB TAB TAB "show_messagenlf(message1018);\n");
-    fprintf(of,TAB TAB TAB "}\n");
-    fprintf(of,TAB TAB TAB "printnewline();\n");
-    fprintf(of,TAB TAB "}\n");
-    fprintf(of,TAB "}\n");
-    //fprintf(of,TAB "normaltxt();\n");
+        fprintf(of,TAB TAB TAB TAB "show_messagenlf(message1018);\\\n");
+    fprintf(of,TAB TAB TAB "}\\\n");
+    fprintf(of,TAB TAB TAB "printnewline();\\\n");
+    fprintf(of,TAB TAB "}\\\n");
+    fprintf(of,TAB "}\\\n");
 
     if(hardcoded_messages==false)
-        fprintf(of,TAB "if(gs==false) show_message(1033);\n}\n\n");
+        fprintf(of,TAB "if(gs==false) show_message(1033);\\\n}\\\n");
     else
-        fprintf(of,TAB "if(gs==false) show_message(message1033);\n}\n\n");
+        fprintf(of,TAB "if(gs==false) show_message(message1033);\\\n}\n\n");
 
     fprintf(of, "void move(unsigned char dir) FASTCALL\n");
     fprintf(of, "{\n");
@@ -3001,7 +3025,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
         fprintf(of, TAB TAB "show_message(message1008);\n");
     fprintf(of, "\n}\n\n");
 
-    fprintf(of, "boolean get(unsigned int o) FASTCALL\n");
+    fprintf(of, "boolean get(unsigned int o) FASTCALL\\\n");
     fprintf(of, "{\n");
     fprintf(of, TAB "odummy=search_object_p(o);\n");
 
@@ -3096,8 +3120,8 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     fprintf(of, TAB "}\n");
     fprintf(of, "#else\n");
     fprintf(of,
-        TAB "#define object_is_here(c) search_object_p(c)->position"
-            "==current_position\n");
+        TAB "#define object_is_here(c) (search_object_p(c)->position"
+            "==current_position)\n");
     fprintf(of,
         TAB "#define get_object_position(c) search_object_p(c)->position\n");
     fprintf(of,
@@ -3122,7 +3146,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     fprintf(of, "}\n");
     fprintf(of, "void set_object_positionC(obj_code c) FASTCALL\n");
     fprintf(of, "{\n");
-    fprintf(of, "    set_object_position(c,1500);\n");
+    fprintf(of, "    set_object_position(c,CARRIED);\n");
     fprintf(of, "}\n");
 
     /* Bring here an object */
@@ -3154,54 +3178,122 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     fprintf(of,
         "boolean cvna(unsigned int v, unsigned int n, unsigned int o);\n");
 
-    fprintf(of, "void drop(unsigned int o) FASTCALL\n{\n");
-    fprintf(of, TAB  "odummy=search_object_p(o);\n");
-
-    fprintf(of, TAB  "if(odummy->position==CARRIED){\n");
-    fprintf(of, TAB TAB "odummy->position=current_position;\n");
-    fprintf(of, TAB TAB "--counter[119];\n");
-    if(dont_care_size_weight==false) {
-        fprintf(of, TAB TAB "counter[120]-=odummy->weight;\n");
-        fprintf(of, TAB TAB "counter[124]-=odummy->size;\n");
+    if(drop_as_function) {
+        fprintf(of, "void drop(unsigned int o) FASTCALL\n{\n");
+    } else {
+        fprintf(of, "#define drop(o) \\\n{\\\n");
     }
-    fprintf(of, TAB "} else\n");
+    fprintf(of, TAB  "odummy=search_object_p(o);\\\n");
+
+    fprintf(of, TAB  "if(odummy->position==CARRIED){\\\n");
+    fprintf(of, TAB TAB "odummy->position=current_position;\\\n");
+    fprintf(of, TAB TAB "--counter[119];\\\n");
+    if(dont_care_size_weight==false) {
+        fprintf(of, TAB TAB "counter[120]-=odummy->weight;\\\n");
+        fprintf(of, TAB TAB "counter[124]-=odummy->size;\\\n");
+    }
+    fprintf(of, TAB "} else\\\n");
     if(hardcoded_messages==false)
-        fprintf(of, TAB TAB "show_message(1007);\n");
+        fprintf(of, TAB TAB "show_message(1007);\\\n");
     else
-        fprintf(of, TAB TAB "show_message(message1007);\n");
+        fprintf(of, TAB TAB "show_message(message1007);\\\n");
     fprintf(of, "}\n\n");
 
-    fprintf(of, "void jump(");
-    if(max_room_code>255)
-        fprintf(of, "unsigned int");
-    else
-        fprintf(of, "EFFSHORTINDEX");
-    fprintf(of, " p) FASTCALL\n{\n");
-    fprintf(of, TAB "next_position=p;\n");
-    fprintf(of, TAB "marker[120]=false;\n");
-    fprintf(of, "}\n\n");
+
+    if(jump_as_function) {
+        fprintf(of, "void jump(");
+        if(max_room_code>255)
+            fprintf(of, "unsigned int");
+        else
+            fprintf(of, "EFFSHORTINDEX");
+        fprintf(of, " p) FASTCALL\n{\n");
+        fprintf(of, TAB "next_position=p;\n");
+        fprintf(of, TAB "marker[120]=false;\n");
+        fprintf(of, "}\n\n");
+    } else {
+        fprintf(of, "#define jump(p)\\\n");
+        fprintf(of, "{\\\n");
+        fprintf(of, TAB "next_position=p;\\\n");
+        fprintf(of, TAB "marker[120]=false;\\\n");
+        fprintf(of, "}\n\n");
+    }
 
     fprintf(of, "void hold(unsigned int p) FASTCALL;\n");
     fprintf(of, "char iscarrsome(void);\n");
     fprintf(of, "char iswearsome(void);\n");
-    fprintf(of, "void checkexit(void);\n");
+    //fprintf(of, "void checkexit(void);\n");
+    // I decided that a macro is better, as it is called only once.
+    fprintf(of, "#define checkexit()\\\n{\\\n");
+    if(compress_messages==true) {
+        if(hardcoded_messages==true) {
+            fprintf(of, TAB "show_message(exitrestart);\\\n");
+        } else {
+            fprintf(of, TAB "write_textsl(exitrestart);\\\n");
+        }
+    } else {
+        fprintf(of, TAB "writeln(\"%s\");\\\n",EXITRESTART);
+    }
+    fprintf(of, TAB "GETS(playerInput,BUFFERSIZE);\\\n");
+    fprintf(of, TAB "if(playerInput[0]=='E' || playerInput[0]=='e'){\\\n");
+    fprintf(of, TAB TAB "leave(); exit(0);\\\n");
+    fprintf(of, TAB "}\\\n");
+    fprintf(of, "}\n");
+
     fprintf(of, "char as(unsigned int p, unsigned char f);\n");
     fprintf(of, "char ar(unsigned int p, unsigned char f);\n");
 
+}
+
+void compress_5bit(char *buffer)
+{
+    unsigned int i=0, k=0;
+    unsigned int shift=0;
+    unsigned int c;
+
+    while((c=buffer[i])!='\0') {
+        buffer[i++]='\0';
+        if(shift>7)
+            shift-=8;
+        c=toupper(c);
+        c=(c-'@')&0x1F;
+        c<<=shift;
+        buffer[k] |=c&0x00FF;
+        if(shift>3)
+            buffer[++k]=(c&0xFF00)>>8;
+
+        shift+=5;
+    }
 }
 
 /** Create the code for the dictionary in the output file.
 */
 void output_dictionary(FILE *of, word* dictionary, unsigned int dsize)
 {
-    unsigned int i;
+    unsigned int i,j;
 
-    /*  I did a few tests and it seemed to me that it is not worth compressing
-        the dictionary. */
+
+    if(compress5bit_dict) {
+        for(i=0; i<dsize;++i) {
+            fprintf(of, "char dict%d[]={",i);
+            compress_5bit(dictionary[i].w);
+            for(j=0;dictionary[i].w[j];++j) {
+                if(j>0)
+                    fprintf(of, ", ");
+                fprintf(of, "0x%x",(unsigned char)dictionary[i].w[j]);
+            }
+            fprintf(of, ",0x0};\n");
+        }
+    }
+
     fprintf(of, "const word dictionary[DSIZE]={\n");
     for(i=0; i<dsize;++i) {
-        fprintf(of, TAB "{\"%s\",%d,%d}",dictionary[i].w,
-        dictionary[i].code,dictionary[i].t);
+        fprintf(of, TAB "{");
+        if(compress5bit_dict) {
+            fprintf(of, "dict%d",i);
+        } else {
+            fprintf(of, "\"%s\"",dictionary[i].w);
+        }
+        fprintf(of, ",%d,%d}",dictionary[i].code,dictionary[i].t);
 
         if(i<dsize-1) {
             fprintf(of,",");
@@ -3334,33 +3426,40 @@ unsigned int output_messages(FILE *of, message* msg, unsigned int msize,
         fprintf(of, "char exitrestart[]={");
         totalsize+=compress(of, encodechar(EXITRESTART));
         fprintf(of, "};\n");
-        fprintf(of, "char headername[]={");
-        totalsize+=compress(of, encodechar(header->name));
-        fprintf(of, "};\n");
-        fprintf(of, "char headerauthor[]={");
-        totalsize+=compress(of, encodechar(header->author));
-        fprintf(of, "};\n");
-        fprintf(of, "char headerdate[]={");
-        totalsize+=compress(of, encodechar(header->date));
-        fprintf(of, "};\n");
-        fprintf(of, "char headerdescription[]={");
-        totalsize+=compress(of, encodechar(header->description));
-        fprintf(of, "};\n");
+        if(!no_header) {
+            fprintf(of, "char headername[]={");
+            totalsize+=compress(of, encodechar(header->name));
+            fprintf(of, "};\n");
+            fprintf(of, "char headerauthor[]={");
+            totalsize+=compress(of, encodechar(header->author));
+            fprintf(of, "};\n");
+            fprintf(of, "char headerdate[]={");
+            totalsize+=compress(of, encodechar(header->date));
+            fprintf(of, "};\n");
+            if(strcmp(header->description,"")!=0) {
+                fprintf(of, "char headerdescription[]={");
+                totalsize+=compress(of, encodechar(header->description));
+                fprintf(of, "};\n");
+            } else {
+                no_header_description=true;
+            }
+        }
     }
 
     if(compress_messages==true||hardcoded_messages==true) {
         for(i=0; i<msize;++i) {
-            fprintf(of, "char message%d[]=",msg[i].code);
-            if(compress_messages==true) {
-                fprintf(of,"{");
-                totalsize+=compress(of, encodechar(msg[i].txt));
-                fprintf(of,"}");
-            } else {
-                fprintf(of,"\"%s\"",encodechar(msg[i].txt));
-                totalsize+=strlen(buffer)+1;
+            if(!strip_empty_messages || strcmp(msg[i].txt,"")!=0) {
+                fprintf(of, "char message%d[]=",msg[i].code);
+                if(compress_messages==true) {
+                    fprintf(of,"{");
+                    totalsize+=compress(of, encodechar(msg[i].txt));
+                    fprintf(of,"}");
+                } else {
+                    fprintf(of,"\"%s\"",encodechar(msg[i].txt));
+                    totalsize+=strlen(buffer)+1;
+                }
+                fprintf(of, ";\n");
             }
-            fprintf(of, ";\n");
-
         }
     }
     if(hardcoded_messages==false) {
@@ -3491,7 +3590,7 @@ void output_local(FILE *f, localc* cond,  int size)
     unsigned int oldroom=-1;
     boolean first=true;
     fprintf(f,"void local_cond(void)\n{\n");
-    fprintf(f, TAB "retv=true;");
+    fprintf(f, TAB "retv=true;\n");
 
     fprintf(f, TAB "switch(current_position) {\n");
     for(i=0; i<size; ++i) {
@@ -3545,10 +3644,10 @@ void output_gameloop(FILE *f, int osize)
         fprintf(f, TAB TAB TAB
             "writesameln(cr->short_d);\n");
     }
-    fprintf(f,TAB TAB TAB "writesameln(\" \");\n");
+    fprintf(f,TAB TAB TAB "printspace();\n");
     fprintf(f, TAB TAB TAB "end_evidence1();\n");
     fprintf(f,TAB TAB TAB  "normaltxt();\n");
-    fprintf(f,TAB TAB TAB "writesameln(\" \");\n");
+    fprintf(f,TAB TAB TAB "printspace();\n");
 
     if(compress_messages==true) {
         if(hardcoded_messages==true) {
@@ -3608,16 +3707,18 @@ void output_gameloop(FILE *f, int osize)
         fprintf(f, TAB TAB TAB TAB TAB "show_messagenlf(1021+k);\n");
     else
         fprintf(f, TAB TAB TAB TAB TAB "show_messagenlf(dir[k]);\n");
-    fprintf(f, TAB TAB TAB TAB TAB "writesameln(\" \");\n");
+    fprintf(f, TAB TAB TAB TAB TAB "printspace();\n");
     fprintf(f, TAB TAB TAB TAB "}\n");
     fprintf(f, TAB TAB TAB TAB "normaltxt();\n");
     fprintf(f, TAB TAB TAB TAB "printnewline();\n");
     fprintf(f, TAB TAB TAB "}\n");
     fprintf(f, TAB TAB "}\n");
-    fprintf(f, TAB TAB "++counter[125];\n");
-    fprintf(f, TAB TAB "--counter[126];\n");
-    fprintf(f, TAB TAB "--counter[127];\n");
-    fprintf(f, TAB TAB "--counter[128];\n");
+    if(!strip_automatic_counters) {
+        fprintf(f, TAB TAB "++counter[125];\n");
+        fprintf(f, TAB TAB "--counter[126];\n");
+        fprintf(f, TAB TAB "--counter[127];\n");
+        fprintf(f, TAB TAB "--counter[128];\n");
+    }
     fprintf(f, TAB TAB "hi_cond();\n");
     fprintf(f, TAB TAB "if(retv) continue;\n");
     fprintf(f, TAB TAB "printnewline();\n");
@@ -3640,12 +3741,8 @@ void output_gameloop(FILE *f, int osize)
     fprintf(f, "}\n");
 }
 
-/** Create the entry point of the game. */
-void create_main(FILE *f,info *header)
+void print_header(FILE *f, info *header)
 {
-    fprintf(f, "\nint main(void)\n{\n");
-    fprintf(f, TAB "init_term();\n");
-
     /* Write the code to provide the welcome message when the game starts. */
     fprintf(f, TAB "evidence2();\n");
     if(compress_messages==true) {
@@ -3653,25 +3750,44 @@ void create_main(FILE *f,info *header)
             fprintf(f, TAB "show_message(headername);\n");
             fprintf(f, TAB "show_message(headerauthor);\n");
             fprintf(f, TAB "show_message(headerdate);\n");
-            fprintf(f, TAB "show_message(headerdescription);\n");
+            if(!no_header_description)
+                fprintf(f, TAB "show_message(headerdescription);\n");
         } else {
             fprintf(f, TAB "write_textsl(headername);\n");
             fprintf(f, TAB "write_textsl(headerauthor);\n");
             fprintf(f, TAB "write_textsl(headerdate);\n");
-            fprintf(f, TAB "write_textsl(headerdescription);\n");
+            if(!no_header_description)
+                fprintf(f, TAB "write_textsl(headerdescription);\n");
         }
     } else {
-        fprintf(f, TAB "writeln(\"%s\\n\");\n", encodechar(header->name));
-        fprintf(f, TAB "writesameln(\"%s\");\n", encodechar(header->author));
-        fprintf(f, TAB "writeln(\"  %s\\n\");\n", encodechar(header->date));
-        fprintf(f, TAB "writeln(\"%s\\n\");\n", 
-            encodechar(header->description));
+        if(!no_header_description)
+            fprintf(f, TAB "writeln(\"%s\\n%s\\n  %s\\n%s\n\");\n", 
+                encodechar(header->name),
+                encodechar(header->author),
+                encodechar(header->date),
+                encodechar(header->description));
+        else
+            fprintf(f, TAB "writeln(\"%s\\n%s\\n  %s\n\");\n", 
+                encodechar(header->name),
+                encodechar(header->author),
+                encodechar(header->date));
     }
-    fprintf(f, TAB "writesameln(\"AWS \");\n");
-    fprintf(f, TAB "writeln(\"%s\");\n", encodechar(header->version));
+    fprintf(f, TAB "writesameln(\"AWS %s\");\n", encodechar(header->version));
     fprintf(f, TAB "normaltxt();\n");
     fprintf(f, TAB "waitkey();\n");
+
+}
+
+/** Create the entry point of the game. */
+void create_main(FILE *f,info *header)
+{
+    fprintf(f, "\nint main(void)\n{\n");
     fprintf(f, TAB "restart();\n");
+    fprintf(f, TAB "init_term();\n");
+
+    if(!no_header)
+        print_header(f, header);
+
     fprintf(f, TAB "game_cycle();\n");
     fprintf(f, TAB "return 0;\n");
     fprintf(f, "}\n");
@@ -3700,6 +3816,8 @@ void print_help(char *name)
            " -n  do not clear screen every time a new room is shown.\n"
            " -v  or --version print version and exit\n"
            " -w  don't check for size and weight of objects\n"
+           " -k  don't output header\n"
+           " -5  use 5-bit compression for the dictionary\n"
            " --verbose write plenty of things.\n");
 
     printf("\n");
@@ -3740,14 +3858,97 @@ unsigned int process_options(char *arg, char *name)
     } else if (strcmp(arg, "-w")==0) {
         dont_care_size_weight=true;
         return 1;
+    } else if (strcmp(arg, "-k")==0) {
+        no_header=true;
+        strip_empty_messages=true;
+        strip_automatic_counters=true;
+        return 1;
     } else if (strcmp(arg, "-v")==0 || strcmp(arg, "--version")==0) {
         printf("This is AWS2C version %s\n", VERSION);
         exit(0);
+    } else if (strcmp(arg, "-5")==0) {
+        compress5bit_dict=true;
+        return 1;
     } else if (strcmp(arg, "--verbose")==0) {
         verbose=true;
         return 1;
     }
     return 0;
+}
+
+/* Check if one string contains a second one */
+int contains(char *s1, char *s2)
+{
+    int i=0, j=0, t=0;
+    while (s1[i]!=0) {
+        t=i;
+        for(j=0; s2[j]!='\0'; ++j)
+            if(tolower(s1[i++])!=tolower(s2[j]))
+                break;
+        if(s2[j]=='\0')
+            return t;
+    };
+    return -1;
+}
+
+
+/* Check the code and set up some configuration variables to improve the 
+   code generation efficiency.
+*/
+void code_analysis(char **commands, unsigned int size)
+{
+    unsigned int i, s, e;
+    /* Check if JUMP is used more than once */
+    for(i=0; i<size; ++i) {
+        e=contains(commands[i],"endif");
+
+        s=contains(commands[i],"goto");
+        if(s>=0 && s<e) {
+            ++number_of_jumps;
+        }
+        s=contains(commands[i],"drop");
+        if(s>=0 && s<e) {
+            ++number_of_drops;
+        }
+
+    }
+}
+
+/* Check the code and set up some configuration variables to improve the 
+   code generation efficiency.
+*/
+void code_analysisLC(localc *commands, unsigned int size)
+{
+    unsigned int i,s,e;
+    /* Check if JUMP is used more than once */
+    for(i=0; i<size; ++i) {
+        e=contains(commands[i].condition,"endif");
+
+        s=contains(commands[i].condition,"goto");
+        if(s>=0 && s<e) {
+            ++number_of_jumps;
+        }
+        s=contains(commands[i].condition,"drop");
+        if(s>=0 && s<e) {
+            ++number_of_drops;
+        }
+    }
+}
+
+void set_up_optimization(void)
+{
+    printf("Number of GOTO commands: %d\n", number_of_jumps);
+    if(number_of_jumps>1)
+        jump_as_function=true;
+    else
+        jump_as_function=false;
+
+    printf("Number of DROP commands: %d\n", number_of_drops);
+    if(number_of_drops>1)
+        drop_as_function=true;
+    else
+        drop_as_function=false;
+
 }
 
 /* Entry point of the program. */
@@ -3857,6 +4058,13 @@ int main(int argc, char **argv)
     }
     fclose(f);
     printf("done\n");
+    printf("Analyze AWS code: ");
+    code_analysisLC(localcond, localcondsize);
+    code_analysis(hicond, hicondsize);
+    code_analysis(lowcond, lowcondsize);
+    printf("done\n");
+
+    set_up_optimization();
 
     printf("Create the output file\n");
     of=fopen(argv[argumentr+1],"w");

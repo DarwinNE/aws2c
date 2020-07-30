@@ -89,11 +89,13 @@ void wri(int v)
 int savegame(char *filename) FASTCALL
 {
     f=fopen(eatcr(filename),"w");
+
     if(f==NULL) {
         PUTS("Can not open file ");
         return 1;
     }
     fputs("SAVEDAWS2.1\n",f);
+
     fputs(GAMEN"\n",f);
     wri((int)current_position);
 

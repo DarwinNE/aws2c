@@ -231,9 +231,14 @@ void output_decoder(FILE *fout)
 
     fprintf(fout,"};\n\n");
 
+    fprintf(fout,"#ifndef INTERNAL_DEF\n");
     fprintf(fout,"EFFSHORTINDEX iii;\n");
+    fprintf(fout,"#endif\n");
     fprintf(fout,"char hufget(void)\n");
     fprintf(fout,"{\n");
+    fprintf(fout,"#ifdef INTERNAL_DEF\n");
+    fprintf(fout,"EFFSHORTINDEX iii;\n");
+    fprintf(fout,"#endif\n");
     fprintf(fout,"    iii=NUM_NODES-1;\n");
     fprintf(fout,"    while(1) {\n");
     fprintf(fout,"        if(currbyte&0x1) {\n");

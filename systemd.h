@@ -612,19 +612,28 @@
 #elif defined(M20) /* Definitions for Olivetti M20 */
 
     #include<stdio.h>
+    #include <sys/pcos.h>
 
-    #define BUFFERSIZE 255
-    #define B_SIZE 240
+    #define BUFFERSIZE 128
+    #define B_SIZE 128
+    #define INTERNAL_DEF
 
     #define LOAD SIMPLELOAD
     #define SAVE SIMPLESAVE
+    
+    void m20_putc(char c);
+    void wait_key(void);
+
+    
+    #define PUTS(s) _pcos_dstring(s)
+    #define PUTC(c) m20_putc(c)
 
     #define waitscreen()
 
     // The number of columns of the screen
     #define NCOL 80
 
-    #define waitkey() getchar()
+    #define waitkey() wait_key();
     #define inputtxt()
     #define evidence1()
     #define evidence2()
@@ -633,13 +642,13 @@
 
     #define normaltxt()
     #define tab() fputs("\t", stdout)
-    #define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
-        retTime);}
+    #define wait1s()
 #ifdef ALTSPLASH
     #include"m20sp.h"
-    #define init_term() {system("ss ,,,,1");showsplash();}
+    #define init_term() {showsplash();}
 #else
-    #define init_term() {system("ss ,,,,1");}
+    void set80col(void);
+    #define init_term() {set80col();}
 #endif
 
     #define leave()
@@ -741,21 +750,15 @@
         }\
     }
 
-#define SAVE {\
-       if(getFileName(playerInput, BUFFERSIZE, 0)!=NULL) {\
-            if(playerInput[0]=='.') \
-                PUTS("Invalid file name!\n");\
-            else if(savegame(playerInput))\
-                PUTS("Error!\n");\
-        }\
-    }
+#define SAVE saveMac()
+
     #define waitscreen()
 
     // The number of columns of the screen
     #define NCOL 80
     #define NROW 24
 
-    #define waitkey() getchar(); rowc=0
+    #define waitkey() disablem(); getchar(); rowc=0; enablem();
     #define inputtxt() printf("\033[1m")
     #define evidence1() printf("\033[4m")
     #define evidence2() printf("\033[1m")

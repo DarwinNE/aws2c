@@ -101,4 +101,6 @@ typedef struct tree_d {
     unsigned char son1idx;
 } tree;
 
+void restart(void);
+
 #endif

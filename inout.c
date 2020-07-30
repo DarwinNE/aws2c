@@ -7,7 +7,7 @@
     Some basic configuration can also be done by adjusting the systemdef.h file
     to your needs.
 
-    Davide Bucci, October 2018-December 2019
+    Davide Bucci, October 2018-March 2020
 */
 
 #include <stdio.h>
@@ -18,16 +18,13 @@
 #include "inout.h"
 
 char playerInput[BUFFERSIZE];
-#ifdef NCOL
-char wordbuffer[NCOL];
-EFFSHORTINDEX colc;
-#else
-#define NBUF 50
-char wordbuffer[NBUF];
-#endif
+
 
 #ifdef NROW
 EFFSHORTINDEX rowc;
+#endif
+#ifdef NCOL
+EFFSHORTINDEX colc;
 #endif
 
 unsigned int verb;
@@ -42,7 +39,6 @@ extern word dictionary[];
 /* The current position in the line */
 
 EFFSHORTINDEX ls, lc;
-EFFSHORTINDEX pc;
 #ifndef NCOL
 EFFSHORTINDEX opc;
 #endif
@@ -57,11 +53,29 @@ void wtr(const char *s) FASTCALL
 /** Write a string without adding a newline. Process some codes to put in
     evidence the text and handle the word wrapping.
 */
-    char c,d;
 
+char c,d;
+#ifndef INTERNAL_DEF
+    EFFSHORTINDEX pc;
+    #ifdef NCOL
+        char wordbuffer[NCOL];
+    #else
+        #define NBUF 50
+        char wordbuffer[NBUF];
+    #endif
+#endif
 
 void writesameln(char *line) FASTCALL
 {
+    #ifdef INTERNAL_DEF
+    EFFSHORTINDEX pc;
+    #ifdef NCOL
+    char wordbuffer[NCOL];
+    #else
+    #define NBUF 50
+    char wordbuffer[NBUF];
+    #endif
+    #endif
     pc=0;
 
     while(1){
@@ -191,7 +205,6 @@ unsigned int readln(void)
     writesameln("> ");
     GETS(playerInput,BUFFERSIZE);
     normaltxt();
-    //lc=strlen(playerInput);
     // remove the '\n'
     eatcr(playerInput);
 
@@ -206,14 +219,44 @@ unsigned int readln(void)
    troubles with Cc65 that needs to have very few local variables to
    compile to targets such as the 6502 processor. */
    
+#ifndef INTERNAL_DEF
 char s[BUFFERSIZE];
+#endif
 
+#ifdef DICT5BIT
+/*  Handle 5-bit compressed dictionary.
+    The result is a null-terminated string that substitutes the original one.
+*/
+#include<ctype.h>
+void compress_5bit(char *buffer)
+{
+    unsigned int i=0, k=0;
+    unsigned int shift=0;
+    unsigned int c;
 
+    while((c=buffer[i])!='\0') {
+        buffer[i++]='\0';
+        if(shift>7)
+            shift-=8;
+        c=toupper(c);
+        c=(c-'@')&0x1F;
+        c<<=shift;
+        buffer[k] |=c&0x00FF;
+        if(shift>3)
+            buffer[++k]=(c&0xFF00)>>8;
+
+        shift+=5;
+    }
+}
+#endif
 
 /** Main parser.
 */
 void interrogationAndAnalysis()
 {
+    #ifdef INTERNAL_DEF
+    char s[BUFFERSIZE];
+    #endif
     unsigned int i, k;
     char c;
     word* te;
@@ -242,6 +285,9 @@ void interrogationAndAnalysis()
             s[k++]=c;
         }
         s[k]='\0';
+        #ifdef DICT5BIT
+        compress_5bit(s);
+        #endif
         // s now contains the word. Search to find
         // if it is recognized or not.
         for(i=0;i<DSIZE; ++i) {
