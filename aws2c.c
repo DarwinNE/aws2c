@@ -1481,7 +1481,7 @@ unsigned int decision_ismovable(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, "search_object_p(%s)->attributes&ISNOTMOVABLE==false",
+    fprintf(f, "(search_object_p(%s)->attributes&ISNOTMOVABLE)==false",
         function_res);
     return scanpos;
 }
@@ -1490,7 +1490,7 @@ unsigned int decision_isnotmovable(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, "search_object_p(%s)->attributes&ISNOTMOVABLE",
+    fprintf(f, "(search_object_p(%s)->attributes&ISNOTMOVABLE)",
         function_res);
     return scanpos;
 }
@@ -1499,7 +1499,7 @@ unsigned int decision_iswearable(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, "search_object_p(%s)->attributes&ISWEREABLE!=0",
+    fprintf(f, "(search_object_p(%s)->attributes&ISWEREABLE)!=0",
         function_res);
     return scanpos;
 }
@@ -3246,20 +3246,20 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
 
 void compress_5bit(char *buffer)
 {
-    unsigned int i=0, k=0;
+    char *pcomp=buffer;
     unsigned int shift=0;
     unsigned int c;
 
-    while((c=buffer[i])!='\0') {
-        buffer[i++]='\0';
+    while((c=*buffer)!='\0') {
+        *(buffer++)='\0';
         if(shift>7)
             shift-=8;
         c=toupper(c);
         c=(c-'@')&0x1F;
         c<<=shift;
-        buffer[k] |=c&0x00FF;
+        *pcomp |=c&0x00FF;
         if(shift>3)
-            buffer[++k]=(c&0xFF00)>>8;
+            *(++pcomp)=(c&0xFF00)>>8;
 
         shift+=5;
     }
@@ -3761,13 +3761,13 @@ void print_header(FILE *f, info *header)
         }
     } else {
         if(!no_header_description)
-            fprintf(f, TAB "writeln(\"%s\\n%s\\n  %s\\n%s\n\");\n", 
+            fprintf(f, TAB "writeln(\"%s\\n%s\\n  %s\\n%s\\n\");\n", 
                 encodechar(header->name),
                 encodechar(header->author),
                 encodechar(header->date),
                 encodechar(header->description));
         else
-            fprintf(f, TAB "writeln(\"%s\\n%s\\n  %s\n\");\n", 
+            fprintf(f, TAB "writeln(\"%s\\n%s\\n  %s\\n\");\n", 
                 encodechar(header->name),
                 encodechar(header->author),
                 encodechar(header->date));

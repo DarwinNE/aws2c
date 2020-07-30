@@ -227,23 +227,22 @@ char s[BUFFERSIZE];
 /*  Handle 5-bit compressed dictionary.
     The result is a null-terminated string that substitutes the original one.
 */
-#include<ctype.h>
 void compress_5bit(char *buffer)
 {
-    unsigned int i=0, k=0;
+    char *pcomp=buffer;
     unsigned int shift=0;
     unsigned int c;
 
-    while((c=buffer[i])!='\0') {
-        buffer[i++]='\0';
+    while((c=*buffer)!='\0') {
+        *(buffer++)='\0';
         if(shift>7)
             shift-=8;
-        c=toupper(c);
+        //c=toupper(c);  // Is not needed here, as it's already done.
         c=(c-'@')&0x1F;
         c<<=shift;
-        buffer[k] |=c&0x00FF;
+        *pcomp |=c&0x00FF;
         if(shift>3)
-            buffer[++k]=(c&0xFF00)>>8;
+            *(++pcomp)=(c&0xFF00)>>8;
 
         shift+=5;
     }
