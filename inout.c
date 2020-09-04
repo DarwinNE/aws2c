@@ -224,7 +224,7 @@ char s[BUFFERSIZE];
 #endif
 
 #ifdef DICT5BIT
-/*  Handle 5-bit compressed dictionary.
+/*  Handle 5-bit for character compressed dictionary.
     The result is a null-terminated string that substitutes the original one.
 */
 void compress_5bit(char *buffer)
@@ -235,16 +235,13 @@ void compress_5bit(char *buffer)
 
     while((c=*buffer)!='\0') {
         *(buffer++)='\0';
-        if(shift>7)
-            shift-=8;
-        //c=toupper(c);  // Is not needed here, as it's already done.
-        c=(c-'@')&0x1F;
+        //c=toupper(c);  // Is not needed here, as already uppercase.
+        c=(c-'@')&0x1F;  // 'A' is encoded with 1, since 0 is the end of string
         c<<=shift;
         *pcomp |=c&0x00FF;
         if(shift>3)
             *(++pcomp)=(c&0xFF00)>>8;
-
-        shift+=5;
+        shift=(shift+5)&0x07;
     }
 }
 #endif

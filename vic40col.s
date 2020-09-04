@@ -31,7 +31,7 @@
 
     startm=$1100
     
-    foreground = 3      ; Foreground color
+    foreground = 1      ; Foreground color
     background = 8      ; Background and border color
     
     cursor = '-'
