@@ -7,7 +7,7 @@
     Some basic configuration can also be done by adjusting the systemdef.h file
     to your needs.
 
-    Davide Bucci, October 2018-March 2020
+    Davide Bucci, October 2018-September 2020
 */
 
 #include <stdio.h>
@@ -316,6 +316,7 @@ void interrogationAndAnalysis()
                     default:
                         break;
                 }
+                break;
             }
         }
     }

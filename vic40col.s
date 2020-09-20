@@ -23,6 +23,7 @@
     setp=ptr1
     scrp=ptr2
     stri=ptr3
+    
 
     buffer=ptr4
     maxlen=tmp1
@@ -35,8 +36,9 @@
     background = 8      ; Background and border color
     
     cursor = '-'
-
-.segment "CODE"
+.segment "LOADHI"
+.byte 00, $A0
+.segment "RODATA"
 
     GETIN =  $FFE4      ; Get a key from the keyboard
     VIC_DEFAULT=$EDE4   ; Table of the default values of VIC registers
@@ -140,8 +142,29 @@ TCharset:
  .byte   0,   0,   0,  85, 170,   0,   0,   0
  .byte   0,   0,   0,   0,   0,   0,   0,   0
 
-; Store some information. Those may be in page 0 to spare a few bytes.
+; Wanted VIC config:
+; C:9000  0e 22 14 19  00 cc 57 ea  ff ff 00 00  00 00 00 08
+;          |  |  | |       |                               +-> Black screen
+;          |  |  | |       +-> Screen address (video and chargen ad $1000)
+;          |  |  | +-> 8x16 characters, 12 lines of text (will become 24)
+;          |  |  +-> 20 columns that will become 40!
+;          |  +-> Distance from origin to the first row
+;          +-> Distance from origin to the first column
+; PAL system at startup:
+; C:9000  0c 26 16 2e  00 c0 57 ea  ff ff 00 00  00 00 00 1b
+;
+; Difference:
+;         02 FC FE EB  00 0C
+;
+; Results with NTSC:
+; C:9000  08 15 14 19  00 cc 57 ea  ff ff 00 00  00 00 00 08
+ 
+Offset:
+    .byte $02, $FC, $FE, $EB, $00, $0C
 
+
+; Store some information. Those may be in page 0 to spare a few bytes.
+.segment "BSS"
 currLine:
     .byte 0
 currCol:
@@ -150,6 +173,14 @@ currMask:
     .byte 0
 isNeg:
     .byte 0
+
+; See _puts40ch, it is required for the non-self modifying code.
+;savey:
+;    .byte 0
+
+; You can use the CODE segment, alternatively. 
+.segment "HIMEM"
+
  
 ; Set the screen in a 160x172 pixels graphic mode.
 ; The video memory starts at $1000 and the chargen memory at $1000.
@@ -178,27 +209,6 @@ _normalText:
     bpl @On_02
     jsr $e55f
     rts
-
-
-; Wanted config:
-; C:9000  0d 22 14 19  00 cc 57 ea  ff ff 00 00  00 00 00 08
-;          |  |  | |       |                               +-> Black screen
-;          |  |  | |       +-> Screen address (video and chargen ad $1000)
-;          |  |  | +-> 8x16 characters, 12 lines of text (will become 24)
-;          |  |  +-> 20 columns that will become 40!
-;          |  +-> Distance from origin to the first row
-;          +-> Distance from origin to the first column
-; PAL system at startup:
-; C:9000  0c 26 16 2e  00 c0 57 ea  ff ff 00 00  00 00 00 1b
-;
-; Difference:
-;         01 FC FE EB  00 0C
-;
-; Results with NTSC:
-; C:9000  07 15 14 19  00 cc 57 ea  ff ff 00 00  00 00 00 08
- 
-Offset:
-    .byte $02, $FC, $FE, $EB, $00, $0C
 
 ; Clear the screen.
 _clrscr:
@@ -254,21 +264,26 @@ _clrscr:
     rts
 
 
-savey:
-    .byte 0
-
 ; Write a zero-terminated string pointed in A/X on the screen.
+; This is self-modifying code. It will not run from ROM.
+; I leave here the original code, as comment, it requires register Y, so
+; it requires the savey location.
 _puts40ch:
-    sta stri
-    stx stri+1
-    ldy #0
+    ;sta stri
+    ;stx stri+1
+    sta @loop+1 ; **** modifies the address in the lda op below
+    stx @loop+2 ; ****
+    ;ldy #0
+    ldx #0      ; ****
 @loop:
-    lda (stri),y
+    ;lda (stri),y
+    lda $ffff,x  ; Code will be modified here ****
     beq @ex
-    sty savey
+    ;sty savey
     jsr _putc40ch
-    ldy savey
-    iny
+    ;ldy savey
+    ;iny
+    inx
     bne @loop
 @ex:
     rts
@@ -361,7 +376,35 @@ _positive:
 _putc40ch:
     cmp #13             ; Check if it's a return
     beq return
-    jsr shiftpetascii
+    ;jsr shiftpetascii
+    
+    
+    shiftpetascii:
+    cmp #$80
+    bcc @normal
+    sbc #96
+@normal:
+    cmp #$41
+    bcs @cond1
+@test2:
+    cmp #$61
+    bcs @cond2
+    bcc @exitpetascii   ; rts
+@cond1:
+    cmp #$5A
+    bcc @fire
+    beq @fire
+    jmp @test2
+@cond2:
+    cmp #$7A
+    bcc @fire
+    beq @fire
+    bne @exitpetascii   ; rts
+@fire:
+    eor #$20
+    ;rts
+    
+@exitpetascii:
     sta setp            ; At first, we need to calculate the offset in the
     lda #0              ; character generator memory. Takes a*8 (keeps track of
     asl setp            ; the higher bits). Store in setp and setp+1
@@ -532,28 +575,5 @@ ScrollUp:
     bne @nextch
     rts
 
-shiftpetascii:
-    cmp #$80
-    bcc @normal
-    sbc #96
-@normal:
-    cmp #$41
-    bcs @cond1
-@test2:
-    cmp #$61
-    bcs @cond2
-    rts
-@cond1:
-    cmp #$5A
-    bcc @fire
-    beq @fire
-    jmp @test2
-@cond2:
-    cmp #$7A
-    bcc @fire
-    beq @fire
-    rts
-@fire:
-    eor #$20
-    rts
+
 

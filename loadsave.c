@@ -1,7 +1,7 @@
 /*  This file is provided by the aws2c tool and it contains code needed for
     loading and saving the current state of the game.
 
-    Davide Bucci, December 2019
+    Davide Bucci, December 2019-September 2020
 */
 
 #include<stdio.h>
@@ -18,7 +18,6 @@ extern boolean marker[];
 extern int counter[];
 extern object obj[];
 extern room world[];
-extern unsigned int turn;
 
 extern char playerInput[];
 
@@ -116,7 +115,6 @@ int savegame(char *filename) FASTCALL
             wri((int)world[i].directions[j]);
     }
 
-    wri(turn);
     fclose(f);
     return 0;
 }

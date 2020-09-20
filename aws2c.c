@@ -32,7 +32,7 @@ old Commodore machines.
 #include "aws.h"
 #include "compress.h"
 
-#define VERSION "1.9, September 2018 - July 2020"
+#define VERSION "1.9.1, September 2018 - September 2020"
 #define AREYOUSURE "Are you sure? Type 'Y' and return if yes."
 #define EXITRESTART "'E' and return to exit, anything else to restart."
 
@@ -77,6 +77,7 @@ boolean strip_empty_messages=false;
 boolean no_header=false;
 boolean strip_automatic_counters=false;
 boolean compress5bit_dict=false;
+boolean dont_use_light=false;
 
 boolean complete_shortcut=false;
 boolean checked_noun1_greater_zero=false;
@@ -108,6 +109,7 @@ boolean need_amsm=false;
 boolean need_as=false;
 boolean need_ar=false;
 boolean need_ams=false;
+boolean need_cpi=false;
 
 /*  Statistics for optimizations.
 */
@@ -873,6 +875,7 @@ unsigned int decision_at(FILE *f, char *line, unsigned int scanpos)
 {
     boolean proc=false;
     unsigned int sp;
+    int val1;
     boolean polarity=true;
     char *arg1=NULL,*arg2=NULL;
 
@@ -941,8 +944,15 @@ unsigned int decision_at(FILE *f, char *line, unsigned int scanpos)
             }*/
         }
     }
-    if(proc==false)
+    if(proc==false) {
+        // This actually increases the size of the executable (C128)
+        /* if(sscanf(arg1, "%d",&val1)==1 && val1<256) {
+            fprintf(f, "cpi(%s)", arg1);
+            need_cpi=true;
+        } else {*/
         fprintf(f, "current_position==%s", arg1);
+        //}
+    }
     if(arg1!=NULL)
         free(arg1);
     if(arg2!=NULL)
@@ -1068,7 +1078,7 @@ unsigned int decision_notequ(FILE *f, char *line, unsigned int scanpos)
 /** VERB */
 unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
 {
-    unsigned int sp,at,tt, val1, val2;
+    unsigned int sp,at,tt, val1, val2, fval;
     boolean proc=false;
     char *arg1,*arg2;
     start_function();
@@ -1095,7 +1105,15 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
                 exit(1);
             }
             strcpy(arg2,function_res);
-            fprintf(f, "cva(%s,%s)", arg1,arg2);
+            /*  75 is a very frequent action with an actor (SPEAK).
+                This is done only if the actor has a 1-byte code. */
+            if(strcmp(arg1,"75")==0 && 
+                sscanf(arg2, "%d",&val2)==1 && val2<256) 
+            {
+                fprintf(f, "cva75(%s)", arg2);
+            } else {
+                fprintf(f, "cva(%s,%s)", arg1,arg2);
+            }
             need_cva=true;
             free(arg1);
             free(arg2);
@@ -1123,7 +1141,14 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
                     scanpos=sp;
                     start_function();
                     scanpos=process_functions(line, scanpos);
-                    fprintf(f,"cvna(%s,%s,%s)", arg1, arg2, function_res);
+                    if(strcmp(arg1,"70")==0 && 
+                        sscanf(arg2, "%d",&val2)==1 && val2<256 &&
+                        sscanf(function_res, "%d",&fval)==1 && fval<256)
+                    {
+                        fprintf(f,"cvna70(%s,%s)", arg2, function_res);
+                    } else {
+                        fprintf(f,"cvna(%s,%s,%s)", arg1, arg2, function_res);
+                    }
                     need_cvna=true;
                     proc=true;
                 }
@@ -1175,7 +1200,15 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
                 } */
             }
             if(proc==false) {
-                fprintf(f, "cvn(%s,%s)", arg1,arg2);
+                /* 70 (EXAMINE) is by far the most frequent verb.
+                   this is done only if the noun has a code <256. */
+                if(strcmp(arg1,"70")==0 && 
+                    sscanf(arg2, "%d",&val2)==1 && val2<256)
+                {
+                    fprintf(f, "cvn70(%s)", arg2);
+                } else {
+                    fprintf(f, "cvn(%s,%s)", arg1,arg2);
+                }
                 need_cvn=true;
             }
             if(arg1!=NULL) free(arg1);
@@ -1871,6 +1904,10 @@ unsigned int action_mess(FILE *f, char *line, unsigned int scanpos)
         // Message 1036 is particular: it points to the name1 introduced by
         // the player
         fprintf(f, TAB TAB "printf(\"%%s\\n\",searchw(noun1));\n");
+        if (compress5bit_dict) {
+            fprintf(stderr, "WARNING: the message 1036 is not compatible with "
+                "the -5 option!");
+        }
         need_searchw=true;
     } else  if(hardcoded_messages==false) {
        fprintf(f, TAB TAB "show_message(%s);\n",  function_res);
@@ -1927,7 +1964,7 @@ unsigned int action_inve(FILE *f, char *line, unsigned int scanpos)
     fprintf(f, TAB TAB "inventory();\n");
     return scanpos;
 }
-/** move */
+/** MOVE */
 unsigned int action_move(FILE *f, char *line, unsigned int scanpos, unsigned int dir)
 {
     unsigned int position, value;
@@ -2056,8 +2093,8 @@ unsigned int action_getall(FILE *f, char *line, unsigned int scanpos)
     }
     fprintf(f,") {\n");
     fprintf(f, TAB TAB TAB TAB "odummy->position=CARRIED;\n");
-    fprintf(f, TAB TAB TAB TAB "++counter[119];\n");
     if(dont_care_size_weight==false) {
+        fprintf(f, TAB TAB TAB TAB "++counter[119];\n");
         fprintf(f, TAB TAB TAB TAB "counter[120]+=odummy->weight;\n");
         fprintf(f, TAB TAB TAB TAB "counter[124]+=odummy->size;\n");
     }
@@ -2073,8 +2110,8 @@ unsigned int action_dropall(FILE *f, char *line, unsigned int scanpos)
         "if(odummy->position==CARRIED) {\n");
     fprintf(f, TAB TAB TAB TAB
         "odummy->position=current_position;\n");
-    fprintf(f, TAB TAB TAB TAB "--counter[119];\n");
     if(dont_care_size_weight==false) {
+        fprintf(f, TAB TAB TAB TAB "--counter[119];\n");
         fprintf(f, TAB TAB TAB TAB "counter[120]-=odummy->weight;\n");
         fprintf(f, TAB TAB TAB TAB  "counter[124]-=odummy->size;\n");
     }
@@ -2641,8 +2678,18 @@ void output_optional_func(FILE *of, int max_room_code)
         fprintf(of, TAB "return false;\n");
         fprintf(of, "}\n");
     }
+    if(need_cv) {
+        /* Check for a verb */
+        fprintf(of, "#ifdef CV_IS_A_FUNCTION\n");
+        fprintf(of, "boolean cv(unsigned char v) FASTCALL\n");
+        fprintf(of, "{\n");
+        fprintf(of, "    return verb==v;\n");
+        fprintf(of, "}\n");
+        fprintf(of, "#endif\n");
+    }
     if(need_vov) {
         /* Check among two verbs */
+
         fprintf(of, "boolean vov(unsigned int v1, unsigned int v2)\n");
         fprintf(of, "{\n");
         fprintf(of, "    return verb==v1||verb==v2;\n");
@@ -2653,21 +2700,36 @@ void output_optional_func(FILE *of, int max_room_code)
         fprintf(of,
             "boolean vovn(unsigned int v1, unsigned int v2, unsigned int n)\n");
         fprintf(of, "{\n");
-        fprintf(of, "    return (verb==v1||verb==v2)&&noun1==n;\n");
+        if(need_vov)
+            fprintf(of, "    return vov(v1,v2)&&noun1==n;\n");
+        else
+            fprintf(of, "    return (verb==v1||verb==v2)&&noun1==n;\n");
         fprintf(of, "}\n");
     }
     if(need_non1) {
-    /* Check among two nouns1 */
+        /* Check among two nouns1 */
         fprintf(of, "boolean non1(unsigned int n1, unsigned int n2)\n");
         fprintf(of, "{\n");
         fprintf(of, "    return noun1==n1||noun1==n2;\n");
+        fprintf(of, "}\n");
+    }
+    if(need_cpi) {
+        /* Check if position is equal to a certain value */
+        fprintf(of, "boolean cpi(unsigned char p) FASTCALL\n");
+        fprintf(of, "{\n");
+        fprintf(of, "    return current_position==p;\n");
         fprintf(of, "}\n");
     }
     if(need_cvn) {
         /* Check for a name and noun */
         fprintf(of, "boolean cvn(unsigned int v, unsigned int n)\n");
         fprintf(of, "{\n");
+
         fprintf(of, "    return verb==v&&noun1==n;\n");
+        fprintf(of, "}\n");
+        fprintf(of, "boolean cvn70(unsigned char n)\n");
+        fprintf(of, "{\n");
+        fprintf(of, "    return cvn(70,n);\n");
         fprintf(of, "}\n");
     }
     if(need_cva) {
@@ -2676,25 +2738,24 @@ void output_optional_func(FILE *of, int max_room_code)
         fprintf(of, "{\n");
         fprintf(of, "    return verb==v&&actor==n;\n");
         fprintf(of, "}\n");
-    }
-    if(need_cv) {
-        /* Check for a verb */
-        fprintf(of, "#ifdef CV_IS_A_FUNCTION\n");
-        fprintf(of, "boolean cv(unsigned char v) FASTCALL\n");
+        fprintf(of, "boolean cva75(unsigned char n)\n");
         fprintf(of, "{\n");
-        fprintf(of, "    return verb==v;\n");
+        fprintf(of, "    return cva(75,n);\n");
         fprintf(of, "}\n");
-        fprintf(of, "#endif\n");
     }
     if(need_cvna) {
         /* If a name and a noun and avai conditions are given */
-        fprintf(of,
-            "boolean cvna(unsigned int v, unsigned int n, "
+        fprintf(of, "boolean cvna(unsigned int v, unsigned int n, "
             "unsigned int o)\n");
         fprintf(of, "{\n    dummy=get_object_position(o);\n");
-        fprintf(of, "    return verb==v&&noun1==n&&"
-            "(dummy==current_position||dummy==CARRIED);\n");
+            fprintf(of, "    return verb==v&&noun1==n&&"
+                "(dummy==current_position||dummy==CARRIED);\n");
         fprintf(of, "}\n");
+        fprintf(of,"boolean cvna70(unsigned char n, unsigned char o)\n");
+        fprintf(of, "{\n");
+        fprintf(of, "   return cvna(70,n,o);\n");
+        fprintf(of, "}\n");
+        
     }
     if(need_sendallroom) {
         fprintf(of, "void sendallroom(unsigned int s) FASTCALL\n{\n");
@@ -2704,8 +2765,8 @@ void output_optional_func(FILE *of, int max_room_code)
             "if(odummy->position==CARRIED) {\n");
         fprintf(of, TAB TAB TAB
             "odummy->position=s;\n");
-        fprintf(of, TAB TAB TAB "--counter[119];\n");
         if(dont_care_size_weight==false) {
+            fprintf(of, TAB TAB TAB "--counter[119];\n");
             fprintf(of, TAB TAB TAB "counter[120]-=odummy->weight;\n");
             fprintf(of, TAB TAB TAB "counter[124]-=odummy->size;\n");
         }
@@ -2805,7 +2866,6 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
 {
     fprintf(of,"room_code current_position;\n");
     fprintf(of,"room_code next_position;\n");
-    fprintf(of,"unsigned int turn;\n");
     fprintf(of,"boolean retv;\n");
     fprintf(of,"extern EFFSHORTINDEX ls;\n");
     fprintf(of,"extern char playerInput[];\n");
@@ -2872,8 +2932,8 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
         "world[j].directions[i]=original_connections[j][i];\n");
 
     fprintf(of, TAB "marker[124]=true;\n");
-    fprintf(of, TAB "marker[121]=true;\n");
-    fprintf(of, TAB "turn=0;\n");
+    if(!dont_use_light) fprintf(of, TAB "marker[121]=true;\n");
+    fprintf(of, TAB "marker[125]=0;\n");
     if(header->maxcarryingw==0) {
         header->maxcarryingw=10000;
     }
@@ -2881,8 +2941,10 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
         header->maxcarryings=10000;
     }
     fprintf(of, TAB "next_position=%d;\n",header->startroom);
-    fprintf(of, TAB "counter[121]=%d;\n",header->maxcarryings);
-    fprintf(of, TAB "counter[122]=%d;\n",header->maxcarryingw);
+    if(!dont_care_size_weight) {
+        fprintf(of, TAB "counter[121]=%d;\n",header->maxcarryings);
+        fprintf(of, TAB "counter[122]=%d;\n",header->maxcarryingw);
+    }
     fprintf(of, TAB "for(j=0; j<OSIZE;++j)\n");
     fprintf(of, TAB TAB "obj[j].position=original_position[j];\n");
     fprintf(of, "}\n\n");
@@ -3056,8 +3118,8 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     }
     fprintf(of, TAB "} else {\n");
     fprintf(of, TAB TAB "odummy->position=CARRIED;\n");
-    fprintf(of, TAB TAB "++counter[119];\n");
     if(dont_care_size_weight==false) {
+        fprintf(of, TAB TAB "++counter[119];\n");
         fprintf(of, TAB TAB "counter[120]+=odummy->weight;\n");
         fprintf(of, TAB TAB "counter[124]+=odummy->size;\n");
     }
@@ -3076,11 +3138,17 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     /* Check among two nouns1 */
     fprintf(of, "boolean non1(unsigned int n1, unsigned int n2);\n");
 
+    /* Check if the current position is equal to p*/
+    //fprintf(of, "boolean cpi(unsigned char p);\n");
+
     /* Check for a name and noun */
     fprintf(of, "boolean cvn(unsigned int v, unsigned int n);\n");
+    fprintf(of, "boolean cvn70(unsigned char n);\n");
 
     /* Check for a name and an actor */
     fprintf(of, "boolean cva(unsigned int v, unsigned int n);\n");
+    fprintf(of, "boolean cva75(unsigned char n);\n");
+
     if(hardcoded_messages==false) {
         fprintf(of,"unsigned char ams(unsigned char  v, unsigned char n, "
             "unsigned int m);\n");
@@ -3177,6 +3245,8 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     /* If a name and a noun and avai conditions are given */
     fprintf(of,
         "boolean cvna(unsigned int v, unsigned int n, unsigned int o);\n");
+    fprintf(of,
+        "boolean cvna70(unsigned char n, unsigned char o);\n");
 
     if(drop_as_function) {
         fprintf(of, "void drop(unsigned int o) FASTCALL\n{\n");
@@ -3187,8 +3257,8 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
 
     fprintf(of, TAB  "if(odummy->position==CARRIED){\\\n");
     fprintf(of, TAB TAB "odummy->position=current_position;\\\n");
-    fprintf(of, TAB TAB "--counter[119];\\\n");
     if(dont_care_size_weight==false) {
+        fprintf(of, TAB TAB "--counter[119];\\\n");
         fprintf(of, TAB TAB "counter[120]-=odummy->weight;\\\n");
         fprintf(of, TAB TAB "counter[124]-=odummy->size;\\\n");
     }
@@ -3244,6 +3314,14 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
 
 }
 
+/* Compress a word using a 5-bit encoding:
+
+A - 1
+B - 2
+C - 3
+...
+
+*/
 void compress_5bit(char *buffer)
 {
     char *pcomp=buffer;
@@ -3281,7 +3359,7 @@ void output_dictionary(FILE *of, word* dictionary, unsigned int dsize)
                     fprintf(of, ", ");
                 fprintf(of, "0x%x",(unsigned char)dictionary[i].w[j]);
             }
-            fprintf(of, ",0x0};\n");
+            fprintf(of, ",0x0};\n"); /* Is 0x0 absolutely necessary? */
         }
     }
 
@@ -3623,9 +3701,12 @@ void output_gameloop(FILE *f, int osize)
     fprintf(f, TAB "boolean ve,pa;\n");
     fprintf(f, TAB "while(1){\n");
     fprintf(f, TAB TAB "current_position=next_position;\n");
-    fprintf(f, TAB TAB "++turn;\n");
-    fprintf(f, TAB TAB
-        "if(marker[120]==false&&(marker[121]||marker[122])) {\n");
+    fprintf(f, TAB TAB "++marker[125];\n");
+    if(dont_use_light) 
+        fprintf(f, TAB TAB "if(marker[120]==false) {\n");
+    else
+        fprintf(f, TAB TAB
+            "if(marker[120]==false&&(marker[121]||marker[122])) {\n");
     if(add_clrscr==true)
         fprintf(f, TAB TAB TAB "clear();\n");
     else
@@ -3724,9 +3805,9 @@ void output_gameloop(FILE *f, int osize)
     fprintf(f, TAB TAB "printnewline();\n");
 
     if(hardcoded_messages==false)
-        fprintf(f, TAB TAB "if(ls==0 && turn<5) show_message(1012);\n");
+        fprintf(f, TAB TAB "if(ls==0 && marker[125]<5) show_message(1012);\n");
     else
-        fprintf(f, TAB TAB "if(ls==0 && turn<5) "
+        fprintf(f, TAB TAB "if(ls==0 && marker[125]<5) "
             "show_message(message1012);\n");
     fprintf(f, TAB TAB "interrogationAndAnalysis();\n");
     fprintf(f, TAB TAB "local_cond();\n");
@@ -3815,9 +3896,11 @@ void print_help(char *name)
            " -m  employ hardcoded messages instead of an array.\n"
            " -n  do not clear screen every time a new room is shown.\n"
            " -v  or --version print version and exit\n"
-           " -w  don't check for size and weight of objects\n"
+           " -w  don't check for size and weight of objects (counter 119, 120\n"
+           "     and 124 are not used).\n"
            " -k  don't output header\n"
            " -5  use 5-bit compression for the dictionary\n"
+           " -l  don't take into account light/dark situations\n"
            " --verbose write plenty of things.\n");
 
     printf("\n");
@@ -3868,6 +3951,9 @@ unsigned int process_options(char *arg, char *name)
         exit(0);
     } else if (strcmp(arg, "-5")==0) {
         compress5bit_dict=true;
+        return 1;
+    } else if (strcmp(arg, "-l")==0) {
+        dont_use_light=true;
         return 1;
     } else if (strcmp(arg, "--verbose")==0) {
         verbose=true;
