@@ -3853,17 +3853,16 @@ void print_header(FILE *f, info *header)
                 fprintf(f, TAB "write_textsl(headerdescription);\n");
         }
     } else {
-        if(!no_header_description)
-            fprintf(f, TAB "writeln(\"%s\\n%s\\n  %s\\n%s\\n\");\n", 
-                encodechar(header->name),
-                encodechar(header->author),
-                encodechar(header->date),
-                encodechar(header->description));
-        else
-            fprintf(f, TAB "writeln(\"%s\\n%s\\n  %s\\n\");\n", 
-                encodechar(header->name),
-                encodechar(header->author),
-                encodechar(header->date));
+        if(!no_header_description) {
+            fprintf(f, TAB "writeln(\"%s\\n", encodechar(header->name));
+            fprintf(f, "%s\\n", encodechar(header->author));
+            fprintf(f, "%s\\n", encodechar(header->date));
+            fprintf(f, "%s\\n\");\n", encodechar(header->description));
+        } else {
+            fprintf(f, TAB "writeln(\"%s\\n", encodechar(header->name));
+            fprintf(f, "%s\\n", encodechar(header->author));
+            fprintf(f, " %s\\n\");\n", encodechar(header->date));
+        }
     }
     fprintf(f, TAB "writesameln(\"AWS %s\");\n", encodechar(header->version));
     fprintf(f, TAB "normaltxt();\n");
