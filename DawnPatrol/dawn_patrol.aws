@@ -201,7 +201,7 @@ VERBO
 INVENTORY
 72
 NOME
-LEAVE
+BYE
 55
 VERBO
 READ
@@ -243,7 +243,7 @@ SEPARATORE
 DOOR
 114
 NOME
-LEAVE
+DROP
 55
 VERBO
 TAKE
@@ -290,7 +290,7 @@ GO
 VERBO
 LOCAZIONI
 1
-I am in the castle's courtyard. The stables are at east and an archway leads to the west passing under the guard post. On the northç a flight of stairs gets up towards the castle's entrance. The armory door is to the south.
+I am in the castle's courtyard. The stables are at east and an archway leads to the west passing under the guard post. To the northç a flight of stairs gets up towards the castle's entrance. The armory door is to the south.
 
 COURTYARD
 0

@@ -57,7 +57,8 @@ translating UTF-8 characters are available. The program help should explain them
 
 ~~~~
 $ ./aws2c -h
-Adventure Writing System to C compiler, version 1.9, September 2018 - July 2020
+Adventure Writing System to C compiler, version 1.9.1, September 2018 - 
+September 2020
 Davide Bucci
 
 Usage: ./aws2c [options] inputfile.aws outputfile
@@ -75,12 +76,14 @@ Available options:
  -c  compress text with Huffman algorithm.
  -d  employ 6 directions instead of 10.
  -m  employ hardcoded messages instead of an array.
- -n  do not clear the screen every time a new room is shown.
+ -n  do not clear screen every time a new room is shown.
  -v  or --version print version and exit
- -w  don't check for size and weight of objects
+ -w  don't check for size and weight of objects (counter 119, 120
+     and 124 are not used).
  -k  don't output header
  -5  use 5-bit compression for the dictionary
-  --verbose write plenty of things.
+ -l  don't take into account light/dark situations
+ --verbose write plenty of things.
 ~~~~
 
 If you have a machine that only has the accent ' available such as a Commodore 64, it makes sense to use the `-s` option to create the file to be compiled.
@@ -89,6 +92,8 @@ The `-m` option deserves some discussion. The default way of storing messages in
 Option `-w` allows to save some bytes if the size and weight of objects do not play an important role in the game.
 
 Option `-5` employs a 5-bit coding ('A' -> 1, 'B' -> 2, etc. up to 'Z') for the dictionary. This can be used for games with moderately large dictionaries (at least 150 words) to save space, as there is a certain overhead due to the packing code that needs to be included. The option has the side effect that the dictionary can not be immediately seen with an ASCII editor from the compiled file. That can be interesting for some applications, or when using game passwords.
+
+By default, the code takes into account the presence of absence of light (markers 121 and 122). This can be disabled by using the `-l` option.
 
 ## Some examples
 

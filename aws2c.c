@@ -1252,7 +1252,14 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
                         scanpos=sp;
                         start_function();
                         scanpos=process_functions(line, scanpos);
-                        fprintf(f,"vovn(%s,%s,%s)", arg1, arg2,function_res);
+                        if(strcmp(arg1,"100")==0 && strcmp(arg2,"0")==0 &&
+                            sscanf(function_res, "%d",&val1)==1 && val1<256)
+                        {
+                            fprintf(f,"vovn100_0(%s)", function_res);
+                        } else {
+                            fprintf(f,"vovn(%s,%s,%s)", arg1,
+                                arg2,function_res);
+                        }
                         need_vovn=true;
                     }
                 }
@@ -2705,6 +2712,10 @@ void output_optional_func(FILE *of, int max_room_code)
         else
             fprintf(of, "    return (verb==v1||verb==v2)&&noun1==n;\n");
         fprintf(of, "}\n");
+        fprintf(of, "boolean vovn100_0(unsigned char n) FASTCALL\n");
+        fprintf(of, "{\n");
+        fprintf(of, "    return vovn(100,0,n);\n");
+        fprintf(of, "}\n");        
     }
     if(need_non1) {
         /* Check among two nouns1 */
@@ -3063,7 +3074,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     fprintf(of,TAB "}\\\n");
 
     if(hardcoded_messages==false)
-        fprintf(of,TAB "if(gs==false) show_message(1033);\\\n}\\\n");
+        fprintf(of,TAB "if(gs==false) show_message(1033);\\\n}\n\n");
     else
         fprintf(of,TAB "if(gs==false) show_message(message1033);\\\n}\n\n");
 
@@ -3134,6 +3145,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     /* Check among two verbs AND a name */
     fprintf(of,
         "boolean vovn(unsigned int v1, unsigned int v2, unsigned int n);\n");
+    fprintf(of,"boolean vovn100_0(unsigned char n);\n");
 
     /* Check among two nouns1 */
     fprintf(of, "boolean non1(unsigned int n1, unsigned int n2);\n");

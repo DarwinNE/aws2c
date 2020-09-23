@@ -21,7 +21,7 @@ You should have generated `dawn_patrol.c` in the current directory. It can be co
 You can compile the game and play it in a modern console with the following command:
 
 ~~~~
-gcc dawn_patrol.c inout.c -o patrol
+gcc dawn_patrol.c inout.c loadsave.c -o patrol
 ~~~~
 
 If everything went fine, you should obtain the executable file `patrol` that you can run and play in your console:
@@ -104,7 +104,7 @@ Then, you can target your vintage system with your favourite compiler.
 For Commodore 8-bit computers one needs to generate 6502 assembly; I like the Cc65 compiler in particular. If we start by the C64, we may generate a `.prg` file that can be played in an emulator such as VICE:
 
 ~~~~
-cl65 -t c64 -D C64 -Or dawn_patrol_no_UTF8.c.c inout.c -o patrol-64.prg
+cl65 -t c64 -D C64 -Or dawn_patrol_no_UTF8.c.c inout.c  loadsave.c -o patrol-64.prg
 ~~~~
 
 The option `-D C64` tells the compiler to define a preprocessor symbol `C64`. It is important, as it targets the appropriate C64 definitions in the `systemd.h` file. Let's have a look at the appropriate section of the file:
@@ -198,7 +198,7 @@ The idea is to generate code as much as standard and portable as possible, so th
 If you want to play the game on a VIC-20 with the 16KB expansion, you can compile with:
 
 ~~~~
-cl65 -t vic20 -C vic20-16k_exp.cfg -D VIC20 -Or dawn_patrol_no_UTF8.c.c inout.c -o patrol-VIC+16.prg
+cl65 -t vic20 -C vic20-16k_exp.cfg -D VIC20 -Or dawn_patrol_no_UTF8.c.c inout.c  loadsave.c -o patrol-VIC+16.prg
 ~~~~
 
 The file `vic20-16k_exp.cfg` is a configuration file for Cc65 and is provided in this example.
@@ -208,7 +208,7 @@ The file `vic20-16k_exp.cfg` is a configuration file for Cc65 and is provided in
 If you have a C128, a very pleasant thing that offers is the 80-column mode:
 
 ~~~~
-cl65 -t c128 -D C128 -Or dawn_patrol_no_UTF8.c.c inout.c -o patrol-128.prg
+cl65 -t c128 -D C128 -Or dawn_patrol_no_UTF8.c.c inout.c  loadsave.c -o patrol-128.prg
 ~~~~
 
 A disadvantage of the C128 target with respect to the C64 is that you can use much less memory! Apparently this is normal, I discussed with the Cc65 guys here on GitHub: https://github.com/cc65/cc65/issues/772
@@ -219,7 +219,7 @@ To compile for the ZX Spectrum, we need to use a different compiler as the proce
 
 To compile the program:
 ~~~~
-zcc +zx -clib=ansi -lndos -create-app dawn_patrol_no_UTF8.c.c inout.c -o ZXpatrol
+zcc +zx -clib=ansi -lndos -create-app dawn_patrol_no_UTF8.c.c  loadsave.c inout.c -o ZXpatrol
 ~~~~
 
 You obtain a `ZXpatrol.tap` that you can run in an emulator. You can also create a `.wav` file with the nice `appmake` routine:
