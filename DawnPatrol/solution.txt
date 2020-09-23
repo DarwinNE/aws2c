@@ -1,0 +1,29 @@
+e
+search straw
+take chain mail
+wear chain mail
+w
+up
+take torch
+down
+w
+n
+look under bench
+take helmet
+wear helmet
+light torch
+s
+e
+open door
+s
+take sword
+n
+e
+e
+take saddle
+take harness
+w
+put saddle on horse
+put harness on horse
+ride horse
+y
