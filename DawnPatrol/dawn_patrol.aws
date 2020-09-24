@@ -90,7 +90,7 @@ IF verb 100 and noun 7 and res? 14 THEN mess 18 WAIT ENDIF
 3
 IF verb 100 and noun 7 and res? 15 THEN mess 19 WAIT ENDIF
 3
-IF verb 100 and noun 7 THEN set 16 mess 22 quit ENDIF
+IF verb 100 and noun 7 THEN set 16 mess 22 exit ENDIF
 3
 IF verb 39 AND noun 5 AND  no2eq 7 AND carr 5 THEN set 14 to 5 8 okay ENDIF  metti SELLA  CAVALLO
 3
@@ -135,10 +135,13 @@ VERBO
 STOP
 40
 VERBO
+BYE
+40
+VERBO
 HARNESS
 6
 NOME
-CHARGE
+LOAD
 989
 VERBO
 RIDE
@@ -168,6 +171,9 @@ VERBO
 EXAMINE
 70
 VERBO
+X
+70
+VERBO
 EAST
 82
 VERBO
@@ -178,9 +184,6 @@ FIRE
 60
 NOME
 D
-110
-VERBO
-DOWN
 85
 VERBO
 LOOK
@@ -210,16 +213,13 @@ VERBO
 PUT
 39
 VERBO
-RIDE
-100
-VERBO
 SHOW
 74
 VERBO
 N
 80
 VERBO
-NORD
+NORTH
 80
 VERBO
 W
@@ -246,12 +246,12 @@ NOME
 DROP
 55
 VERBO
+GET
+50
+VERBO
 TAKE
 50
 VERBO
-THEN
-9999
-SEPARATORE
 RESTART
 987
 VERBO
@@ -277,6 +277,9 @@ TURN
 38
 VERBO
 UP
+84
+VERBO
+U
 84
 VERBO
 SOUTH
@@ -441,7 +444,7 @@ You don't have your sword.
 21
 You don't wear the chain mail.
 22
-You get on the horse and trot outside the castleç joining your mates in time for the morning patrol.
+You get on the horse and trot outside the castleç joining your mates in time for the morning patrol.^MYou have completed the game !^M
 23
 You don't wear your helmet.
 30
@@ -453,7 +456,7 @@ A loud voice echoes nearby: "Soldier Smith! Where are you hidingç sort of human 
 34
 You hear footsteps behind you and a grouchy voice shouts: "Here you are! Throw him in the castle's dungeons for not showing up!". Two corpulent soldiers escort you to the dungeons and lock you in a cell. You spent too much time and you failed miserably!
 35
-The hose is a magnificent arab stallionç born to carry warriors like you.
+The horse is a magnificent arab stallionç born to carry warriors like you.
 1000
 Okay.
 1001
@@ -513,7 +516,7 @@ northwest
 1029
 southeast
 1030
-southovest
+southwest
 1031
 I can see: 
 1032
@@ -525,7 +528,7 @@ basta
 OGGETTI
 1
 
-a torch, out
+an unlit torch
 0
 0
 5
@@ -541,7 +544,7 @@ FALSE
 TRUE
 3
 
-a chain mail
+chain mail
 0
 0
 0
