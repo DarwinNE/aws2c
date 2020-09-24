@@ -7,6 +7,8 @@ normal_code="\033[0m"
 printf "Compiling Iunnuh with no options........... "
 cd ../../Iunnuh
 
+make clean >/dev/null 2>/dev/null
+
 if make modern >compile_results.txt 2>compile_errors.txt
 then
     printf $green_code"PASS\n"$normal_code
