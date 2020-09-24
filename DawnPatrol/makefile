@@ -28,4 +28,4 @@ spectrum: dawn_patrol_no_UTF8.c.c inout.c  loadsave.c
 
 
 clean:
-	rm dawn_patrol_no_UTF8.c.c patrol dawn_patrol.c patrol-128.prg patrol-64.prg patrol-VIC+16.prg ZXpatrol.tap ZXpatrol.wav
+	rm dawn_patrol_no_UTF8.c.c patrol dawn_patrol.c patrol-128.prg patrol-64.prg patrol-VIC+16.prg ZXpatrol.tap ZXpatrol.wav patrol patrol_a

@@ -1,5 +1,6 @@
 
 
+
 prendi la torcia
 nord
 scava la sabbia
@@ -82,3 +83,5 @@ posa la collana
 posa lo zaffiro
 punteggio
 e
+basta
+y
