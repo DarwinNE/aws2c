@@ -1,0 +1,72 @@
+
+
+s
+e
+examine the cat
+examine the tag
+read the tag
+e
+e
+n
+n
+read the sign
+untie the sign
+take the rope
+take the sign
+e
+type 30091984
+enter
+s
+take the flyer
+s
+e
+break the shrine
+take the torch
+up
+take the screwdriver
+take the roll
+take the batteries
+jump on the chandelier
+examine crystal
+read crystal
+jump on balcony
+down
+n
+e
+e
+move the sarcophagus
+tie the rope to the sarcophagus
+drop the rope in the hole
+jump in the hole
+insert batteries in the torch
+cover the mirror with the roll of tape
+break the mirror
+w
+w
+w
+s
+e
+detach the portrait from the wall
+e
+examine desk
+take the notebook
+examine the notebook
+read the notebook
+w
+w
+n
+n
+open the boxes with the screwdriver
+leave the screwdriver
+take the book
+take the vestments
+wear the vestments
+take the candlestick
+e
+e
+leave the candlestick on the altar
+officiate the ritual
+e
+bye
+y
+
