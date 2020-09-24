@@ -27,4 +27,4 @@ w
 put saddle on horse
 put harness on horse
 ride horse
-y
+e
