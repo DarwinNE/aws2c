@@ -581,7 +581,7 @@ IF verb 70 AND noun 8 THEN mess 347 WAIT ENDIF esamina corda
 28
 IF verb 70 AND noun 10 THEN mess 285 WAIT ENDIF  ESAMINA  ALTARE
 28
-IF verb 33 OR verb 34 AND noun 32 AND set? 59 AND avai 6 AND avai 2 AND iswearing 9 AND set? 60 THEN mess 291 mess 290 hold 3 mess 292 hold 3 mess 293 hold 3 mess 294 hold 3 mess 295 hold 3 mess 296 hold 3 mess 297 quit ENDIF  CANDELABRO  LIBRO  PARAMENTI
+IF verb 33 OR verb 34 AND noun 32 AND set? 59 AND avai 6 AND avai 2 AND iswearing 9 AND set? 60 THEN mess 291 mess 290 hold 3 mess 292 hold 3 mess 293 hold 3 mess 294 hold 3 mess 295 hold 3 mess 296 hold 3 mess 297 exit ENDIF  CANDELABRO  LIBRO  PARAMENTI
 28
 IF verb 33 OR verb 34 AND noun 32 AND res? 59 THEN mess 287 wait ENDIF
 28
