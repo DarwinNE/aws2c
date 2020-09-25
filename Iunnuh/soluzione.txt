@@ -1,0 +1,87 @@
+
+
+
+prendi la torcia
+nord
+scava la sabbia
+prendi la chiave
+est
+prendi la trave
+sud
+apri la porta
+entra nella piramide
+accendi la torcia
+prendi il flauto
+posa la chiave
+ovest
+prendi il teschio
+sud
+prendi la collana
+est
+posa il teschio
+sopra
+prendi le batterie
+sud
+suona il flauto
+posa il flauto
+prendi lo zaffiro
+ovest
+sotto
+ovest
+nord
+ondeggia lo zaffiro
+est
+posa lo zaffiro
+posa la collana
+sud
+sopra
+est
+nord
+cambia le batterie
+prendi le bende
+prendi la scure
+sud
+sud
+ovest
+sotto
+nord
+ovest
+sotto
+est
+dai le bende alla mummia
+est
+sud
+est
+prendi il vaso
+ovest
+ovest
+posa la trave
+sud
+sud
+esamina il sarcofago
+prendi la maschera
+nord
+nord
+est
+nord
+ovest
+ovest
+sopra
+est
+nord
+nord
+posa la scure
+posa il vaso
+posa la maschera
+sud
+entra
+prendi la collana
+prendi lo zaffiro
+nord
+nord
+posa la collana
+posa lo zaffiro
+punteggio
+e
+basta
+y

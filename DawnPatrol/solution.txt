@@ -1,3 +1,4 @@
+
 e
 search straw
 take chain mail
@@ -26,4 +27,6 @@ w
 put saddle on horse
 put harness on horse
 ride horse
+e
+bye
 y
