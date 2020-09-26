@@ -3145,7 +3145,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     /* Check among two verbs AND a name */
     fprintf(of,
         "boolean vovn(unsigned int v1, unsigned int v2, unsigned int n);\n");
-    fprintf(of,"boolean vovn100_0(unsigned char n);\n");
+    fprintf(of,"boolean vovn100_0(unsigned char n) FASTCALL;\n");
 
     /* Check among two nouns1 */
     fprintf(of, "boolean non1(unsigned int n1, unsigned int n2);\n");

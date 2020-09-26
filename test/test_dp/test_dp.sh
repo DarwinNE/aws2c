@@ -14,7 +14,6 @@ then
     printf $green_code"PASS\n"$normal_code
 else
     printf $red_code"FAIL\n"$normal_code
-    exit
 fi
 
 printf "Running Dawn Patrol with walktrough........ "
@@ -28,7 +27,6 @@ then
     printf $green_code"PASS\n"$normal_code
 else
     printf $red_code"FAIL\n"$normal_code
-    exit
 fi
 
 

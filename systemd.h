@@ -431,8 +431,8 @@
     #define B_SIZE 88
     #define CV_IS_A_FUNCTION
 
-   // #define LOAD SIMPLELOAD
-   // #define SAVE SIMPLESAVE
+    #define LOAD SIMPLELOAD
+    #define SAVE SIMPLESAVE
 
     #define SHIFTPETSCII \
         if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20
