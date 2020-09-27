@@ -47,6 +47,7 @@ old Commodore machines.
 #define BUFFERSIZE 16000
 char buffer[BUFFERSIZE];
 char function_res[BUFFERSIZE];
+char *config_file=NULL;
 #define TAB "    "
 
 room* world;
@@ -268,7 +269,7 @@ word *read_dictionary(FILE *f, int size)
     char *errorp="Could not allocate enough memory for the dictionary.\n";
     if (size<=0)
         return NULL;
-    
+
     word *dictionary = (word*)calloc(size, sizeof(word));
     if (dictionary==NULL) {
         printf("%s",errorp);
@@ -377,7 +378,7 @@ char **read_cond(FILE*f, int size)
 
     if(size<=0)
         return NULL;
-    
+
     if (verbose)
         printf("\n");
     cond = (char**)calloc(size, sizeof(char*));
@@ -573,7 +574,7 @@ info *read_header(FILE *f)
     getlinep(f);
     in->name=calloc(strlen(buffer)+1,sizeof(char));
     strcpy(in->name,buffer);
-    
+
     getlinep(f);
     in->author=calloc(strlen(buffer)+1,sizeof(char));
     strcpy(in->author,buffer);
@@ -940,7 +941,7 @@ unsigned int decision_at(FILE *f, char *line, unsigned int scanpos)
                     need_ar=true;
                     proc=true;
                     fprintf(f, "ar(%s,%s)", arg1,arg2);
-                }                 
+                }
             }*/
         }
     }
@@ -1107,8 +1108,8 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
             strcpy(arg2,function_res);
             /*  75 is a very frequent action with an actor (SPEAK).
                 This is done only if the actor has a 1-byte code. */
-            if(strcmp(arg1,"75")==0 && 
-                sscanf(arg2, "%d",&val2)==1 && val2<256) 
+            if(strcmp(arg1,"75")==0 &&
+                sscanf(arg2, "%d",&val2)==1 && val2<256)
             {
                 fprintf(f, "cva75(%s)", arg2);
             } else {
@@ -1141,7 +1142,7 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
                     scanpos=sp;
                     start_function();
                     scanpos=process_functions(line, scanpos);
-                    if(strcmp(arg1,"70")==0 && 
+                    if(strcmp(arg1,"70")==0 &&
                         sscanf(arg2, "%d",&val2)==1 && val2<256 &&
                         sscanf(function_res, "%d",&fval)==1 && fval<256)
                     {
@@ -1154,7 +1155,7 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
                 }
             } else if(strcmp(next,"OR")==0) {
                 if(sscanf(arg1, "%d",&val1)==1 && val1<256)
-                    fprintf(f, "cv(%s)", arg1);            
+                    fprintf(f, "cv(%s)", arg1);
                 else
                     fprintf(f, "verb==%s", arg1);
 
@@ -1165,7 +1166,7 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
                 int lp=sp-5;        // beurk!
 
                 sp=peek_token(line, sp);
-/*                if (sscanf(arg1, "%d", &val1)==1 && val1<256 && 
+/*                if (sscanf(arg1, "%d", &val1)==1 && val1<256 &&
                     sscanf(arg2, "%d", &val2)==1 && val2<256 &&
                     strcmp(next,"MESS")==0)
                 {
@@ -1195,14 +1196,14 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
                         else
                             fprintf(f, "ams(%s,%s,message%s)",
                                 arg1,arg2,function_res);
-        
+
                     }
                 } */
             }
             if(proc==false) {
                 /* 70 (EXAMINE) is by far the most frequent verb.
                    this is done only if the noun has a code <256. */
-                if(strcmp(arg1,"70")==0 && 
+                if(strcmp(arg1,"70")==0 &&
                     sscanf(arg2, "%d",&val2)==1 && val2<256)
                 {
                     fprintf(f, "cvn70(%s)", arg2);
@@ -1213,10 +1214,10 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
             }
             if(arg1!=NULL) free(arg1);
             if(arg2!=NULL) free(arg2);
-        
+
         } else {
             if(sscanf(function_res, "%d",&val1)==1 && val1<256)
-                fprintf(f, "cv(%s)", function_res);            
+                fprintf(f, "cv(%s)", function_res);
             else
                 fprintf(f, "verb==%s", function_res);
 
@@ -1950,7 +1951,7 @@ unsigned int action_brin(FILE *f, char *line, unsigned int scanpos)
 /** QUIT */
 unsigned int action_quit(FILE *f, char *line, unsigned int scanpos)
 {
-    
+
     fprintf(f, TAB TAB "if(are_you_sure()) {\n");
     fprintf(f, TAB TAB TAB "leave(); exit(0);\n");
     fprintf(f, TAB TAB "}\n");
@@ -2174,12 +2175,12 @@ unsigned int action_setconn(FILE *f, char *line, unsigned int scanpos)
     scanpos=process_functions(line, scanpos);
     if(sscanf(arg1,"%d",&l)==1 && l>0) {
         fprintf(f, TAB TAB "world[%d].directions[(%s)-1]=%s;\n",
-            search_room(l), arg2, function_res);    
+            search_room(l), arg2, function_res);
     } else {
         fprintf(f, TAB TAB "world[search_room(%s)].directions[(%s)-1]=%s;\n",
             arg1, arg2, function_res);
     }
-    
+
 
     free(arg1);
     free(arg2);
@@ -2335,7 +2336,7 @@ void process_aws(FILE *f, char *line)
         ++no_of_errors;
         return;
     }
-    /* In some cases a NO1GT condition may imply that noun1>0, that can be 
+    /* In some cases a NO1GT condition may imply that noun1>0, that can be
        skipped processing a NO1LT condition. */
     checked_noun1_greater_zero=false;
     fprintf(f,TAB "// %s\n",line);
@@ -2608,10 +2609,10 @@ void output_header(FILE *of, int maxroomcode, int maxobjcode,
     fprintf(of,"/* File generated by aws2c */\n\n");
     //fprintf(of,"#include<stdio.h>\n");
     fprintf(of,"#include<stdlib.h>\n");
-    
-    FILE *hf=fopen("config.h","w");
+
+    FILE *hf=fopen(config_file?config_file:"config.h","w");
     if(hf==NULL) {
-        fprintf(stderr, "Can't open config.h file.");
+        fprintf(stderr, "Can't open configuration file.");
     }
     fprintf(hf,"/* File generated by aws2c */\n\n");
     fprintf(hf, "#define DSIZE %d\n",dsize);
@@ -2621,7 +2622,7 @@ void output_header(FILE *of, int maxroomcode, int maxobjcode,
 
     if(compress5bit_dict)
         fprintf(hf,"#define DICT5BIT\n");
- 
+
     if(use_6_directions==true) {
         fprintf(hf,"#define DIR_REDUCED\n");
     }
@@ -2638,10 +2639,10 @@ void output_header(FILE *of, int maxroomcode, int maxobjcode,
         printf("maxobjcode: %d\n",maxobjcode);
         fprintf(hf,"#define BYTEOBJCODE\n");
     }
-   
+
     fprintf(hf,"#define AVOID_SDESC\n");
     fclose(hf);
-    fprintf(of,"#include\"config.h\"\n\n");
+    fprintf(of,"#include\"%s\"\n\n", config_file?config_file:"config.h");
     fprintf(of,"#include\"aws.h\"\n\n");
     fprintf(of,"#include\"inout.h\"\n");
     fprintf(of,"#include\"systemd.h\"\n\n");
@@ -2715,7 +2716,7 @@ void output_optional_func(FILE *of, int max_room_code)
         fprintf(of, "boolean vovn100_0(unsigned char n) FASTCALL\n");
         fprintf(of, "{\n");
         fprintf(of, "    return vovn(100,0,n);\n");
-        fprintf(of, "}\n");        
+        fprintf(of, "}\n");
     }
     if(need_non1) {
         /* Check among two nouns1 */
@@ -2766,7 +2767,7 @@ void output_optional_func(FILE *of, int max_room_code)
         fprintf(of, "{\n");
         fprintf(of, "   return cvna(70,n,o);\n");
         fprintf(of, "}\n");
-        
+
     }
     if(need_sendallroom) {
         fprintf(of, "void sendallroom(unsigned int s) FASTCALL\n{\n");
@@ -2842,7 +2843,7 @@ void output_optional_func(FILE *of, int max_room_code)
         fprintf(of, "{\n");
         fprintf(of,
             "    if(current_position==p&&marker[c]==v) show_message(m);\n");
-        fprintf(of, "}\n");    
+        fprintf(of, "}\n");
     }
     if(need_as) {
         fprintf(of, "char as(unsigned int p, unsigned char f)\n{\n");
@@ -2852,7 +2853,7 @@ void output_optional_func(FILE *of, int max_room_code)
     if(need_ar) {
         fprintf(of, "char ar(unsigned int p, unsigned char f)\n{\n");
         fprintf(of, "    return current_position==p&&!marker[f];\n");
-        fprintf(of, "}\n");    
+        fprintf(of, "}\n");
     }
     if(need_ams) {
         if(hardcoded_messages==false) {
@@ -2867,12 +2868,12 @@ void output_optional_func(FILE *of, int max_room_code)
         fprintf(of, "{\n");
         fprintf(of,
             "    if(verb==v && noun1==n) { show_message(m); return 1;}\n");
-        fprintf(of, "    return 0;\n");    
-        fprintf(of, "}\n");    
+        fprintf(of, "    return 0;\n");
+        fprintf(of, "}\n");
     }
 }
 
-void output_utility_func(FILE *of, info *header, int rsize, int osize, 
+void output_utility_func(FILE *of, info *header, int rsize, int osize,
     int max_room_code)
 {
     fprintf(of,"room_code current_position;\n");
@@ -2880,12 +2881,12 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     fprintf(of,"boolean retv;\n");
     fprintf(of,"extern EFFSHORTINDEX ls;\n");
     fprintf(of,"extern char playerInput[];\n");
-    
+
     fprintf(of,"boolean marker[129];\n");
     fprintf(of,"int counter[129];\n");
 
     fprintf(of,"object *odummy;\n\n");
-    /* Introduces the prototype here, functions will be included only if 
+    /* Introduces the prototype here, functions will be included only if
        necessary, after having analyzed the file. */
     fprintf(of,"char *searchw(unsigned int w) FASTCALL;\n");
     fprintf(of, "boolean unwear(unsigned int o) FASTCALL;\n");
@@ -2894,8 +2895,8 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     fprintf(of,TAB "writesameln(\"\\n\");\n}\n\n");
     fprintf(of,"void printspace(void)\n{\n");
     fprintf(of,TAB "writesameln(\" \");\n}\n\n");
-    
-    
+
+
     if(osize>255) {
         fprintf(of,"unsigned int search_object(unsigned int o) FASTCALL\n{\n");
         fprintf(of,TAB "unsigned int idx;\n");
@@ -2939,7 +2940,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     fprintf(of,TAB "}\n");
     fprintf(of,TAB "for(j=0; j<RSIZE;++j)\n");
     fprintf(of,TAB TAB "for(i=0; i<NDIR;++i)\n");
-    fprintf(of,TAB TAB TAB 
+    fprintf(of,TAB TAB TAB
         "world[j].directions[i]=original_connections[j][i];\n");
 
     fprintf(of, TAB "marker[124]=true;\n");
@@ -3084,7 +3085,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
         fprintf(of, TAB "unsigned int p;\n");
     else
         fprintf(of, TAB "EFFSHORTINDEX p;\n");
-    fprintf(of, TAB 
+    fprintf(of, TAB
         "p=world[search_room(current_position)].directions[dir];\n");
     fprintf(of, TAB
         "if(p) {\n");
@@ -3120,7 +3121,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
             fprintf(of, TAB TAB "show_message(1003);\n");
         else
             fprintf(of, TAB TAB "show_message(message1003);\n");
-        fprintf(of, TAB 
+        fprintf(of, TAB
             "} else if(counter[124]+odummy->size>counter[121]) {\n");
         if(hardcoded_messages==false)
             fprintf(of, TAB TAB "show_message(1004);\n");
@@ -3500,7 +3501,7 @@ unsigned int output_rooms(FILE *of, room* world, unsigned int rsize)
     return totalsize;
 }
 
-/** Create the code for the messages in the output file. 
+/** Create the code for the messages in the output file.
     Return the total size in byte occupied by the messages.
 */
 unsigned int output_messages(FILE *of, message* msg, unsigned int msize,
@@ -3667,7 +3668,7 @@ void output_lowcond(FILE *f, char **cond,  int size)
     }
     fprintf(f, TAB "retv=false;\n");
     fprintf(f, TAB "return;\n");
-    /*  Use a global variable for keeping track of the return value. 
+    /*  Use a global variable for keeping track of the return value.
         The difference can be considerable in big
         adventures, as there are plenty of WAIT commands. */
     fprintf(f,"}\n");
@@ -3714,7 +3715,7 @@ void output_gameloop(FILE *f, int osize)
     fprintf(f, TAB "while(1){\n");
     fprintf(f, TAB TAB "current_position=next_position;\n");
     fprintf(f, TAB TAB "++marker[125];\n");
-    if(dont_use_light) 
+    if(dont_use_light)
         fprintf(f, TAB TAB "if(marker[120]==false) {\n");
     else
         fprintf(f, TAB TAB
@@ -3744,7 +3745,7 @@ void output_gameloop(FILE *f, int osize)
 
     if(compress_messages==true) {
         if(hardcoded_messages==true) {
-            fprintf(f,TAB TAB TAB 
+            fprintf(f,TAB TAB TAB
                 "show_message(cr->long_d);\n");
         } else {
             fprintf(f,TAB TAB TAB
@@ -3789,7 +3790,7 @@ void output_gameloop(FILE *f, int osize)
     if(hardcoded_messages==false)
         fprintf(f, TAB TAB TAB TAB TAB TAB TAB "show_messagenlf(1020);\n");
     else
-        fprintf(f, TAB TAB TAB TAB TAB TAB TAB 
+        fprintf(f, TAB TAB TAB TAB TAB TAB TAB
             "show_messagenlf(message1020);\n");
 
     fprintf(f, TAB TAB TAB TAB TAB TAB TAB"pa=true;\n");
@@ -3912,6 +3913,12 @@ void print_help(char *name)
            " -k  don't output header\n"
            " -5  use 5-bit compression for the dictionary\n"
            " -l  don't take into account light/dark situations\n"
+           " -f  <filename> specify the name of the file to be used for the\n"
+           "     configuration. Default is config.h.\n"
+           "     NOTE: if this option is used, you should compile the files\n"
+           "     with the macro CONFIG_FILENAME defined to the configuration\n"
+           "     file name, within \". For example, for gcc\n"
+           "     gcc -DCONFIG_FILENAME=\\\"test.h\\\" ...\n"
            " --verbose write plenty of things.\n");
 
     printf("\n");
@@ -3920,6 +3927,19 @@ void print_help(char *name)
 /* Process options from the command line. */
 unsigned int process_options(char *arg, char *name)
 {
+    static boolean require_config_file;
+
+    /* This condition is true if the previous execution of process_option
+       has required a name for the configuration file.
+    */
+    if(require_config_file) {
+        config_file=calloc(strlen(arg)+1, sizeof(char));
+        strcpy(config_file, arg);
+        require_config_file=false;
+        return 1;
+    }
+
+    /* Process normal options. */
     if(strcmp(arg, "-h")==0) {
         print_help(name);
         return 1;
@@ -3966,6 +3986,9 @@ unsigned int process_options(char *arg, char *name)
     } else if (strcmp(arg, "-l")==0) {
         dont_use_light=true;
         return 1;
+    } else if (strcmp(arg, "-f")==0) {
+        require_config_file=true;
+        return 1;
     } else if (strcmp(arg, "--verbose")==0) {
         verbose=true;
         return 1;
@@ -3989,7 +4012,7 @@ int contains(char *s1, char *s2)
 }
 
 
-/* Check the code and set up some configuration variables to improve the 
+/* Check the code and set up some configuration variables to improve the
    code generation efficiency.
 */
 void code_analysis(char **commands, unsigned int size)
@@ -4011,7 +4034,7 @@ void code_analysis(char **commands, unsigned int size)
     }
 }
 
-/* Check the code and set up some configuration variables to improve the 
+/* Check the code and set up some configuration variables to improve the
    code generation efficiency.
 */
 void code_analysisLC(localc *commands, unsigned int size)
@@ -4171,7 +4194,7 @@ int main(int argc, char **argv)
     no_of_errors=0;
     max_room_code=get_max_room_code(world, rsize);
     max_obj_code =get_max_object_code(objects, osize);
-    output_header(of, max_room_code,max_obj_code, dsize, rsize, osize, 
+    output_header(of, max_room_code,max_obj_code, dsize, rsize, osize,
         header->name);
     if(compress_messages==true || compress_descriptions==true) {
         output_decoder(of);
