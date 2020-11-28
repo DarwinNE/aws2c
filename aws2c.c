@@ -32,7 +32,7 @@ old Commodore machines.
 #include "aws.h"
 #include "compress.h"
 
-#define VERSION "1.9.1, September 2018 - September 2020"
+#define VERSION "1.9.2, September 2018 - November 2020"
 #define AREYOUSURE "Are you sure? Type 'Y' and return if yes."
 #define EXITRESTART "'E' and return to exit, anything else to restart."
 
@@ -124,7 +124,7 @@ unsigned int number_of_drops;
     alone if those options must be turned on or off by checking the statistics.
 */
 boolean jump_as_function=false;
-boolean drop_as_function=false;
+boolean drop_as_function=true;  // It must be true as function returns a value.
 
 typedef struct conv_t {
     char *orig;
@@ -1991,7 +1991,7 @@ unsigned int action_drop(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, TAB TAB "drop(%s);\n",function_res);
+    fprintf(f, TAB TAB "if(drop(%s)) return;\n",function_res);
     return scanpos;
 }
 /** TO */
@@ -2125,6 +2125,12 @@ unsigned int action_dropall(FILE *f, char *line, unsigned int scanpos)
     }
     fprintf(f, TAB TAB TAB "}\n");
     fprintf(f, TAB TAB "}\n");
+    return scanpos;
+}
+/** RESETALL */
+unsigned int action_resetall(FILE *f, char *line, unsigned int scanpos)
+{
+    fprintf(f, TAB TAB "restart();\n");
     return scanpos;
 }
 /** SENDALLROOM */
@@ -2554,6 +2560,8 @@ void process_aws(FILE *f, char *line)
             scanpos=action_getall(f, line, scanpos);
         } else if(strcmp(token,"DROPALL")==0) {
             scanpos=action_dropall(f, line, scanpos);
+        } else if(strcmp(token,"RESETALL")==0) {        // Extension to AWS 3.0
+            scanpos=action_resetall(f, line, scanpos);
         } else if(strcmp(token,"LF")==0) {
             scanpos=action_lf(f, line, scanpos);
         } else if(strcmp(token,"OBJ")==0) {
@@ -3261,11 +3269,11 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     fprintf(of,
         "boolean cvna70(unsigned char n, unsigned char o);\n");
 
-    if(drop_as_function) {
-        fprintf(of, "void drop(unsigned int o) FASTCALL\n{\n");
-    } else {
+    //if(drop_as_function) {
+    fprintf(of, "boolean drop(unsigned int o) FASTCALL\n{\n");
+    /*} else {
         fprintf(of, "#define drop(o) \\\n{\\\n");
-    }
+    }*/
     fprintf(of, TAB  "odummy=search_object_p(o);\\\n");
 
     fprintf(of, TAB  "if(odummy->position==CARRIED){\\\n");
@@ -3275,11 +3283,14 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
         fprintf(of, TAB TAB "counter[120]-=odummy->weight;\\\n");
         fprintf(of, TAB TAB "counter[124]-=odummy->size;\\\n");
     }
-    fprintf(of, TAB "} else\\\n");
+    fprintf(of, TAB "} else {\\\n");
     if(hardcoded_messages==false)
         fprintf(of, TAB TAB "show_message(1007);\\\n");
     else
         fprintf(of, TAB TAB "show_message(message1007);\\\n");
+    fprintf(of, TAB TAB "return true;\\\n");    
+    fprintf(of, TAB "}\\\n");
+    fprintf(of, TAB "return false;\\\n");    
     fprintf(of, "}\n\n");
 
 
@@ -3334,6 +3345,7 @@ B - 2
 C - 3
 ...
 
+The compressed word will substitute the original one in the buffer.
 */
 void compress_5bit(char *buffer)
 {
@@ -3349,7 +3361,7 @@ void compress_5bit(char *buffer)
         c=(c-'@')&0x1F;
         c<<=shift;
         *pcomp |=c&0x00FF;
-        if(shift>3)
+        if(shift>=3)
             *(++pcomp)=(c&0xFF00)>>8;
 
         shift+=5;
@@ -3373,6 +3385,16 @@ void output_dictionary(FILE *of, word* dictionary, unsigned int dsize)
                 fprintf(of, "0x%x",(unsigned char)dictionary[i].w[j]);
             }
             fprintf(of, ",0x0};\n"); /* Is 0x0 absolutely necessary? */
+        }
+    }
+
+    for(i=0; i<dsize;++i) {
+        for(j=i+1; j<dsize;++j) {
+            if(strcmp(dictionary[i].w, dictionary[j].w)==0 &&
+                strlen(dictionary[i].w)==strlen(dictionary[j].w)) {
+                printf("WARNING: repeated words in the dictionary at codes %d"
+                    " and %d.\n",dictionary[i].code,dictionary[j].code);
+            }
         }
     }
 

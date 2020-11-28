@@ -243,7 +243,7 @@ void compress_5bit(char *buffer)
         c=(c-'@')&0x1F;  // 'A' is encoded with 1, since 0 is the end of string
         c<<=shift;
         *pcomp |=c&0x00FF;
-        if(shift>3)
+        if(shift>=3)
             *(++pcomp)=(c&0xFF00)>>8;
         shift=(shift+5)&0x07;
     }

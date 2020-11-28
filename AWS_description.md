@@ -4,11 +4,13 @@ By Davide Bucci
 
 ## Introduction
 
-The Adventure Writing System (AWS) is a program written by Aristide Torrelli to allow creating text adventures in a pleasant environment. An extensive documentation about it is available on Aristide's website and it is in Italian. Moreover, AWS only runs on Microsoft Windows and it may be cumbersome to use on other OS even if Wine can help in some situations.
+The Adventure Writing System (AWS) is a program written by Aristide Torrelli to allow creating text adventures in a pleasant environment. An extensive documentation about it is available on Aristide's website and it is in Italian. Moreover, AWS only runs on Microsoft Windows and it may be cumbersome to use on other OS'es, even if Wine helps in some situations.
 
-I developed a complete text adventure game by working directly on the AWS file with a text editor. I also put together a tool, called `aws2c` that can generate standard C code directly from the AWS file that contains the game.
+I developed complete text adventure games by working directly on the AWS file with a text editor. I also put together a tool, called `aws2c` that generates standard C code directly from the AWS file that describes the game.
 
-I thought it would be interesting to briefly document the file format here in English language, so that it may become more accessible worldwide.
+I thought it would be interesting to briefly document the file format here in English language, so that AWS may become more accessible worldwide.
+
+Aristide reported that AWS was strongly inspired by Graphic Adventure Creator, so you may feel at home if you already used GAC.
 
 ## File organization
 
@@ -24,7 +26,7 @@ Currently an AWS file is a UTF-8 encoded text file (Windows-style CR+LF end of l
 8. The objects used in the game, started by the `OGGETTI` tag
 9. The end-of-file delimiter tag `FINEDATI`
 
-Commands are not case-sensitive, but of course you may be careful about that in your message and everything that is shown to the player.
+Commands are not case-sensitive, but of course you may be careful about that in your messages and everything that is shown to the player.
 
 Colours are as follows:
 
@@ -53,7 +55,7 @@ There's the possibility of shunting that mechanism by means of the commands `WAI
 
 ## Header
 
-The file header is composed by 19 lines:
+The file header is always composed of 19 lines:
 
 1. Always the `AWS` tag.
 2. Always the `VERSIONE` tag.
@@ -75,7 +77,7 @@ The file header is composed by 19 lines:
 18. The maximum total weight of objects that can be carried.
 19. The maximum total size of objects that can be carried.
 
-My `aws2c` plainly ignores all the lines marked with an asterisk, as it aims to produce purely standard C code.
+The tool `aws2c` currently ignores all the lines marked with an asterisk.
 
 ## Structure of high and low priority conditions
 
@@ -85,14 +87,14 @@ A typical logic condition has the following structure:
 IF VERB 110 AND NOUN 58 THEN MESS 1009 WAIT ENDIF  Look at the bench
 ~~~~
 
-It always has the form of a rather classic `IF`-command. In this case, this was a low-priority condition in a game. If the player typed the verb 110 and the noun 58, then the message 1009 is shown. Since there is the `WAIT` command at the end, the successive logic conditions will not be evaluated.
+It always has the form of a rather classic `IF`-command. In this case, this was a low-priority condition in one of my games. If the player typed the verb 110 and the noun 58, then the message 1009 is shown. Since there is the `WAIT` command at the end, the successive logic conditions will not be evaluated.
 
-Everything that comes after `ENDIF` (that must terminate the condition) can be used as a comment. Here verb 110 means `look` or a synonim and noun 58 is `bench`. Using comments is important.
+Everything that comes after `ENDIF` (that must terminate the condition) can be used as a comment. Here verb 110 means `look` or a synonim and noun 58 is `bench`. Using comments is important to understand what happens.
 
 ## Structure of local conditions
 
 Local conditions are identical to high-priority and low-priority conditions, with the difference that they will be evaluated only if you are in a certain room. They are therefore preceded by the room number in the previous line.
-For example, let's imagine you are in room 7 and you have this chunk of code in the local conditions of your file:
+For example, let us imagine you are in room 7 and you have this chunk of code in the local conditions of your file:
 
 ~~~~
 3
@@ -139,7 +141,7 @@ VERBO
 ...
 ~~~~
 
-Then, the condition we discussed above should make perfect sense:
+Then, the condition we discussed above should make sense:
 
 ~~~~
 IF VERB 110 AND NOUN 58 THEN MESS 1009 WAIT ENDIF  Look at the bench
@@ -299,7 +301,7 @@ Rooms can not have the following codes:
 
 ## Messages
 
-Here things are quite simple: a message is composed by a code and the text of the message itself. For example:
+Here things are quite simple: a message is composed of a code and the text of the message itself. For example:
 
 ~~~~
 16
@@ -595,7 +597,7 @@ Action   |aws2c?| Description
 `DECR c` | X    | Decrement counter `c`. No effect if `c` is already zero
 `GET o`  | X    | Check if possible (weight, size, presence), get object `o`.
 `DROP o` | X    | Check if player carries it and drop object `o`
-`SWAP o1 o2`|X  | Swap the place of two objects. It's important they've same size and same weight
+`SWAP o1 o2`|X  | Swap the place of two objects. They must have same size and same weight
 `OKAY`   | X    | Writes `OKAY` and do a `WAIT`. Equivalent to `MESS 1000 WAIT`
 `WAIT`   | X    | Skip all other conditions and restart game cycle
 `EXIT`   | X    | Exit from game without asking for confirmation
@@ -649,6 +651,7 @@ Action   |aws2c?| Description
 `COLOR f b`|    | Set `f` as foreground colour and `b` as background
 `FCOLO f` |     | Set `f` as foreground colour
 `BCOLO b` |     | Set `b` as background colour
+`RESETALL`| X   | Not present in AWS 3.0: restart game without confirmation.
 
 NOTE: X in the second column means that this command is implemented in `aws2c`, I means that it is ignored (but a warning message appears). * means that it is implemented in some platforms.
 
