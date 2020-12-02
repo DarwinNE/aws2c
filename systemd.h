@@ -58,6 +58,7 @@
 
     #define SHIFTPETSCII \
         if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20
+    #define COMMODORE8BIT
 
     #define waitscreen()
 
@@ -131,6 +132,7 @@
 
     #define SHIFTPETSCII \
         if((c>=0x61 && c<=0x7A)) c^=0x20; else if((c>=0x41 && c<=0x5A)) c|=0x80
+    #define COMMODORE8BIT
 
     #define waitscreen()
 
@@ -193,6 +195,7 @@
 
     #define SHIFTPETSCII \
         if((c>=0x61 && c<=0x7A)) c^=0x20; else if((c>=0x41 && c<=0x5A)) c|=0x80
+    #define COMMODORE8BIT
 
     #define waitscreen()
 
@@ -255,6 +258,7 @@
 
     #define SHIFTPETSCII \
         if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20
+    #define COMMODORE8BIT
 
     #define waitscreen()
 
@@ -334,6 +338,7 @@
 
     #define SHIFTPETSCII \
         if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20
+    #define COMMODORE8BIT
 
     #define waitscreen()
 
@@ -436,6 +441,7 @@
 
     #define SHIFTPETSCII \
         if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20
+    #define COMMODORE8BIT
 
     #define waitscreen()
 
@@ -500,6 +506,7 @@
 
     #define SHIFTPETSCII \
         if((c>=0x41 && c<=0x5A)||(c>=0x61 && c<=0x7A)) c^=0x20
+    #define COMMODORE8BIT
 
     #define waitscreen()
 
@@ -750,7 +757,7 @@
         }\
     }
 
-#define SAVE saveMac()
+    #define SAVE saveMac()
 
     #define waitscreen()
 

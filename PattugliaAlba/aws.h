@@ -36,7 +36,11 @@ typedef struct info_d {
 } info;
 
 typedef struct word_d {
+#ifdef DICTHASH
+    char c1,c2,c3;
+#else
     char *w;
+#endif
     unsigned int code;
     word_type t;
 } word;

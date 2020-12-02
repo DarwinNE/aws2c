@@ -250,6 +250,31 @@ void compress_5bit(char *buffer)
 }
 #endif
 
+#ifdef DICTHASH
+/*  Store the dictionary as a 3-byte hash code for each word.
+    The result is a 3-character string that substitutes the original one.
+*/
+void compress_hash(char *buffer)
+{
+    unsigned int i=0, j=0;
+    unsigned char c;
+    #define N 3
+    while((c=buffer[j++])!='\0') {
+        #ifdef COMMODORE8BIT
+        if((c>=0xc1 && c<=0xdA)) c^=0x80;
+        buffer[j-1]=c;
+        #endif
+        if(j>N) {
+            c^=(0xFF -i);
+            buffer[i]^=c;
+        }
+        if(++i>N-1) i=0;
+    }
+    if(j<2) buffer[1]=0;
+    if(j<3) buffer[2]=0;
+}
+#endif
+
 /** Main parser.
 */
 void interrogationAndAnalysis()
@@ -278,7 +303,7 @@ void interrogationAndAnalysis()
                 ++ls;
                 break;
             }
-            
+
             if(c>='a' && c<='z')
                 c-='a'-'A';  // Convert to uppercase
 
@@ -288,11 +313,21 @@ void interrogationAndAnalysis()
         #ifdef DICT5BIT
         compress_5bit(s);
         #endif
+        #ifdef DICTHASH
+        compress_hash(s);
+        #endif
         // s now contains the word. Search to find
         // if it is recognized or not.
         for(i=0;i<DSIZE; ++i) {
             te=&dictionary[i];
+            #ifdef DICTHASH
+            if( s[0]==te->c1&&
+                s[1]==te->c2&&
+                s[2]==te->c3)
+            {
+            #else
             if(strcmp(s,te->w)==0) {
+            #endif
                 k=te->code;
                 switch (te->t) {
                     case VERB:

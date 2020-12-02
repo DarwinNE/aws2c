@@ -32,7 +32,7 @@ old Commodore machines.
 #include "aws.h"
 #include "compress.h"
 
-#define VERSION "1.9.2, September 2018 - November 2020"
+#define VERSION "1.9.3, September 2018 - December 2020"
 #define AREYOUSURE "Are you sure? Type 'Y' and return if yes."
 #define EXITRESTART "'E' and return to exit, anything else to restart."
 
@@ -79,13 +79,12 @@ boolean no_header=false;
 boolean strip_automatic_counters=false;
 boolean compress5bit_dict=false;
 boolean dont_use_light=false;
+boolean compress_hash_dict=false;
 
 boolean complete_shortcut=false;
 boolean checked_noun1_greater_zero=false;
 boolean dont_issue_message=false;
 boolean no_header_description=false;
-
-
 
 
 /* Some functions are included in the code only if necessary. Those flags
@@ -1912,7 +1911,7 @@ unsigned int action_mess(FILE *f, char *line, unsigned int scanpos)
         // Message 1036 is particular: it points to the name1 introduced by
         // the player
         fprintf(f, TAB TAB "printf(\"%%s\\n\",searchw(noun1));\n");
-        if (compress5bit_dict) {
+        if (compress5bit_dict || compress_hash_dict) {
             fprintf(stderr, "WARNING: the message 1036 is not compatible with "
                 "the -5 option!");
         }
@@ -2630,7 +2629,8 @@ void output_header(FILE *of, int maxroomcode, int maxobjcode,
 
     if(compress5bit_dict)
         fprintf(hf,"#define DICT5BIT\n");
-
+    if(compress_hash_dict)
+        fprintf(hf,"#define DICTHASH\n");
     if(use_6_directions==true) {
         fprintf(hf,"#define DIR_REDUCED\n");
     }
@@ -3368,6 +3368,25 @@ void compress_5bit(char *buffer)
     }
 }
 
+/*  Store the dictionary as a 3-byte hash code for each word.
+    The result is a 3-character string that substitutes the original one.
+*/
+void compress_hash(char *buffer)
+{
+    char *pcomp=buffer;
+    unsigned int i=0, j=0;
+    unsigned char c;
+    #define N 3
+    while((c=buffer[j++])!='\0') {
+        c^=(0xFF -i);
+        if(j>N)
+            buffer[i]^=c;
+        if(++i>N-1) i=0;
+    }
+    if(j<2) buffer[1]=0;
+    if(j<3) buffer[2]=0;
+}
+
 /** Create the code for the dictionary in the output file.
 */
 void output_dictionary(FILE *of, word* dictionary, unsigned int dsize)
@@ -3386,6 +3405,10 @@ void output_dictionary(FILE *of, word* dictionary, unsigned int dsize)
             }
             fprintf(of, ",0x0};\n"); /* Is 0x0 absolutely necessary? */
         }
+    } else if(compress_hash_dict) {
+        for(i=0; i<dsize;++i) {
+            compress_hash(dictionary[i].w);
+        }
     }
 
     for(i=0; i<dsize;++i) {
@@ -3403,6 +3426,12 @@ void output_dictionary(FILE *of, word* dictionary, unsigned int dsize)
         fprintf(of, TAB "{");
         if(compress5bit_dict) {
             fprintf(of, "dict%d",i);
+        } else if(compress_hash_dict) {
+            for(j=0;j<3;++j) {
+                if(j>0)
+                    fprintf(of, ", ");
+                fprintf(of, "0x%x",(unsigned char)dictionary[i].w[j]);
+            }
         } else {
             fprintf(of, "\"%s\"",dictionary[i].w);
         }
@@ -3932,9 +3961,10 @@ void print_help(char *name)
            " -v  or --version print version and exit\n"
            " -w  don't check for size and weight of objects (counter 119, 120\n"
            "     and 124 are not used).\n"
-           " -k  don't output header\n"
-           " -5  use 5-bit compression for the dictionary\n"
-           " -l  don't take into account light/dark situations\n"
+           " -k  don't output header.\n"
+           " -5  use 5-bit compression for the dictionary.\n"
+           " -3  use 3-byte hash code for dictionary.\n"
+           " -l  don't take into account light/dark situations.\n"
            " -f  <filename> specify the name of the file to be used for the\n"
            "     configuration. Default is config.h.\n"
            "     NOTE: if this option is used, you should compile the files\n"
@@ -3946,7 +3976,9 @@ void print_help(char *name)
     printf("\n");
 }
 
-/* Process options from the command line. */
+/*  Process options from the command line. 
+    Return 1 if the option has been recognized and treated, zero otherwise.
+*/
 unsigned int process_options(char *arg, char *name)
 {
     static boolean require_config_file;
@@ -4004,6 +4036,17 @@ unsigned int process_options(char *arg, char *name)
         exit(0);
     } else if (strcmp(arg, "-5")==0) {
         compress5bit_dict=true;
+        if(compress_hash_dict) {
+            fprintf(stderr, "ERROR: options -3 and -5 are not compatible.\n");
+            exit(1);
+        }
+        return 1;
+    } else if (strcmp(arg, "-3")==0) {
+        if(compress5bit_dict) {
+            fprintf(stderr, "ERROR: options -3 and -5 are not compatible.\n");
+            exit(1);
+        }   
+        compress_hash_dict=true;
         return 1;
     } else if (strcmp(arg, "-l")==0) {
         dont_use_light=true;
