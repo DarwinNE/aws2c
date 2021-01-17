@@ -1,6 +1,8 @@
 #ifndef _AWS_C_H_
 #define _AWS_C_H_
 
+// This file is used by aws2c.c but not by its output files.
+
 typedef unsigned char boolean;
 #define true 1
 #define false 0
