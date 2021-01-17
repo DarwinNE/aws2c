@@ -29,7 +29,7 @@ old Commodore machines.
 #include <string.h>
 #include <ctype.h>
 
-#include "aws.h"
+#include "aws_c.h"
 #include "compress.h"
 
 #define VERSION "1.9.3, September 2018 - December 2020"
@@ -1111,6 +1111,10 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
                 sscanf(arg2, "%d",&val2)==1 && val2<256)
             {
                 fprintf(f, "cva75(%s)", arg2);
+            } else if(strcmp(arg1,"70")==0 &&
+                sscanf(arg2, "%d",&val2)==1 && val2<256)
+            {
+                fprintf(f, "cva70(%s)", arg2);
             } else {
                 fprintf(f, "cva(%s,%s)", arg1,arg2);
             }
@@ -1165,39 +1169,6 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
                 int lp=sp-5;        // beurk!
 
                 sp=peek_token(line, sp);
-/*                if (sscanf(arg1, "%d", &val1)==1 && val1<256 &&
-                    sscanf(arg2, "%d", &val2)==1 && val2<256 &&
-                    strcmp(next,"MESS")==0)
-                {
-                    start_function();
-                    sp=process_functions(line, sp);
-                    peek_token(line, sp);
-                    if(strcmp(next,"ENDIF")==0) {
-                        scanpos=sp;
-                        proc=true;
-                        complete_shortcut=true;
-                        need_ams=true;
-                        if(hardcoded_messages==false)
-                            fprintf(f, "1) ams(%s,%s,%s);\n\n",
-                                arg1,arg2,function_res);
-                        else
-                            fprintf(f, "1) ams(%s,%s,message%s);\n\n",
-                                arg1,arg2,function_res);
-                    } else {
-                        scanpos=lp;
-                        proc=true;
-                        //complete_shortcut=true;
-                        dont_issue_message=true;
-                        need_ams=true;
-                        if(hardcoded_messages==false)
-                            fprintf(f, "ams(%s,%s,%s)",
-                                arg1,arg2,function_res);
-                        else
-                            fprintf(f, "ams(%s,%s,message%s)",
-                                arg1,arg2,function_res);
-
-                    }
-                } */
             }
             if(proc==false) {
                 /* 70 (EXAMINE) is by far the most frequent verb.
@@ -2762,6 +2733,10 @@ void output_optional_func(FILE *of, int max_room_code)
         fprintf(of, "{\n");
         fprintf(of, "    return cva(75,n);\n");
         fprintf(of, "}\n");
+        fprintf(of, "boolean cva70(unsigned char n)\n");
+        fprintf(of, "{\n");
+        fprintf(of, "    return cva(70,n);\n");
+        fprintf(of, "}\n");
     }
     if(need_cvna) {
         /* If a name and a noun and avai conditions are given */
@@ -2953,7 +2928,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
 
     fprintf(of, TAB "marker[124]=true;\n");
     if(!dont_use_light) fprintf(of, TAB "marker[121]=true;\n");
-    fprintf(of, TAB "marker[125]=0;\n");
+    fprintf(of, TAB "counter[125]=0;\n");
     if(header->maxcarryingw==0) {
         header->maxcarryingw=10000;
     }
@@ -3004,13 +2979,12 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
         fprintf(of,TAB "printnewline();\n");
         fprintf(of, "}\n\n");
     } else {
-
-        fprintf(of,"void show_messagenlf(char *m) FASTCALL\n{\n");
+        fprintf(of,"void show_messagenlf(const char *m) FASTCALL\n{\n");
         if(compress_messages==true) {
             fprintf(of,TAB "boolean o;\n");
             fprintf(of,TAB "cpointer=0;\n");
             fprintf(of,TAB "bpointer=0;\n");
-            fprintf(of,TAB "compressed=m;\n");
+            fprintf(of,TAB "compressed=(char *)m;\n");
             fprintf(of,TAB "do{\n");
             fprintf(of,TAB TAB "o=decode();\n");
             fprintf(of,TAB TAB "writesameln(decompress_b);\n");
@@ -3021,7 +2995,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
         }
         fprintf(of, "}\n\n");
 
-        fprintf(of,"void show_message(char *m) FASTCALL\n{\n");
+        fprintf(of,"void show_message(const char *m) FASTCALL\n{\n");
         fprintf(of,TAB "show_messagenlf(m);\n");
         fprintf(of,TAB "printnewline();\n");
         fprintf(of, "}\n\n");
@@ -3164,11 +3138,13 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
 
     /* Check for a name and noun */
     fprintf(of, "boolean cvn(unsigned int v, unsigned int n);\n");
-    fprintf(of, "boolean cvn70(unsigned char n);\n");
+    fprintf(of, "boolean cvn70(unsigned char n) FASTCALL;\n");
 
     /* Check for a name and an actor */
     fprintf(of, "boolean cva(unsigned int v, unsigned int n);\n");
-    fprintf(of, "boolean cva75(unsigned char n);\n");
+    fprintf(of, "boolean cva75(unsigned char n) FASTCALL;\n");
+    fprintf(of, "boolean cva70(unsigned char n) FASTCALL;\n");
+
 
     if(hardcoded_messages==false) {
         fprintf(of,"unsigned char ams(unsigned char  v, unsigned char n, "
@@ -3181,13 +3157,13 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
 
     /* Check for a verb */
     fprintf(of, "#ifdef CV_IS_A_FUNCTION\n");
-    fprintf(of, "    boolean cv(unsigned char v);\n");
+    fprintf(of, "    boolean cv(unsigned char v) FASTCALL;\n");
     fprintf(of, "#else\n");
     fprintf(of, "    #define cv(v) verb==(v)\n");
     fprintf(of, "#endif\n");
 
     /* Send all objects to a room in particular */
-    fprintf(of, "void sendallroom(unsigned int s);\n");
+    fprintf(of, "void sendallroom(unsigned int s) FASTCALL;\n");
 
     fprintf(of, "#ifdef CV_IS_A_FUNCTION\n");
      /* Get current position of an object */
@@ -3491,10 +3467,10 @@ unsigned int output_rooms(FILE *of, room* world, unsigned int rsize)
 
     if(compress_messages==true) {
         for(i=0; i<rsize;++i) {
-            fprintf(of, "char long_d%d[]={",world[i].code);
+            fprintf(of, "const char long_d%d[]={",world[i].code);
             totalsize+=compress(of, encodechar(world[i].long_d));
             fprintf(of, "};\n");
-            fprintf(of, "char short_d%d[]={",world[i].code);
+            fprintf(of, "const char short_d%d[]={",world[i].code);
             totalsize+=compress(of, encodechar(world[i].short_d));
             fprintf(of, "};\n");
         }
@@ -3765,7 +3741,7 @@ void output_gameloop(FILE *f, int osize)
     fprintf(f, TAB "boolean ve,pa;\n");
     fprintf(f, TAB "while(1){\n");
     fprintf(f, TAB TAB "current_position=next_position;\n");
-    fprintf(f, TAB TAB "++marker[125];\n");
+    fprintf(f, TAB TAB "++counter[125];\n");
     if(dont_use_light)
         fprintf(f, TAB TAB "if(marker[120]==false) {\n");
     else
@@ -3869,9 +3845,9 @@ void output_gameloop(FILE *f, int osize)
     fprintf(f, TAB TAB "printnewline();\n");
 
     if(hardcoded_messages==false)
-        fprintf(f, TAB TAB "if(ls==0 && marker[125]<5) show_message(1012);\n");
+        fprintf(f, TAB TAB "if(ls==0 && counter[125]<5) show_message(1012);\n");
     else
-        fprintf(f, TAB TAB "if(ls==0 && marker[125]<5) "
+        fprintf(f, TAB TAB "if(ls==0 && counter[125]<5) "
             "show_message(message1012);\n");
     fprintf(f, TAB TAB "interrogationAndAnalysis();\n");
     fprintf(f, TAB TAB "local_cond();\n");

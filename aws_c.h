@@ -1,5 +1,5 @@
-#ifndef _AWS_H_
-#define _AWS_H_
+#ifndef _AWS_C_H_
+#define _AWS_C_H_
 
 typedef unsigned char boolean;
 #define true 1
@@ -35,39 +35,23 @@ typedef struct info_d {
 } info;
 
 typedef struct word_d {
-#ifdef DICTHASH
-    char c1,c2,c3;
-#else
     char *w;
-#endif
     unsigned int code;
     word_type t;
 } word;
 
-#ifndef BYTEROOMCODE
-    typedef unsigned int room_code;
-#else
-    typedef unsigned char room_code;
-#endif
+typedef unsigned int room_code;
 
 typedef struct room_d {
     room_code code;
-    const char *long_d;
-    #ifndef AVOID_SDESC
-    const char *s;
-    #endif
-    const char *short_d;
+    char *long_d;
+    char *s;
+    char *short_d;
 
-    #ifndef DIR_REDUCED
-        #define NDIR 10
-        // north, sud, east, west, up, down, north east, north west, south east,
-        // south west
-        room_code directions[NDIR];
-    #else
-        #define NDIR 6
-        // north, sud, east, west, up, down
-        room_code directions[NDIR];
-    #endif
+    #define NDIR 10
+    // north, sud, east, west, up, down, north east, north west, south east,
+    // south west
+    room_code directions[NDIR];
 } room;
 
 typedef struct message_d {
@@ -75,25 +59,17 @@ typedef struct message_d {
     char *txt;
 } message;
 
-#ifndef BYTEOBJCODE
-    typedef unsigned int obj_code;
-#else
-    typedef unsigned char obj_code;
-#endif
+typedef unsigned int obj_code;
 
 #define ISNOTMOVABLE  1
 #define ISWEREABLE    2
         
 typedef struct object_d {
     obj_code code;
-    #ifndef NOLONGDESC
-        char *s;
-    #endif
+    char *s;
     char *desc;
-    #ifndef NOSIZEWEIGHT    // Don't consider size and weight.
-        unsigned int weight;
-        unsigned int size;
-    #endif
+    unsigned int weight;
+    unsigned int size;
     unsigned int position;      // Always int, as carried =1500, weared=1600
     unsigned char attributes;
 } object;

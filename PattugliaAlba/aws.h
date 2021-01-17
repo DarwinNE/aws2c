@@ -2,7 +2,6 @@
 #define _AWS_H_
 
 typedef unsigned char boolean;
-
 #define true 1
 #define false 0
 
@@ -53,11 +52,11 @@ typedef struct word_d {
 
 typedef struct room_d {
     room_code code;
-    char *long_d;
+    const char *long_d;
     #ifndef AVOID_SDESC
-    char *s;
+    const char *s;
     #endif
-    char *short_d;
+    const char *short_d;
 
     #ifndef DIR_REDUCED
         #define NDIR 10
@@ -83,7 +82,7 @@ typedef struct message_d {
 #endif
 
 #define ISNOTMOVABLE  1
-#define ISWEREABLE 2
+#define ISWEREABLE    2
         
 typedef struct object_d {
     obj_code code;

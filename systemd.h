@@ -93,7 +93,7 @@
     #define PT80COL 215
     #define PTFST 53296L
     #ifdef ALTSPLASH
-    #include"m20sp.h"
+    #include"C128_splash/c128sp.h"
     #define init_term() {\
         if (*(char*)PT80COL==0) {\
             fputs(switch80col, stdout);\
@@ -663,7 +663,6 @@
 #elif defined(CPC) /* Definitions for Amstrad CPC computers */
 
     #include<stdio.h>
-    #include <sys/ioctl.h>        // required for switching the screen mode
     #include <cpc.h>
 
     #define BUFFERSIZE 255
@@ -696,14 +695,12 @@
     #define GETS(buffer, size) fgets((buffer),(size),stdin); PUTC('\n')
 
 #elif defined(MSX) /* Definitions for MSX computers */
-    
     #include <stdio.h>
     #include <msx.h>
     #define BUFFERSIZE 40
     #define B_SIZE 40
 
     #define FASTCALL __z88dk_fastcall
-    #define DEFINEWTR
     #define waitscreen()
     #define EFFSHORTINDEX unsigned int
     //#define LOAD SIMPLELOAD
@@ -739,6 +736,7 @@
     #define leave() {asm("call 0x0000");}
     
     #define PUTC(c) fputc_cons(c)
+    #define DEFINEWTR
     #define PUTS(s) wtr(s)
     #define GETS(buffer, size) fgets_cons((buffer),(size));
 
@@ -849,6 +847,45 @@
     #define init_term() {fputs("\n\n", stdout);}
 
     #define leave()
+#elif defined(ATARI) /* Definitions for Atari 8-bit computers */
+
+    #include<atari.h>
+    #include<stdio.h>
+
+    #define BUFFERSIZE 128
+    #define B_SIZE 120
+
+    #define waitscreen()
+    #define LOAD SIMPLELOAD
+    #define SAVE SIMPLESAVE
+    // The number of columns of the screen
+    #ifndef NCOL
+        #define NCOL 40
+    #endif
+    #ifndef NROW
+        #define NROW 22
+    #endif
+
+    extern int invert;
+    // This is not a Commodore computer, but the macro is executed at the
+    // right moment to convert the carriage return from 13 (0x0D) to 155 (0x9B)
+    #define SHIFTPETSCII \
+        {if(c==0x0A) c=0x9B; else if(invert&&c!=0) c^=0x80;}
+
+
+    #define waitkey() getchar(); rowc=0
+    #define inputtxt() 
+    #define evidence1() invert=1
+    #define evidence2()
+    #define evidence3() invert=1
+    #define cls()
+
+    #define normaltxt() invert=0
+    #define tab() fputs("\t", stdout)
+    #define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
+        retTime);}
+    #define init_term()
+    #define leave()
 
 #elif defined(NOANSI) /* Definitions for a plain text terminal, with no ansi
                          support */
@@ -862,8 +899,12 @@
     #define LOAD SIMPLELOAD
     #define SAVE SIMPLESAVE
     // The number of columns of the screen
-    #define NCOL 80
-    #define NROW 24
+    #ifndef NCOL
+        #define NCOL 80
+    #endif
+    #ifndef NROW
+        #define NROW 24
+    #endif
 
     #define waitkey() getchar(); rowc=0
     #define inputtxt()
