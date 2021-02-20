@@ -7,7 +7,7 @@
     Some basic configuration can also be done by adjusting the systemdef.h file
     to your needs.
 
-    Davide Bucci, October 2018-September 2020
+    Davide Bucci, October 2018-February 2021
 */
 
 #include <stdio.h>
@@ -34,9 +34,13 @@ EFFSHORTINDEX colc;
 unsigned int verb;
 unsigned int noun1;
 unsigned int noun2;
-unsigned int adve;
-unsigned int actor;
-unsigned int adjective;
+#ifndef NOADVERBS
+    ADVERBTYPE adve;
+#endif
+ACTORTYPE actor;
+#ifndef NOADJECTIVES
+    ADJECTIVETYPE adjective;
+#endif
 
 extern word dictionary[];
 
@@ -51,6 +55,13 @@ void wtr(const char *s) FASTCALL
 {
     for(; *s!='\0';++s)
         fputc(*s,stdout);
+}
+#endif
+
+#ifdef NCOL
+void zeroc(void)
+{
+    colc=0;
 }
 #endif
 
@@ -108,7 +119,7 @@ void writesameln(char *line) FASTCALL
                 PUTC('\n');
                 colc=pc;
                 #ifdef NROW
-                if(++rowc>NROW) {waitkey(); rowc=0;};
+                if(++rowc>NROW) {waitkey(); zeror();};
                 #endif
             }
             #endif
@@ -117,20 +128,21 @@ void writesameln(char *line) FASTCALL
                 return;
             pc=0;
             if(c=='\n' || c=='\r' 
-            #ifndef COMPRESSED
-            || (c=='\\' && d=='n')
-            #endif
-            ) {
+                #ifndef COMPRESSED
+                || (c=='\\' && d=='n')
+                #endif
+                ) 
+            {
                 #ifndef COMPRESSED
                 if(c=='\\')
                     ++line;
                 #endif
                 PUTC('\n');
                 #ifdef NCOL
-                colc=0;
+                zeroc();
                 #endif
                 #ifdef NROW
-                if(++rowc>NROW) {waitkey(); rowc=0;};
+                if(++rowc>NROW) {waitkey(); zeror();};
                 #endif
             } else
             #ifdef NCOL
@@ -159,10 +171,10 @@ void clear(void)
 {
     cls();
     #ifdef NCOL
-    colc=0;
+    zeroc();
     #endif
     #ifdef NROW
-    rowc=0;
+    zeror();
     #endif
 }
 
@@ -180,10 +192,10 @@ void writeln(char* line) FASTCALL
     writesameln(line);
     PUTC('\n');
     #ifdef NROW
-    if(++rowc>NROW) {waitkey(); rowc=0;};
+    if(++rowc>NROW) {waitkey(); zeror();};
     #endif
     #ifdef NCOL
-    colc=0;
+    zeroc();
     #endif
 }
 
@@ -213,7 +225,7 @@ unsigned int readln(void)
     eatcr(playerInput);
 
     #ifdef NROW
-    rowc=0;
+    zeror();
     #endif
     return lc;
 }
@@ -256,12 +268,12 @@ void compress_5bit(char *buffer)
 */
 void compress_hash(char *buffer)
 {
-    unsigned int i=0, j=0;
     unsigned char c;
+    unsigned int i=0, j=0;
     #define N 3
     while((c=buffer[j++])!='\0') {
         #ifdef COMMODORE8BIT
-        if((c>=0xc1 && c<=0xdA)) c^=0x80;
+        if(c>=0xc1 && c<=0xdA) c^=0x80;
         buffer[j-1]=c;
         #endif
         if(j>N) {
@@ -292,9 +304,13 @@ void interrogationAndAnalysis()
     verb=0;
     noun1=0;
     noun2=0;
-    adve=0;
+    #ifndef NOADVERBS
+        adve=0;
+    #endif
     actor=0;
-    adjective=0;
+    #ifndef NOADJECTIVES
+        adjective=0;
+    #endif
 
     while(ls<lc) {
         for(k=0; ls<lc && k<BUFFERSIZE; ++ls) {
@@ -340,15 +356,19 @@ void interrogationAndAnalysis()
                             noun2=k;
                         }
                         break;
-                    case ADVERB:
-                        adve=k;
-                        break;
+                    #ifndef NOADVERBS
+                        case ADVERB:
+                            adve=k;
+                            break;
+                    #endif
                     case ACTOR:
                         actor=k;
                         break;
-                    case ADJECTIVE:
-                        adjective=k;
-                        break;
+                    #ifndef NOADJECTIVES
+                        case ADJECTIVE:
+                            adjective=k;
+                            break;
+                    #endif
                     case SEPARATOR:
                         /*  The line is not finished but it can be executed. */
                         return;
@@ -362,4 +382,5 @@ void interrogationAndAnalysis()
     /*  The scanning has finished because the line is complete. Read a new line
         the next time the function is called */
     ls=0;
+    //printf("verbo=%d, nome1=%d, nome2=%d\n",verb,noun1,noun2);
 }

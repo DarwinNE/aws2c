@@ -22,7 +22,7 @@
     
     CV_IS_A_FUNCTION is a macro that if defined makes sort that a function is
         called to check a thing like "verb==v". With some compilers it may be
-        an advantage (e.g. cc65) in terms of size, while it's not the case 
+        an advantage (e.g. cc65) in terms of size, while it's not the case
         for other compilers (e.f. Z88dk).
 */
 
@@ -31,15 +31,13 @@
 #define SIMPLELOAD {\
         PUTS("Enter file name: ");\
         GETS(playerInput, BUFFERSIZE);\
-        if(loadgame(playerInput))\
-            PUTS("Error!\n");\
+        loadgame(playerInput);\
     }
 
 #define SIMPLESAVE {\
         PUTS("Enter file name: ");\
         GETS(playerInput, BUFFERSIZE);\
-        if(savegame(playerInput))\
-            PUTS("Error!\n");\
+        savegame(playerInput);\
     }
 
 #ifdef C128  /* Definitions to be used for the Commodore 128 computer */
@@ -126,7 +124,7 @@
 
     #define BUFFERSIZE 128
     #define B_SIZE 160
-    #define CV_IS_A_FUNCTION
+    //#define CV_IS_A_FUNCTION
     #define LOAD SIMPLELOAD
     #define SAVE SIMPLESAVE
 
@@ -561,8 +559,8 @@
 
     #include <spectrum.h>
     #include <stdio.h>
-    #define BUFFERSIZE 128
-    #define B_SIZE 192
+    #define BUFFERSIZE 80
+    #define B_SIZE 80
     #define EFFSHORTINDEX unsigned int
     #define FASTCALL __z88dk_fastcall
     #define LOAD SIMPLELOAD
@@ -586,8 +584,8 @@
     #define normaltxt() fputs("\x1b[0m\x1b[30m\x1b[47m", stdout)
     #define tab() fputs("\t")
     #define wait1s() \
-        {unsigned int retTime = time(0) + 1;while (time(0) < retTime);}
-    #define init_term() {fputs("\x1b[2J", stdout);normaltxt();}
+        {unsigned int k,r; for(k=0;k<32000;++k) r=k>>2;}
+    #define init_term() {wait1s();wait1s();fputs("\x1b[2J", stdout);normaltxt();}
 
     #define leave() fputs("\x1b[0m\n\n", stdout);
 #elif defined(RC2014)
@@ -750,8 +748,8 @@
         if(getFileName(playerInput, BUFFERSIZE, 1)!=NULL) {\
             if(playerInput[0]=='.') \
                 PUTS("Invalid file name!\n");\
-            else if(loadgame(playerInput))\
-                PUTS("Error!\n");\
+            else
+                loadgame(playerInput)\
         }\
     }
 
@@ -918,14 +916,71 @@
     #define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
         retTime);}
 
-#ifdef ALTSPLASH
-    #include"CGASP.H"
-    #define init_term() {showsplash();}
-#else
-    #define init_term() {}
-#endif
+    #ifdef ALTSPLASH
+        #include"CGASP.H"
+        #define init_term() {showsplash();}
+    #else
+        #define init_term() {}
+    #endif
     #define leave()
 
+#elif defined(MSDOS) /* Definitions for MS-DOS terminals*/
+    #include<stdio.h>
+    #define BUFFERSIZE 255
+    #define B_SIZE 240
+
+    #define LOAD SIMPLELOAD
+    #define SAVE SIMPLESAVE
+
+    #define waitscreen()
+    // The number of columns of the screen
+    #define NCOL 80
+    #define NROW 21
+
+    #define waitkey() getchar(); rowc=0
+
+    #ifdef NOANSI
+        #define inputtxt()
+        #define evidence1()
+        #define evidence2()
+        #define evidence3()
+        #define cls()
+    #else
+        #define inputtxt() printf("\033[1m\x1b[32m\33[40m")
+        #define evidence1() printf("\033[1m\x1b[31m\33[40m")
+        #define evidence2() printf("\033[0m\x1b[93m\33[40m")
+        #define evidence3() printf("\033[0m\x1b[95m\33[40m")
+    #endif
+
+    #define cls()
+
+    #define normaltxt() printf("\033[0m\x1b[36m\33[40m")
+    #define tab() printf("\t")
+    #define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
+        retTime);}
+    #ifdef ALTSPLASH
+        #include"CGASP.H"
+        #define init_term() {showsplash();\
+            printf( "This terminal does not support ANSI codes."\
+            "\033[80D"\
+            "You'll see garbage chars on the screen. If you use MS-DOS, add "\
+            "\033[80D"\
+            "DEVICE=DOS\\ANSI.SYS to your CONFIG.SYS file"\
+            "\033[80D"\
+    "\033[80D                                                               ");\
+            normaltxt();printf("\n\n");}
+    #else
+        #define init_term() {\
+            printf( "This terminal does not support ANSI codes."\
+            "\033[80D"\
+            "You'll see garbage chars on the screen. If you use MS-DOS, add "\
+            "\033[80D"\
+            "DEVICE=DOS\\ANSI.SYS to your CONFIG.SYS file"\
+            "\033[80D"\
+    "\033[80D                                                               ");\
+            normaltxt();printf("\n\n");}
+    #endif
+    #define leave() printf("\033[0m\n\n")
 #else /* Definitions for modern ANSI terminals */
     #include<stdio.h>
     #define BUFFERSIZE 255

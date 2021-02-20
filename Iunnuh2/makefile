@@ -7,10 +7,10 @@ iunnuh2_en.c: Iunnuh2TheCurse.AWS
 	../aws2c -d -m Iunnuh2TheCurse.AWS iunnuh2_en.c
 
 iunnuh2_no_utf8.c: Iunnuh2Maledizione.AWS
-	../aws2c -c -d -m -s -n -5 Iunnuh2Maledizione.AWS iunnuh2_no_utf8.c
+	../aws2c -c -d -m -s -n -3 Iunnuh2Maledizione.AWS iunnuh2_no_utf8.c
 
 iunnuh2_no_utf8_en.c: Iunnuh2TheCurse.AWS
-	../aws2c -c -d -m -s -n -5 Iunnuh2TheCurse.AWS iunnuh2_no_utf8_en.c
+	../aws2c -c -d -m -s -n -3 Iunnuh2TheCurse.AWS iunnuh2_no_utf8_en.c
 
 
 modern: iunnuh2.c iunnuh2_en.c inout.c iunnuh2_en.c

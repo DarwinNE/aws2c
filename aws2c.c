@@ -32,7 +32,7 @@ old Commodore machines.
 #include "aws_c.h"
 #include "compress.h"
 
-#define VERSION "1.9.3, September 2018 - December 2020"
+#define VERSION "1.9.4, September 2018 - February 2021"
 #define AREYOUSURE "Are you sure? Type 'Y' and return if yes."
 #define EXITRESTART "'E' and return to exit, anything else to restart."
 
@@ -81,6 +81,12 @@ boolean compress5bit_dict=false;
 boolean dont_use_light=false;
 boolean compress_hash_dict=false;
 
+boolean actor_as_byte=true;
+boolean adjective_as_byte=true;
+boolean adverb_as_byte=true;
+boolean use_adverbs=false;
+boolean use_adjectives=false;
+
 boolean complete_shortcut=false;
 boolean checked_noun1_greater_zero=false;
 boolean dont_issue_message=false;
@@ -110,6 +116,7 @@ boolean need_as=false;
 boolean need_ar=false;
 boolean need_ams=false;
 boolean need_cpi=false;
+boolean need_ok=false;
 
 /*  Statistics for optimizations.
 */
@@ -136,7 +143,7 @@ typedef struct conv_t {
    (at least). It is used to the conversion between UTF-8 chars and standard
    ASCII characters, plus the accents. */
 
-#define CONVSIZE 25
+#define CONVSIZE 26
 
 char apostrophe[]={0xE2, 0x80, 0x99,0x0};
 char ellips[]={0xE2, 0x80, 0xA6,0x0};
@@ -154,6 +161,7 @@ conv conversion[CONVSIZE] = {
     {"é","e",'\'','\''},
     {"í","i",'\'','\''},
     {"ó","o",'\'','\''},
+    {"ô","o",'\0','\0'},
     {"ú","u",'\'','\''},
 
     {"À","A",'`','\''},
@@ -288,15 +296,23 @@ word *read_dictionary(FILE *f, int size)
         if(strcmp(buffer, "VERBO")==0) {
             dictionary[cw].t=VERB;
         } else if(strcmp(buffer, "AVVERBIO")==0) {
+            use_adverbs=true;
             dictionary[cw].t=ADVERB;
+            if(dictionary[cw].code>255)
+                adverb_as_byte=false;
         } else if(strcmp(buffer, "SEPARATORE")==0) {
             dictionary[cw].t=SEPARATOR;
         } else if(strcmp(buffer, "NOME")==0) {
             dictionary[cw].t=NAME;
         } else if(strcmp(buffer, "ATTORE")==0) {
             dictionary[cw].t=ACTOR;
+            if(dictionary[cw].code>255)
+                actor_as_byte=false;
         } else if(strcmp(buffer, "AGGETTIVO")==0) {
+            use_adjectives=true;
             dictionary[cw].t=ADJECTIVE;
+            if(dictionary[cw].code>255)
+                adjective_as_byte=false;
         } else {
             fprintf(stderr,"Unknown word type: %s.\n",buffer);
             free(dictionary);
@@ -1149,7 +1165,10 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
                         sscanf(arg2, "%d",&val2)==1 && val2<256 &&
                         sscanf(function_res, "%d",&fval)==1 && fval<256)
                     {
-                        fprintf(f,"cvna70(%s,%s)", arg2, function_res);
+                        if(strcmp(arg2,function_res)==0)
+                            fprintf(f,"cvna70neq(%s)", arg2);
+                        else
+                            fprintf(f,"cvna70(%s,%s)", arg2, function_res);
                     } else {
                         fprintf(f,"cvna(%s,%s,%s)", arg1, arg2, function_res);
                     }
@@ -1171,11 +1190,12 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
                 sp=peek_token(line, sp);
             }
             if(proc==false) {
-                /* 70 (EXAMINE) is by far the most frequent verb.
-                   this is done only if the noun has a code <256. */
+
                 if(strcmp(arg1,"70")==0 &&
                     sscanf(arg2, "%d",&val2)==1 && val2<256)
                 {
+                    /* 70 (EXAMINE) is by far the most frequent verb.
+                   this is done only if the noun has a code <256. */
                     fprintf(f, "cvn70(%s)", arg2);
                 } else {
                     fprintf(f, "cvn(%s,%s)", arg1,arg2);
@@ -1995,10 +2015,8 @@ unsigned int action_to(FILE *f, char *line, unsigned int scanpos)
 /** OKAY */
 unsigned int action_okay(FILE *f, char *line, unsigned int scanpos)
 {
-    if(hardcoded_messages==false)
-        fprintf(f, TAB TAB "show_message(1000);\n");
-    else
-        fprintf(f, TAB TAB "show_message(message1000);\n");
+    fprintf(f, TAB TAB "ok();\n");
+    need_ok=true;
     //fprintf(f, TAB TAB "return 1;\n");
     fprintf(f, TAB TAB "return;\n");
     return scanpos;
@@ -2618,7 +2636,40 @@ void output_header(FILE *of, int maxroomcode, int maxobjcode,
         printf("maxobjcode: %d\n",maxobjcode);
         fprintf(hf,"#define BYTEOBJCODE\n");
     }
+    if(adverb_as_byte) {
+        fprintf(hf,"#define ADVERBTYPE unsigned char\n");
+        printf("Adverbs in a unsigned char variable.\n");
+    } else {
+        fprintf(hf,"#define ADVERBTYPE unsigned int\n");
+        printf("Adverbs in an unsigned int  variable.\n");
+    }
+    if(adjective_as_byte) {
+        fprintf(hf,"#define ADJECTIVETYPE unsigned char\n");
+        printf("Adjectives in a unsigned char variable.\n");
+    } else {
+        fprintf(hf,"#define ADJECTIVETYPE unsigned int\n");
+        printf("Adjectives in an unsigned int  variable.\n");
+    }
+    if(actor_as_byte) {
+        fprintf(hf,"#define ACTORTYPE unsigned char\n");
+        printf("Actors in a unsigned char variable.\n");
+    } else {
+        fprintf(hf,"#define ACTORTYPE unsigned int\n");
+        printf("Actors in an unsigned int  variable.\n");
+    }
 
+    if(use_adverbs) {
+        printf("This game use adverbs.\n");
+    } else {
+        printf("This game does not use adverbs.\n");
+        fprintf(hf,"#define NOADVERBS\n");
+    }
+    if(use_adjectives) {
+        printf("This game uses adjectives.\n");
+    } else {
+        printf("This game does not use adjectives.\n");
+        fprintf(hf, "#define NOADJECTIVES\n");
+    }
     fprintf(hf,"#define AVOID_SDESC\n");
     fclose(hf);
     fprintf(of,"#include\"%s\"\n\n", config_file?config_file:"config.h");
@@ -2626,11 +2677,12 @@ void output_header(FILE *of, int maxroomcode, int maxobjcode,
     fprintf(of,"#include\"inout.h\"\n");
     fprintf(of,"#include\"systemd.h\"\n\n");
     fprintf(of,"extern unsigned int verb;\nextern unsigned int noun1;\nextern unsigned int noun2;\n"
-        "extern unsigned int adve;\nextern unsigned int actor;\nextern unsigned int adjective;\n");
+        "extern ADVERBTYPE adve;\nextern ACTORTYPE actor;\nextern ADJECTIVETYPE adjective;\n");
     fprintf(of, "unsigned int dummy;\n");
     fprintf(of, "EFFSHORTINDEX cdummy;\n");
     fprintf(of, "#define CARRIED 1500\n");
     fprintf(of, "#define WEARED 1600\n");
+    fprintf(of, "room *cr;\n");
     fprintf(of,"\n");
 
 }
@@ -2692,7 +2744,7 @@ void output_optional_func(FILE *of, int max_room_code)
         else
             fprintf(of, "    return (verb==v1||verb==v2)&&noun1==n;\n");
         fprintf(of, "}\n");
-        fprintf(of, "boolean vovn100_0(unsigned char n) FASTCALL\n");
+        fprintf(of, "boolean vovn100_0(EFFSHORTINDEX n) FASTCALL\n");
         fprintf(of, "{\n");
         fprintf(of, "    return vovn(100,0,n);\n");
         fprintf(of, "}\n");
@@ -2711,6 +2763,15 @@ void output_optional_func(FILE *of, int max_room_code)
         fprintf(of, "    return current_position==p;\n");
         fprintf(of, "}\n");
     }
+    if(need_ok) {
+        fprintf(of, "void ok(void)\n");
+        fprintf(of, "{\n");
+        if(hardcoded_messages==false)
+            fprintf(of, TAB TAB "show_message(1000);\n");
+        else
+            fprintf(of, TAB TAB "show_message(message1000);\n");
+        fprintf(of, "}\n");
+    }
     if(need_cvn) {
         /* Check for a name and noun */
         fprintf(of, "boolean cvn(unsigned int v, unsigned int n)\n");
@@ -2718,22 +2779,22 @@ void output_optional_func(FILE *of, int max_room_code)
 
         fprintf(of, "    return verb==v&&noun1==n;\n");
         fprintf(of, "}\n");
-        fprintf(of, "boolean cvn70(unsigned char n)\n");
+        fprintf(of, "boolean cvn70(EFFSHORTINDEX n) FASTCALL\n");
         fprintf(of, "{\n");
         fprintf(of, "    return cvn(70,n);\n");
         fprintf(of, "}\n");
     }
     if(need_cva) {
         /* Check for a verb and actor */
-        fprintf(of, "boolean cva(unsigned int v, unsigned int n)\n");
+        fprintf(of, "boolean cva(unsigned int v, ACTORTYPE n)\n");
         fprintf(of, "{\n");
         fprintf(of, "    return verb==v&&actor==n;\n");
         fprintf(of, "}\n");
-        fprintf(of, "boolean cva75(unsigned char n)\n");
+        fprintf(of, "boolean cva75(EFFSHORTINDEX n) FASTCALL\n");
         fprintf(of, "{\n");
         fprintf(of, "    return cva(75,n);\n");
         fprintf(of, "}\n");
-        fprintf(of, "boolean cva70(unsigned char n)\n");
+        fprintf(of, "boolean cva70(EFFSHORTINDEX n) FASTCALL\n");
         fprintf(of, "{\n");
         fprintf(of, "    return cva(70,n);\n");
         fprintf(of, "}\n");
@@ -2743,12 +2804,20 @@ void output_optional_func(FILE *of, int max_room_code)
         fprintf(of, "boolean cvna(unsigned int v, unsigned int n, "
             "unsigned int o)\n");
         fprintf(of, "{\n    dummy=get_object_position(o);\n");
+        if(need_cvn)
+            fprintf(of, "    return cvn(v,n)&&"
+                "(dummy==current_position||dummy==CARRIED);\n");
+        else
             fprintf(of, "    return verb==v&&noun1==n&&"
                 "(dummy==current_position||dummy==CARRIED);\n");
         fprintf(of, "}\n");
-        fprintf(of,"boolean cvna70(unsigned char n, unsigned char o)\n");
+        fprintf(of,"boolean cvna70(EFFSHORTINDEX n, EFFSHORTINDEX o)\n");
         fprintf(of, "{\n");
         fprintf(of, "   return cvna(70,n,o);\n");
+        fprintf(of, "}\n");
+        fprintf(of,"boolean cvna70neq(EFFSHORTINDEX n) FASTCALL\n");
+        fprintf(of, "{\n");
+        fprintf(of, "   return cvna70(n,n);\n");
         fprintf(of, "}\n");
 
     }
@@ -2900,35 +2969,33 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
 
     if(max_room_code>255) {
         fprintf(of,"unsigned int search_room(unsigned int r) FASTCALL\n{\n");
-        fprintf(of,TAB "unsigned int idx;\n");
+        /* Local variable replaces global one. */
+        fprintf(of,TAB "unsigned int cdummy;\n");
     } else {
         fprintf(of,"EFFSHORTINDEX search_room(EFFSHORTINDEX r) FASTCALL\n{\n");
-        fprintf(of,TAB "EFFSHORTINDEX idxl;\n");
     }
 
-    fprintf(of,TAB "for(idxl=0; idxl<RSIZE;++idxl)\n");
-    fprintf(of,TAB TAB "if(world[idxl].code==r)\n");
-    fprintf(of,TAB TAB TAB "return idxl;\n");
+    fprintf(of,TAB "for(cdummy=0; cdummy<RSIZE;++cdummy)\n");
+    fprintf(of,TAB TAB "if(world[cdummy].code==r)\n");
+    fprintf(of,TAB TAB TAB "return cdummy;\n");
     fprintf(of,TAB "return 0;\n}\n\n");
 
     fprintf(of,"void restart(void)\n{\n");
-    fprintf(of,TAB "EFFSHORTINDEX i;\n");
     if(max_room_code>255||osize>255)
         fprintf(of,TAB "unsigned int j;\n");
     else
         fprintf(of,TAB "EFFSHORTINDEX j;\n");
-    fprintf(of,TAB "for(i=1;i<129;++i){\n");
-    fprintf(of,TAB TAB "marker[i]=0;\n");
-    fprintf(of,TAB TAB "counter[i]=0;\n");
+    fprintf(of,TAB "for(cdummy=1;cdummy<129;++cdummy){\n");
+    fprintf(of,TAB TAB "marker[cdummy]=0;\n");
+    fprintf(of,TAB TAB "counter[cdummy]=0;\n");
     fprintf(of,TAB "}\n");
     fprintf(of,TAB "for(j=0; j<RSIZE;++j)\n");
-    fprintf(of,TAB TAB "for(i=0; i<NDIR;++i)\n");
+    fprintf(of,TAB TAB "for(cdummy=0; cdummy<NDIR;++cdummy)\n");
     fprintf(of,TAB TAB TAB
-        "world[j].directions[i]=original_connections[j][i];\n");
+        "world[j].directions[cdummy]=original_connections[j][cdummy];\n");
 
     fprintf(of, TAB "marker[124]=true;\n");
     if(!dont_use_light) fprintf(of, TAB "marker[121]=true;\n");
-    fprintf(of, TAB "counter[125]=0;\n");
     if(header->maxcarryingw==0) {
         header->maxcarryingw=10000;
     }
@@ -3021,28 +3088,29 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
 
     fprintf(of,"#define inventory()\\\n{\\\n");
     fprintf(of,TAB "boolean gs=false;\\\n");
-    if(osize>255)
-        fprintf(of,TAB "unsigned int i;\\\n");
-    else
-        fprintf(of,TAB "EFFSHORTINDEX i;\\\n");
+    if(osize>255) {
+        /* Local variable replaces a global one. */
+        fprintf(of,TAB "unsigned int cdummy;\\\n");
+    }
+
 
     if(hardcoded_messages==false)
         fprintf(of,TAB "show_message(1032);\\\n");
     else
         fprintf(of,TAB "show_message(message1032);\\\n");
-    fprintf(of,TAB "for(i = 0; i<OSIZE; ++i) {\\\n");
-    fprintf(of,TAB TAB "dummy=obj[i].position;\\\n");
+    fprintf(of,TAB "for(cdummy = 0; cdummy<OSIZE; ++cdummy) {\\\n");
+    fprintf(of,TAB TAB "dummy=obj[cdummy].position;\\\n");
     fprintf(of,TAB TAB "if(dummy==CARRIED||dummy==WEARED) {\\\n");
     fprintf(of,TAB TAB TAB "gs=true;\\\n");
     fprintf(of,TAB TAB TAB "evidence2();\\\n");
     if(compress_messages==true) {
         if(hardcoded_messages==false) {
-            fprintf(of,TAB TAB TAB "write_textsl(obj[i].desc);\\\n");
+            fprintf(of,TAB TAB TAB "write_textsl(obj[cdummy].desc);\\\n");
         } else {
-            fprintf(of,TAB TAB TAB "show_messagenlf(obj[i].desc);\\\n");
+            fprintf(of,TAB TAB TAB "show_messagenlf(obj[cdummy].desc);\\\n");
         }
     } else {
-        fprintf(of,TAB TAB TAB "writeln(obj[i].desc);\\\n");
+        fprintf(of,TAB TAB TAB "writeln(obj[cdummy].desc);\\\n");
     }
     fprintf(of,TAB TAB TAB "normaltxt();\\\n");
     fprintf(of,TAB TAB TAB "if(dummy==WEARED){\\\n");
@@ -3061,19 +3129,18 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     else
         fprintf(of,TAB "if(gs==false) show_message(message1033);\\\n}\n\n");
 
-    fprintf(of, "void move(unsigned char dir) FASTCALL\n");
+    fprintf(of, "void move(EFFSHORTINDEX dir) FASTCALL\n");
     fprintf(of, "{\n");
     if(max_room_code>255)
         fprintf(of, TAB "unsigned int p;\n");
     else
         fprintf(of, TAB "EFFSHORTINDEX p;\n");
     fprintf(of, TAB
-        "p=world[search_room(current_position)].directions[dir];\n");
+        "p=cr->directions[dir];\n");
     fprintf(of, TAB
         "if(p) {\n");
     fprintf(of, TAB TAB "next_position=p;\n");
     fprintf(of, TAB TAB "marker[120]=false;\n");
-    fprintf(of, TAB TAB "return;\n");
     fprintf(of, TAB "} else \n");
     if(hardcoded_messages==false)
         fprintf(of, TAB TAB "show_message(1008);\n");
@@ -3128,7 +3195,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     /* Check among two verbs AND a name */
     fprintf(of,
         "boolean vovn(unsigned int v1, unsigned int v2, unsigned int n);\n");
-    fprintf(of,"boolean vovn100_0(unsigned char n) FASTCALL;\n");
+    fprintf(of,"boolean vovn100_0(EFFSHORTINDEX n) FASTCALL;\n");
 
     /* Check among two nouns1 */
     fprintf(of, "boolean non1(unsigned int n1, unsigned int n2);\n");
@@ -3136,14 +3203,16 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     /* Check if the current position is equal to p*/
     //fprintf(of, "boolean cpi(unsigned char p);\n");
 
-    /* Check for a name and noun */
+    fprintf(of, "void ok(void);\n");
+
+    /* Check for a verb and noun */
     fprintf(of, "boolean cvn(unsigned int v, unsigned int n);\n");
-    fprintf(of, "boolean cvn70(unsigned char n) FASTCALL;\n");
+    fprintf(of, "boolean cvn70(EFFSHORTINDEX n) FASTCALL;\n");
 
     /* Check for a name and an actor */
-    fprintf(of, "boolean cva(unsigned int v, unsigned int n);\n");
-    fprintf(of, "boolean cva75(unsigned char n) FASTCALL;\n");
-    fprintf(of, "boolean cva70(unsigned char n) FASTCALL;\n");
+    fprintf(of, "boolean cva(unsigned int v, ACTORTYPE n);\n");
+    fprintf(of, "boolean cva75(EFFSHORTINDEX n) FASTCALL;\n");
+    fprintf(of, "boolean cva70(EFFSHORTINDEX n) FASTCALL;\n");
 
 
     if(hardcoded_messages==false) {
@@ -3243,7 +3312,9 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     fprintf(of,
         "boolean cvna(unsigned int v, unsigned int n, unsigned int o);\n");
     fprintf(of,
-        "boolean cvna70(unsigned char n, unsigned char o);\n");
+        "boolean cvna70(EFFSHORTINDEX n, EFFSHORTINDEX o);\n");
+    fprintf(of,
+        "boolean cvna70neq(EFFSHORTINDEX n) FASTCALL;\n");
 
     //if(drop_as_function) {
     fprintf(of, "boolean drop(unsigned int o) FASTCALL\n{\n");
@@ -3264,9 +3335,9 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
         fprintf(of, TAB TAB "show_message(1007);\\\n");
     else
         fprintf(of, TAB TAB "show_message(message1007);\\\n");
-    fprintf(of, TAB TAB "return true;\\\n");    
+    fprintf(of, TAB TAB "return true;\\\n");
     fprintf(of, TAB "}\\\n");
-    fprintf(of, TAB "return false;\\\n");    
+    fprintf(of, TAB "return false;\\\n");
     fprintf(of, "}\n\n");
 
 
@@ -3479,7 +3550,7 @@ unsigned int output_rooms(FILE *of, room* world, unsigned int rsize)
         fprintf(of,"#define NDIR 6\n");
     else
         fprintf(of,"#define NDIR 10\n");
-    fprintf(of,"room_code original_connections[RSIZE][NDIR]={\n");
+    fprintf(of,"const room_code original_connections[RSIZE][NDIR]={\n");
     for(i=0; i<rsize;++i) {
         fprintf(of, TAB "{");
         for(j=0; use_6_directions==true?j<6:j<10;++j) {
@@ -3537,6 +3608,7 @@ unsigned int output_messages(FILE *of, message* msg, unsigned int msize,
     unsigned int i,j;
     unsigned int size_d=0;
     unsigned int totalsize=0;
+    char awsversion[128];
     if(compress_messages==true) {
         fprintf(of, "char areyousure[]={");
         totalsize+=compress(of, encodechar(AREYOUSURE));
@@ -3545,14 +3617,16 @@ unsigned int output_messages(FILE *of, message* msg, unsigned int msize,
         totalsize+=compress(of, encodechar(EXITRESTART));
         fprintf(of, "};\n");
         if(!no_header) {
-            fprintf(of, "char headername[]={");
-            totalsize+=compress(of, encodechar(header->name));
-            fprintf(of, "};\n");
-            fprintf(of, "char headerauthor[]={");
-            totalsize+=compress(of, encodechar(header->author));
-            fprintf(of, "};\n");
-            fprintf(of, "char headerdate[]={");
-            totalsize+=compress(of, encodechar(header->date));
+            buffer[0]='\0';
+            strcat(buffer,header->name);
+            strcat(buffer,"\n");
+            strcat(buffer,header->author);
+            strcat(buffer,"\n");
+            strcat(buffer,header->date);
+            sprintf(awsversion, "\nAWS %s",header->version);
+            strcat(buffer,awsversion);
+            fprintf(of, "char header[]={");
+            totalsize+=compress(of, encodechar(buffer));
             fprintf(of, "};\n");
             if(strcmp(header->description,"")!=0) {
                 fprintf(of, "char headerdescription[]={");
@@ -3737,7 +3811,6 @@ void output_gameloop(FILE *f, int osize)
         fprintf(f, TAB "unsigned int k;\n");
     else
         fprintf(f, TAB "unsigned char k;\n");
-    fprintf(f, TAB "room *cr;\n");
     fprintf(f, TAB "boolean ve,pa;\n");
     fprintf(f, TAB "while(1){\n");
     fprintf(f, TAB TAB "current_position=next_position;\n");
@@ -3855,9 +3928,9 @@ void output_gameloop(FILE *f, int osize)
     fprintf(f, TAB TAB "low_cond();\n");
     fprintf(f, TAB TAB "if(retv) continue;\n");
     if(hardcoded_messages==false)
-        fprintf(f, TAB TAB "show_message(verb==0?1009:1010);\n");
+        fprintf(f, TAB TAB "show_message(cv(0)?1009:1010);\n");
     else
-        fprintf(f, TAB TAB "show_message(verb==0?message1009:message1010);\n");
+        fprintf(f, TAB TAB "show_message(cv(0)?message1009:message1010);\n");
     fprintf(f, TAB "}\n");
     fprintf(f, "}\n");
 }
@@ -3868,15 +3941,11 @@ void print_header(FILE *f, info *header)
     fprintf(f, TAB "evidence2();\n");
     if(compress_messages==true) {
         if(hardcoded_messages==true) {
-            fprintf(f, TAB "show_message(headername);\n");
-            fprintf(f, TAB "show_message(headerauthor);\n");
-            fprintf(f, TAB "show_message(headerdate);\n");
+            fprintf(f, TAB "show_message(header);\n");
             if(!no_header_description)
                 fprintf(f, TAB "show_message(headerdescription);\n");
         } else {
             fprintf(f, TAB "write_textsl(headername);\n");
-            fprintf(f, TAB "write_textsl(headerauthor);\n");
-            fprintf(f, TAB "write_textsl(headerdate);\n");
             if(!no_header_description)
                 fprintf(f, TAB "write_textsl(headerdescription);\n");
         }
@@ -3886,13 +3955,17 @@ void print_header(FILE *f, info *header)
             fprintf(f, "%s\\n", encodechar(header->author));
             fprintf(f, "%s\\n", encodechar(header->date));
             fprintf(f, "%s\\n\");\n", encodechar(header->description));
+            fprintf(f, TAB "writesameln(\"AWS %s\");\n",
+                encodechar(header->version));
+
         } else {
             fprintf(f, TAB "writeln(\"%s\\n", encodechar(header->name));
             fprintf(f, "%s\\n", encodechar(header->author));
             fprintf(f, " %s\\n\");\n", encodechar(header->date));
+            fprintf(f, TAB "writesameln(\"AWS %s\");\n",
+                encodechar(header->version));
         }
     }
-    fprintf(f, TAB "writesameln(\"AWS %s\");\n", encodechar(header->version));
     fprintf(f, TAB "normaltxt();\n");
     fprintf(f, TAB "waitkey();\n");
 
@@ -3952,7 +4025,7 @@ void print_help(char *name)
     printf("\n");
 }
 
-/*  Process options from the command line. 
+/*  Process options from the command line.
     Return 1 if the option has been recognized and treated, zero otherwise.
 */
 unsigned int process_options(char *arg, char *name)
@@ -4021,7 +4094,7 @@ unsigned int process_options(char *arg, char *name)
         if(compress5bit_dict) {
             fprintf(stderr, "ERROR: options -3 and -5 are not compatible.\n");
             exit(1);
-        }   
+        }
         compress_hash_dict=true;
         return 1;
     } else if (strcmp(arg, "-l")==0) {

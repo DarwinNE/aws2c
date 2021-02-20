@@ -34,7 +34,7 @@ unsigned char j;
 
 FILE *f;
 
-/*  I know there is atoi, but I tried them and my barebone implementation
+/*  I know there is atoi, but I tried it and my barebone implementation
     allows to spare a good 120 bytes on the 6502 with Cc65.
 */
 int s2i(char *s)
@@ -58,13 +58,13 @@ char *i2s(char *s, int v)
     unsigned char r,i=0,j=0;
 
     if(v<0) {
-        s[i++]='-';
+        s[0]='-';
         v=-v;
-        ++j;
+        j=i=1;
     }
     do {
         r=v%10;
-        s[i++]='0'+v%10;
+        s[i++]='0'+r;
         v=v/10;
     } while(v>0);
     s[i--]='\0';
@@ -85,17 +85,17 @@ void wri(int v)
 }
 
 /*  Save the current game.
-    Return value:
-    0 - Everything was OK.
-    1 - Could not open file.
+    Possible outcomes
+    - Everything was OK.
+    - Could not open file.
 */
-int savegame(char *filename) FASTCALL
+void savegame(char *filename) FASTCALL
 {
     f=fopen(eatcr(filename),"w");
 
     if(f==NULL) {
-        PUTS("Can not open file ");
-        return 1;
+        PUTS("Error: can not open file ");
+        return;
     }
     fputs("SAVEDAWS2.1\n",f);
 
@@ -112,15 +112,15 @@ int savegame(char *filename) FASTCALL
 
     for(i=0;i<OSIZE;++i) {
         wri((int)obj[i].position);
-
     }
+
     for(i=0;i<RSIZE;++i) {
         for(j=0;j<NDIR;++j)
             wri((int)world[i].directions[j]);
     }
 
     fclose(f);
-    return 0;
+    return;
 }
 
 int rei(void) FASTCALL
@@ -130,33 +130,32 @@ int rei(void) FASTCALL
 }
 
 /*  Load a game.
-    Return value:
-    0 - Everything was OK.
-    1 - Could not open input file.
-    2 - Incorrect format.
-    3 - Can't read file contents.
-    4 - Wrong game.
+    Possible errors
+    - Could not open input file.
+    - Incorrect format.
+    - Can't read file contents.
+    - Wrong game.
 */
-int loadgame(char *filename) FASTCALL
+void loadgame(char *filename) FASTCALL
 {
     f=fopen(eatcr(filename),"r");
     if(f==NULL) {
         PUTS("Can not open file ");
-        return 1;
+        return;
     }
 
     fgets(playerInput, BUFFERSIZE, f);
     if(strcmp(playerInput, "SAVEDAWS2.1\n")!=0) {
         PUTS("Incorrect format ");
         fclose(f);
-        return 2;
+        return;
     }
     fgets(playerInput, BUFFERSIZE, f);
     if(strcmp(playerInput, GAMEN"\n")!=0) {
         PUTS("Incorrect game: ");
         PUTS(playerInput);
         fclose(f);
-        return 4;
+        return;
     }
 
     next_position=(room_code) rei();
@@ -173,8 +172,8 @@ int loadgame(char *filename) FASTCALL
     for(i=0;i<RSIZE;++i)
         for(j=0;j<NDIR;++j) 
             world[i].directions[j]=(room_code) rei();
-    
+
     fclose(f);
     marker[120]=false;   /* Describe again the current location */
-    return 0;
+    return;
 }
