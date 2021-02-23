@@ -981,6 +981,38 @@
             normaltxt();printf("\n\n");}
     #endif
     #define leave() printf("\033[0m\n\n")
+#elif defined(ATARI_ST) /* Definitions for MS-DOS terminals*/
+    #include<stdio.h>
+    #include<mint/sysbind.h>
+    #define BUFFERSIZE 255
+    #define B_SIZE 240
+
+    #define LOAD SIMPLELOAD
+    #define SAVE SIMPLESAVE
+
+    #define waitscreen()
+    // The number of columns of the screen
+    #define NCOL 80
+    #define NROW 25
+
+    #define PUTC(c) Cconout(c)
+    #define PUTS(s) Cconws(s)
+
+    #define waitkey() getchar()
+    #define inputtxt() PUTS("\x1b" "b\x0f")
+    #define evidence1() PUTS("\x1b" "b\x01" "\x1b" "p")
+    #define evidence2() PUTS("\x1b" "b\x02")
+    #define evidence3() PUTS("\x1b" "b\x03")
+    #define cls()
+    
+    #define init_term()
+    #define normaltxt() PUTS("\x1b" "b\x0f")
+    #define end_evidence1() PUTS("\x1b" "b\x0f" "\x1b" "q")
+    #define tab() printf("\t")
+    #define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
+        retTime);}
+    #define leave() PUTS("\x1b" "E")
+    
 #else /* Definitions for modern ANSI terminals */
     #include<stdio.h>
     #define BUFFERSIZE 255

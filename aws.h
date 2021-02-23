@@ -106,4 +106,12 @@ typedef struct tree_d {
 
 void restart(void);
 
+#ifdef ATARI_ST
+#define NEWLINE "\r\n"
+#define NEWLINE_PUTC() PUTC('\r'); PUTC('\n');
+#else
+#define NEWLINE "\n"
+#define NEWLINE_PUTC() PUTC('\n');
+#endif
+
 #endif
