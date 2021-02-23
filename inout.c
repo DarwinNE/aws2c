@@ -116,7 +116,7 @@ void writesameln(char *line) FASTCALL
                 wordbuffer[pc]='\0';
             #ifdef NCOL
             if(colc>=NCOL) {
-                PUTC('\n');
+                NEWLINE_PUTC();
                 colc=pc;
                 #ifdef NROW
                 if(++rowc>NROW) {waitkey(); zeror();};
@@ -137,7 +137,7 @@ void writesameln(char *line) FASTCALL
                 if(c=='\\')
                     ++line;
                 #endif
-                PUTC('\n');
+                NEWLINE_PUTC();
                 #ifdef NCOL
                 zeroc();
                 #endif
@@ -190,7 +190,7 @@ void zeror(void)
 void writeln(char* line) FASTCALL
 {
     writesameln(line);
-    PUTC('\n');
+    NEWLINE_PUTC();
     #ifdef NROW
     if(++rowc>NROW) {waitkey(); zeror();};
     #endif
