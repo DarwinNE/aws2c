@@ -1121,6 +1121,7 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
                 exit(1);
             }
             strcpy(arg2,function_res);
+            
             /*  75 is a very frequent action with an actor (SPEAK).
                 This is done only if the actor has a 1-byte code. */
             if(strcmp(arg1,"75")==0 &&
