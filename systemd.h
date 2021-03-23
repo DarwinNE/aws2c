@@ -1015,7 +1015,12 @@
     #define waitkey() getchar()
     #define cls()
     
-    #define init_term()
+    #ifdef ALTSPLASH
+        extern  void  pic_display();
+        #define init_term() pic_display()
+    #else
+        #define init_term()
+    #endif
     #define normaltxt() PUTS("\x1b" "b\x0f")
     #define end_evidence1() PUTS("\x1b" "b\x0f" "\x1b" "q")
     #define tab() printf("\t")

@@ -32,7 +32,7 @@ old Commodore machines.
 #include "aws_c.h"
 #include "compress.h"
 
-#define VERSION "1.9.4, September 2018 - February 2021"
+#define VERSION "1.9.5, September 2018 - March 2021"
 #define AREYOUSURE "Are you sure? Type 'Y' and return if yes."
 #define EXITRESTART "'E' and return to exit, anything else to restart."
 
@@ -3815,7 +3815,7 @@ void output_gameloop(FILE *f, int osize)
     fprintf(f, TAB "boolean ve,pa;\n");
     fprintf(f, TAB "while(1){\n");
     fprintf(f, TAB TAB "current_position=next_position;\n");
-    fprintf(f, TAB TAB "++counter[125];\n");
+    //fprintf(f, TAB TAB "++counter[125];\n");
     if(dont_use_light)
         fprintf(f, TAB TAB "if(marker[120]==false) {\n");
     else
@@ -4012,6 +4012,7 @@ void print_help(char *name)
            " -w  don't check for size and weight of objects (counter 119, 120\n"
            "     and 124 are not used).\n"
            " -k  don't output header.\n"
+           " -kk strip empty messages and automatic counters.\n"
            " -5  use 5-bit compression for the dictionary.\n"
            " -3  use 3-byte hash code for dictionary.\n"
            " -l  don't take into account light/dark situations.\n"
@@ -4078,7 +4079,11 @@ unsigned int process_options(char *arg, char *name)
         return 1;
     } else if (strcmp(arg, "-k")==0) {
         no_header=true;
-        strip_empty_messages=true;
+        //strip_empty_messages=true;    // It doesn't work if a message is used
+        strip_automatic_counters=true;
+        return 1;
+    } else if (strcmp(arg, "-kk")==0) {
+        //strip_empty_messages=true;
         strip_automatic_counters=true;
         return 1;
     } else if (strcmp(arg, "-v")==0 || strcmp(arg, "--version")==0) {
