@@ -32,7 +32,7 @@ old Commodore machines.
 #include "aws_c.h"
 #include "compress.h"
 
-#define VERSION "1.9.5, September 2018 - March 2021"
+#define VERSION "1.9.6, September 2018 - April 2021"
 #define AREYOUSURE "Are you sure? Type 'Y' and return if yes."
 #define EXITRESTART "'E' and return to exit, anything else to restart."
 
@@ -102,7 +102,7 @@ boolean need_vov=false;
 boolean need_vovn=false;
 boolean need_non1=false;
 boolean need_cvn=false;
-boolean need_cva=false;
+boolean need_check_verb_actor=false;
 boolean need_cv=false;
 boolean need_hold=false;
 boolean need_cvna=false;
@@ -1133,9 +1133,9 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
             {
                 fprintf(f, "cva70(%s)", arg2);
             } else {
-                fprintf(f, "cva(%s,%s)", arg1,arg2);
+                fprintf(f, "check_verb_actor(%s,%s)", arg1,arg2);
             }
-            need_cva=true;
+            need_check_verb_actor=true;
             free(arg1);
             free(arg2);
         } else if(strcmp(next,"NOUN")==0) {
@@ -2785,19 +2785,19 @@ void output_optional_func(FILE *of, int max_room_code)
         fprintf(of, "    return cvn(70,n);\n");
         fprintf(of, "}\n");
     }
-    if(need_cva) {
+    if(need_check_verb_actor) {
         /* Check for a verb and actor */
-        fprintf(of, "boolean cva(unsigned int v, ACTORTYPE n)\n");
+        fprintf(of, "boolean check_verb_actor(unsigned int v, ACTORTYPE n)\n");
         fprintf(of, "{\n");
         fprintf(of, "    return verb==v&&actor==n;\n");
         fprintf(of, "}\n");
         fprintf(of, "boolean cva75(EFFSHORTINDEX n) FASTCALL\n");
         fprintf(of, "{\n");
-        fprintf(of, "    return cva(75,n);\n");
+        fprintf(of, "    return check_verb_actor(75,n);\n");
         fprintf(of, "}\n");
         fprintf(of, "boolean cva70(EFFSHORTINDEX n) FASTCALL\n");
         fprintf(of, "{\n");
-        fprintf(of, "    return cva(70,n);\n");
+        fprintf(of, "    return check_verb_actor(70,n);\n");
         fprintf(of, "}\n");
     }
     if(need_cvna) {
@@ -3211,7 +3211,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     fprintf(of, "boolean cvn70(EFFSHORTINDEX n) FASTCALL;\n");
 
     /* Check for a name and an actor */
-    fprintf(of, "boolean cva(unsigned int v, ACTORTYPE n);\n");
+    fprintf(of, "boolean check_verb_actor(unsigned int v, ACTORTYPE n);\n");
     fprintf(of, "boolean cva75(EFFSHORTINDEX n) FASTCALL;\n");
     fprintf(of, "boolean cva70(EFFSHORTINDEX n) FASTCALL;\n");
 
