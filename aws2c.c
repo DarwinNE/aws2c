@@ -1127,11 +1127,53 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
             if(strcmp(arg1,"75")==0 &&
                 sscanf(arg2, "%d",&val2)==1 && val2<256)
             {
-                fprintf(f, "cva75(%s)", arg2);
-            } else if(strcmp(arg1,"70")==0 &&
+                sp=peek_token(line, scanpos);
+                if(strcmp(next,"AND")==0) {
+                    sp=peek_token(line, sp);
+                    if(strcmp(next,"AVAI")==0) {
+                        scanpos=sp;
+                        start_function();
+                        scanpos=process_functions(line, scanpos);
+                        if(strcmp(function_res,arg2)==0) { 
+                            fprintf(f, "check_verb75_actor_available(%s)",
+                                arg2);
+                        } else {
+                            fprintf(f, "check_verb75_actor(%s)&&"
+                                "object_is_available(%s)",
+                                arg2, function_res);
+                            need_check_verb_actor=true;
+                        }
+                    } else {
+                        fprintf(f, "check_verb75_actor(%s)", arg2);
+                    }
+                } else {
+                    fprintf(f, "check_verb75_actor(%s)", arg2);
+                }
+            } else if(strcmp(arg1,"70")==0 && /* 70 is EXAMINE */
                 sscanf(arg2, "%d",&val2)==1 && val2<256)
             {
-                fprintf(f, "cva70(%s)", arg2);
+                sp=peek_token(line, scanpos);
+                if(strcmp(next,"AND")==0) {
+                    sp=peek_token(line, sp);
+                    if(strcmp(next,"AVAI")==0) {
+                        scanpos=sp;
+                        start_function();
+                        scanpos=process_functions(line, scanpos);
+                        if(strcmp(function_res,arg2)==0) { 
+                            fprintf(f, "check_verb70_actor_available(%s)",
+                                arg2);
+                        } else {
+                            fprintf(f, "check_verb70_actor(%s)&&"
+                                "object_is_available(%s)",
+                                arg2, function_res);
+                            need_check_verb_actor=true;
+                        }
+                    } else {
+                        fprintf(f, "check_verb70_actor(%s)", arg2);
+                    }
+                } else {
+                    fprintf(f, "check_verb70_actor(%s)", arg2);
+                }
             } else {
                 fprintf(f, "check_verb_actor(%s,%s)", arg1,arg2);
             }
@@ -2791,13 +2833,25 @@ void output_optional_func(FILE *of, int max_room_code)
         fprintf(of, "{\n");
         fprintf(of, "    return verb==v&&actor==n;\n");
         fprintf(of, "}\n");
-        fprintf(of, "boolean cva75(EFFSHORTINDEX n) FASTCALL\n");
+        fprintf(of, "boolean check_verb75_actor(EFFSHORTINDEX n) FASTCALL\n");
         fprintf(of, "{\n");
         fprintf(of, "    return check_verb_actor(75,n);\n");
         fprintf(of, "}\n");
-        fprintf(of, "boolean cva70(EFFSHORTINDEX n) FASTCALL\n");
+        fprintf(of, "boolean check_verb70_actor(EFFSHORTINDEX n) FASTCALL\n");
         fprintf(of, "{\n");
         fprintf(of, "    return check_verb_actor(70,n);\n");
+        fprintf(of, "}\n");
+        fprintf(of, "boolean check_verb70_actor_available(EFFSHORTINDEX n)"
+            " FASTCALL\n");
+        fprintf(of, "{\n");
+        fprintf(of, "    return check_verb_actor(70,n)&&"
+            "object_is_available(n);\n");
+        fprintf(of, "}\n");
+        fprintf(of, "boolean check_verb75_actor_available(EFFSHORTINDEX n)"
+            " FASTCALL\n");
+        fprintf(of, "{\n");
+        fprintf(of, "    return check_verb_actor(75,n)&&"
+            "object_is_available(n);\n");
         fprintf(of, "}\n");
     }
     if(need_cvna) {
@@ -3212,8 +3266,13 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
 
     /* Check for a name and an actor */
     fprintf(of, "boolean check_verb_actor(unsigned int v, ACTORTYPE n);\n");
-    fprintf(of, "boolean cva75(EFFSHORTINDEX n) FASTCALL;\n");
-    fprintf(of, "boolean cva70(EFFSHORTINDEX n) FASTCALL;\n");
+    fprintf(of, "boolean check_verb75_actor(EFFSHORTINDEX n) FASTCALL;\n");
+    fprintf(of, "boolean check_verb75_actor_available(EFFSHORTINDEX n) "
+        "FASTCALL;\n");
+    fprintf(of, "boolean check_verb70_actor(EFFSHORTINDEX n) FASTCALL;\n");
+    fprintf(of, "boolean check_verb70_actor_available(EFFSHORTINDEX n) "
+        "FASTCALL;\n");
+    
 
 
     if(hardcoded_messages==false) {
