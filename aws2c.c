@@ -1102,7 +1102,16 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
     sp=peek_token(line, scanpos);
     /* A certain complexity comes from the search of shortcuts.
        One must peek into the next tokens to see if they correspond to
-       something recognized. */
+       something recognized.
+
+       Here is how it is done: peek_token allows to load in "next" the new
+       token recognized. Usually the parsing is done at the position sp, the
+       value of scanpos is the current "valid" parsing position. Once a shortcut
+       can be applied, scanpos is updated to the value of sp.
+
+       In some extent, sp is "exploratory".
+
+    */
     if(shortcuts==true&&(strcmp(next,"AND")==0)) {
         sp=peek_token(line, sp);
         if(strcmp(next,"ACTOR")==0) {
@@ -1121,7 +1130,7 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
                 exit(1);
             }
             strcpy(arg2,function_res);
-            
+
             /*  75 is a very frequent action with an actor (SPEAK).
                 This is done only if the actor has a 1-byte code. */
             if(strcmp(arg1,"75")==0 &&
@@ -1134,7 +1143,7 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
                         scanpos=sp;
                         start_function();
                         scanpos=process_functions(line, scanpos);
-                        if(strcmp(function_res,arg2)==0) { 
+                        if(strcmp(function_res,arg2)==0) {
                             fprintf(f, "check_verb75_actor_available(%s)",
                                 arg2);
                         } else {
@@ -1159,7 +1168,7 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
                         scanpos=sp;
                         start_function();
                         scanpos=process_functions(line, scanpos);
-                        if(strcmp(function_res,arg2)==0) { 
+                        if(strcmp(function_res,arg2)==0) {
                             fprintf(f, "check_verb70_actor_available(%s)",
                                 arg2);
                         } else {
@@ -3272,7 +3281,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     fprintf(of, "boolean check_verb70_actor(EFFSHORTINDEX n) FASTCALL;\n");
     fprintf(of, "boolean check_verb70_actor_available(EFFSHORTINDEX n) "
         "FASTCALL;\n");
-    
+
 
 
     if(hardcoded_messages==false) {
