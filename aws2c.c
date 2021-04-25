@@ -1250,7 +1250,7 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
                    this is done only if the noun has a code <256. */
                     fprintf(f, "cvn70(%s)", arg2);
                 } else {
-                    fprintf(f, "cvn(%s,%s)", arg1,arg2);
+                    fprintf(f, "check_verb_noun(%s,%s)", arg1,arg2);
                 }
                 need_cvn=true;
             }
@@ -2826,14 +2826,14 @@ void output_optional_func(FILE *of, int max_room_code)
     }
     if(need_cvn) {
         /* Check for a name and noun */
-        fprintf(of, "boolean cvn(unsigned int v, unsigned int n)\n");
+        fprintf(of, "boolean check_verb_noun(unsigned int v, unsigned int n)\n");
         fprintf(of, "{\n");
 
         fprintf(of, "    return verb==v&&noun1==n;\n");
         fprintf(of, "}\n");
         fprintf(of, "boolean cvn70(EFFSHORTINDEX n) FASTCALL\n");
         fprintf(of, "{\n");
-        fprintf(of, "    return cvn(70,n);\n");
+        fprintf(of, "    return check_verb_noun(70,n);\n");
         fprintf(of, "}\n");
     }
     if(need_check_verb_actor) {
@@ -2869,7 +2869,7 @@ void output_optional_func(FILE *of, int max_room_code)
             "unsigned int o)\n");
         fprintf(of, "{\n    dummy=get_object_position(o);\n");
         if(need_cvn)
-            fprintf(of, "    return cvn(v,n)&&"
+            fprintf(of, "    return check_verb_noun(v,n)&&"
                 "(dummy==current_position||dummy==CARRIED);\n");
         else
             fprintf(of, "    return verb==v&&noun1==n&&"
@@ -3270,7 +3270,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     fprintf(of, "void ok(void);\n");
 
     /* Check for a verb and noun */
-    fprintf(of, "boolean cvn(unsigned int v, unsigned int n);\n");
+    fprintf(of, "boolean check_verb_noun(unsigned int v, unsigned int n);\n");
     fprintf(of, "boolean cvn70(EFFSHORTINDEX n) FASTCALL;\n");
 
     /* Check for a name and an actor */
