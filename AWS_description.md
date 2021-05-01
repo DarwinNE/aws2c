@@ -572,8 +572,8 @@ Decision |aws2c?| Decision becomes `true` if...
 `WEIGEQ o x`|   | object `o` has a weight `x`
 `WEIGGT o x`|   | object `o` has a weight greater than `x`
 `WEIGLT o x`|   | object `o` has a weight less than `x`
-`ISWEREABLE o`| | object `o` can be worn
-`ISNOTWEREABLE o`|| object `o` can not be worn
+`ISWEREABLE o`|X| object `o` can be worn
+`ISNOTWEREABLE o`|X| object `o` can not be worn
 `ISMOVABLE o`| X| true if object `o` can be moved
 `ISNOTMOVABLE o`|X| true if object `o` can not be moved
 `ISWEARING o` | X | true if the player wears object `o`

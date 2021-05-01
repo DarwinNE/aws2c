@@ -28,6 +28,7 @@
 
 #include<time.h>
 
+/* Provide very basic load/save routines */
 #define SIMPLELOAD {\
         PUTS("Enter file name: ");\
         GETS(playerInput, BUFFERSIZE);\
@@ -122,9 +123,9 @@
     #include<conio.h>
     #include<stdio.h>
 
-    #define BUFFERSIZE 128
-    #define B_SIZE 160
-    //#define CV_IS_A_FUNCTION
+    #define BUFFERSIZE 80
+    #define B_SIZE 80
+    #define CV_IS_A_FUNCTION
     #define LOAD SIMPLELOAD
     #define SAVE SIMPLESAVE
 
@@ -183,11 +184,10 @@
 
     #include<conio.h>
     #include<stdio.h>
+
+    #define BUFFERSIZE 80
+    #define B_SIZE 80
     #define CV_IS_A_FUNCTION
-
-    #define BUFFERSIZE 128
-    #define B_SIZE 160
-
     #define LOAD SIMPLELOAD
     #define SAVE SIMPLESAVE
 

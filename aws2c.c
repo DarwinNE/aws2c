@@ -3,7 +3,8 @@
     AWS to C converter by Davide Bucci
 
 AWS stands for Adventure Writing System and is a program developed by
-Aristide Torrelli to write interactive fiction games:
+Aristide Torrelli to write interactive fiction games. Here is a link to his
+blog, in Italian language:
 
 http://www.aristidetorrelli.it/aws3/AWS.html
 
@@ -14,6 +15,10 @@ game.
 Its structure of AWS is relatively simple yet powerful and I decided to write
 this little converter that automagically generates C code that implements the
 logic described by the game.
+
+If you need an English description of AWS, I wrote this:
+
+https://github.com/DarwinNE/aws2c/blob/master/AWS_description.md
 
 The parser and some input/output functions are contained in an external file
 called inout.c that can be customised to the target machine.
@@ -124,13 +129,13 @@ unsigned int number_of_jumps;
 unsigned int number_of_drops;
 
 /*  Those are flags than in principle can be turned on and off to optimize if
-    a particular function should be defined as a macro instead. This is useful
-    as if it is called only once, the overhead of the function calling
+    a particular function should be defined check_position_marker_on a macro instead. This is useful
+    check_position_marker_on if it is called only once, the overhead of the function calling
     mechanism can do more harm than good. Aws2c will determine
     alone if those options must be turned on or off by checking the statistics.
 */
 boolean jump_as_function=false;
-boolean drop_as_function=true;  // It must be true as function returns a value.
+boolean drop_as_function=true;  // It must be true check_position_marker_on function returns a value.
 
 typedef struct conv_t {
     char *orig;
@@ -183,7 +188,7 @@ conv conversion[CONVSIZE] = {
 };
 
 /** Change and encode characters that may create troubles when output, such
-    as ".
+    check_position_marker_on ".
     Exploits buffer.
 */
 char *encodechar(char *input)
@@ -940,22 +945,22 @@ unsigned int decision_at(FILE *f, char *line, unsigned int scanpos)
                     if (polarity) {
                         need_as=true;
                         proc=true;
-                        fprintf(f, "as(%s,%s)", arg1,arg2);
+                        fprintf(f, "check_position_marker_on(%s,%s)", arg1,arg2);
                     } else {
                         need_ar=true;
                         proc=true;
-                        fprintf(f, "ar(%s,%s)", arg1,arg2);
+                        fprintf(f, "check_position_marker_off(%s,%s)", arg1,arg2);
                     }
                 }*/
             } /*else {
                 if (polarity) {
                     need_as=true;
                     proc=true;
-                    fprintf(f, "as(%s,%s)", arg1,arg2);
+                    fprintf(f, "check_position_marker_on(%s,%s)", arg1,arg2);
                 } else {
                     need_ar=true;
                     proc=true;
-                    fprintf(f, "ar(%s,%s)", arg1,arg2);
+                    fprintf(f, "check_position_marker_off(%s,%s)", arg1,arg2);
                 }
             }*/
         }
@@ -2508,7 +2513,7 @@ void process_aws(FILE *f, char *line)
             fprintf(f,"||");
         } else if(strcmp(token,"AND")==0) {
             shortcuts=true;
-            // this is a trick to have the behaviour of AND as it is in AWS.
+            // this is a trick to have the behaviour of AND check_position_marker_on it is in AWS.
             fprintf(f,") if("); // There, AND has the same priority of OR :-(
         } else if(strcmp(token,"THEN")==0) {
             // One needs to avoid if() C code for "IF THEN" conditions
@@ -2962,12 +2967,14 @@ void output_optional_func(FILE *of, int max_room_code)
         fprintf(of, "}\n");
     }
     if(need_as) {
-        fprintf(of, "char as(unsigned int p, unsigned char f)\n{\n");
+        fprintf(of, "char check_position_marker_on(unsigned int p,"
+            "unsigned char f)\n{\n");
         fprintf(of, "    return current_position==p&&marker[f];\n");
         fprintf(of, "}\n");
     }
     if(need_ar) {
-        fprintf(of, "char ar(unsigned int p, unsigned char f)\n{\n");
+        fprintf(of, "char check_position_marker_off(unsigned int p, "
+            "unsigned char f)\n{\n");
         fprintf(of, "    return current_position==p&&!marker[f];\n");
         fprintf(of, "}\n");
     }
@@ -3432,7 +3439,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     fprintf(of, "char iscarrsome(void);\n");
     fprintf(of, "char iswearsome(void);\n");
     //fprintf(of, "void checkexit(void);\n");
-    // I decided that a macro is better, as it is called only once.
+    // I decided that a macro is better, check_position_marker_on it is called only once.
     fprintf(of, "#define checkexit()\\\n{\\\n");
     if(compress_messages==true) {
         if(hardcoded_messages==true) {
@@ -3449,8 +3456,8 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     fprintf(of, TAB "}\\\n");
     fprintf(of, "}\n");
 
-    fprintf(of, "char as(unsigned int p, unsigned char f);\n");
-    fprintf(of, "char ar(unsigned int p, unsigned char f);\n");
+    fprintf(of, "char check_position_marker_on(unsigned int p, unsigned char f);\n");
+    fprintf(of, "char check_position_marker_off(unsigned int p, unsigned char f);\n");
 
 }
 
@@ -3484,7 +3491,7 @@ void compress_5bit(char *buffer)
     }
 }
 
-/*  Store the dictionary as a 3-byte hash code for each word.
+/*  Store the dictionary check_position_marker_on a 3-byte hash code for each word.
     The result is a 3-character string that substitutes the original one.
 */
 void compress_hash(char *buffer)
@@ -3840,7 +3847,7 @@ void output_lowcond(FILE *f, char **cond,  int size)
     fprintf(f, TAB "return;\n");
     /*  Use a global variable for keeping track of the return value.
         The difference can be considerable in big
-        adventures, as there are plenty of WAIT commands. */
+        adventures, check_position_marker_on there are plenty of WAIT commands. */
     fprintf(f,"}\n");
 }
 
