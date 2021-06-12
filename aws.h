@@ -94,7 +94,7 @@ typedef struct object_d {
         unsigned int weight;
         unsigned int size;
     #endif
-    unsigned int position;      // Always int, as carried =1500, weared=1600
+    unsigned int position;      // Always int, as carried =1500, worn=1600
     unsigned char attributes;
 } object;
 

@@ -41,6 +41,9 @@
         savegame(playerInput);\
     }
 
+    #define POKE(addr,val)     (*(unsigned char*) (addr) = (val))
+    #define PEEK(addr)     (*(unsigned char*) (addr))
+
 #ifdef C128  /* Definitions to be used for the Commodore 128 computer */
 
     #include<conio.h>
@@ -124,7 +127,7 @@
     #include<stdio.h>
 
     #define BUFFERSIZE 80
-    #define B_SIZE 80
+    #define B_SIZE 40
     #define CV_IS_A_FUNCTION
     #define LOAD SIMPLELOAD
     #define SAVE SIMPLESAVE
@@ -186,7 +189,7 @@
     #include<stdio.h>
 
     #define BUFFERSIZE 80
-    #define B_SIZE 80
+    #define B_SIZE 40
     #define CV_IS_A_FUNCTION
     #define LOAD SIMPLELOAD
     #define SAVE SIMPLESAVE
@@ -201,14 +204,6 @@
     #define NCOL 40
     #define NROW 24
 
-    #define green       ""
-    #define red         ""
-    #define cyan        ""
-    #define blue        ""
-    #define yellow      ""
-    #define pink        ""
-
-    #define switch80col ""
 
     /* Macro to wait for a key */
     #define waitkey() cgetc(); rowc=0
@@ -301,8 +296,7 @@
     #define PTRBRD 53280U
     #define PTRCLR 53281U
     /* Init the terminal */
-    #define POKE(addr,val)     (*(unsigned char*) (addr) = (val))
-    #define PEEK(addr)     (*(unsigned char*) (addr))
+
     // Restore default VIC-II config (lower case)
     // This is useful if there is loader that goes in a graphic mode.
 
@@ -381,8 +375,16 @@
     #define wait1s()    {}
     #define PTRCLR 65301U
     /* Init the terminal */
+    
+    // the use of the 0x52 location is the opposite of the C64 as in the Plus4
+    // the set is usually provided by the loader and is not contained in the
+    // games.
     #define init_term() {\
         *(char*)PTRCLR = 0x00;\
+        if(PEEK(0x52)==0)\
+            {POKE(65299U,212); POKE(65298U,196);} \
+        else \
+            {POKE(65299U,0xF2); POKE(65298U,0xC0);} \
         clrscr();\
         normaltxt();\
     }
@@ -559,8 +561,8 @@
 
     #include <spectrum.h>
     #include <stdio.h>
-    #define BUFFERSIZE 80
-    #define B_SIZE 80
+    #define BUFFERSIZE 64
+    #define B_SIZE 40
     #define EFFSHORTINDEX unsigned int
     #define FASTCALL __z88dk_fastcall
     #define LOAD SIMPLELOAD
@@ -585,7 +587,9 @@
     #define tab() fputs("\t")
     #define wait1s() \
         {unsigned int k,r; for(k=0;k<32000;++k) r=k>>2;}
-    #define init_term() {wait1s();wait1s();fputs("\x1b[2J", stdout);normaltxt();}
+    #define wait2s() \
+        {unsigned int k,r; for(k=0;k<64000;++k) r=k>>2;}
+    #define init_term() {fputs("\x1b[2J", stdout);normaltxt();}
 
     #define leave() fputs("\x1b[0m\n\n", stdout);
 #elif defined(RC2014)
@@ -885,12 +889,42 @@
     #define init_term()
     #define leave()
 
+#elif defined(Z88) /* Definitions for a Cambridge Z88 */
+    #include<stdio.h>
+
+    #define BUFFERSIZE 128
+    #define B_SIZE 120
+    #define GETS(buffer, size) fgets_cons((buffer),(size)); writeln("");
+    #define PUTS(s) cputs((s))
+
+    #define waitscreen()
+    #define LOAD SIMPLELOAD
+    #define SAVE SIMPLESAVE
+    // The number of columns of the screen
+    #define NCOL 80
+    #define NROW 6
+
+    #define waitkey() getchar(); rowc=0
+    #define inputtxt()
+    #define evidence1()
+    #define evidence2()
+    #define evidence3()
+    #define cls()
+
+    #define normaltxt()
+    #define tab() fputs("\t", stdout)
+    #define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
+        retTime);}
+
+    #define init_term() {}
+    #define leave()
+
 #elif defined(NOANSI) /* Definitions for a plain text terminal, with no ansi
                          support */
 
     #include<stdio.h>
 
-    #define BUFFERSIZE 128  
+    #define BUFFERSIZE 128
     #define B_SIZE 120
 
     #define waitscreen()
