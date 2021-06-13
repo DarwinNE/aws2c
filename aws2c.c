@@ -3686,10 +3686,10 @@ unsigned int output_messages(FILE *of, message* msg, unsigned int msize,
     unsigned int totalsize=0;
     char awsversion[128];
     if(compress_messages==true) {
-        fprintf(of, "char areyousure[]={");
+        fprintf(of, "const char areyousure[]={");
         totalsize+=compress(of, encodechar(AREYOUSURE));
         fprintf(of, "};\n");
-        fprintf(of, "char exitrestart[]={");
+        fprintf(of, "const char exitrestart[]={");
         totalsize+=compress(of, encodechar(EXITRESTART));
         fprintf(of, "};\n");
         if(!no_header) {
@@ -3701,11 +3701,11 @@ unsigned int output_messages(FILE *of, message* msg, unsigned int msize,
             strcat(buffer,header->date);
             sprintf(awsversion, "\nAWS %s",header->version);
             strcat(buffer,awsversion);
-            fprintf(of, "char header[]={");
+            fprintf(of, "const char header[]={");
             totalsize+=compress(of, encodechar(buffer));
             fprintf(of, "};\n");
             if(strcmp(header->description,"")!=0) {
-                fprintf(of, "char headerdescription[]={");
+                fprintf(of, "const char headerdescription[]={");
                 totalsize+=compress(of, encodechar(header->description));
                 fprintf(of, "};\n");
             } else {
@@ -3717,7 +3717,7 @@ unsigned int output_messages(FILE *of, message* msg, unsigned int msize,
     if(compress_messages==true||hardcoded_messages==true) {
         for(i=0; i<msize;++i) {
             if(!strip_empty_messages || strcmp(msg[i].txt,"")!=0) {
-                fprintf(of, "char message%d[]=",msg[i].code);
+                fprintf(of, "const char message%d[]=",msg[i].code);
                 if(compress_messages==true) {
                     fprintf(of,"{");
                     totalsize+=compress(of, encodechar(msg[i].txt));
@@ -3771,7 +3771,7 @@ void output_objects(FILE *of, object* obj, unsigned int osize)
     unsigned int i,j;
     if(compress_messages==true) {
         for(i=0; i<osize;++i) {
-            fprintf(of, "char desc_l%d[]=",obj[i].code);
+            fprintf(of, "const char desc_l%d[]=",obj[i].code);
             fprintf(of,"{");
             compress(of, encodechar(obj[i].desc));
             fprintf(of,"}");

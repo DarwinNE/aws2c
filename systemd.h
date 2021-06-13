@@ -895,7 +895,7 @@
     #define BUFFERSIZE 128
     #define B_SIZE 120
     #define GETS(buffer, size) fgets_cons((buffer),(size)); writeln("");
-    #define PUTS(s) cputs((s))
+    //#define PUTS(s) puts_cons((s))
 
     #define waitscreen()
     #define LOAD SIMPLELOAD
@@ -905,13 +905,13 @@
     #define NROW 6
 
     #define waitkey() getchar(); rowc=0
-    #define inputtxt()
-    #define evidence1()
-    #define evidence2()
-    #define evidence3()
+    #define inputtxt() PUTS("\033[1m")
+    #define evidence1() PUTS("\033[1m")
+    #define evidence2() PUTS("\033[1m")
+    #define evidence3() PUTS("\033[3m")
     #define cls()
 
-    #define normaltxt()
+    #define normaltxt() PUTS("\033[0m")
     #define tab() fputs("\t", stdout)
     #define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
         retTime);}
