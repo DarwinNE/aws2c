@@ -891,10 +891,11 @@
 
 #elif defined(Z88) /* Definitions for a Cambridge Z88 */
     #include<stdio.h>
+    #include<conio.h>
 
     #define BUFFERSIZE 128
     #define B_SIZE 120
-    #define GETS(buffer, size) fgets_cons((buffer),(size)); writeln("");
+    #define GETS(buffer, size) fgets_cons((buffer),(size)); rowc=0; writeln("")
     //#define PUTS(s) puts_cons((s))
 
     #define waitscreen()
@@ -904,14 +905,27 @@
     #define NCOL 80
     #define NROW 6
 
-    #define waitkey() getchar(); rowc=0
-    #define inputtxt() PUTS("\033[1m")
-    #define evidence1() PUTS("\033[1m")
-    #define evidence2() PUTS("\033[1m")
-    #define evidence3() PUTS("\033[3m")
+    #define waitkey() cgetc(); rowc=0
+
+    // Defining the macro PLAIN allows you to skip ANSI console commands.
+    // Use it if you don't have enough memory to use -clib=ansi on the z88dk
+
+    #ifndef PLAIN
+        #define inputtxt() PUTS("\033[1m")
+        #define evidence1() PUTS("\033[1m")
+        #define evidence2() PUTS("\033[1m")
+        #define evidence3() PUTS("\033[3m")
+        #define normaltxt() PUTS("\033[0m")
+    #else
+        #define inputtxt()
+        #define evidence1()
+        #define evidence2()
+        #define evidence3()
+        #define normaltxt()
+    #endif
+
     #define cls()
 
-    #define normaltxt() PUTS("\033[0m")
     #define tab() fputs("\t", stdout)
     #define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
         retTime);}

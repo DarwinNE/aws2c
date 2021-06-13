@@ -3780,7 +3780,7 @@ void output_objects(FILE *of, object* obj, unsigned int osize)
         }
     }
 
-    fprintf(of,"int original_position[OSIZE]={\n" TAB);
+    fprintf(of,"const int original_position[OSIZE]={\n" TAB);
     for(i=0; i<osize;++i)
         fprintf(of, "%d,", obj[i].position);
     fprintf(of,"};\n");
