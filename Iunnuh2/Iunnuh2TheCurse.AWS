@@ -913,6 +913,9 @@ NOME
 EXAMINE
 70
 VERBO
+X
+70
+VERBO
 INV
 72
 NOME
@@ -1091,9 +1094,6 @@ L
 110
 VERBO
 LOOK
-110
-VERBO
-X
 110
 VERBO
 EXTRACT
@@ -2122,7 +2122,7 @@ Balcony
 0
 0
 100
-It's late at nightç it's cold and wet and you are outside the British Museumç at the bus stop. You know why you are there. You think again to last years' eventsç to your studies on the treasury your father found 30 years ago in the Iunnuh's pyramidç the curse that killed himç the evil forces that were freed. Your father is deadç killed by the curseç and his colleagues too. Now that evil force is attacking the sons of those who dared to desecrate the tomb of Iunnuh's and his wife Hanyke. You are the only hope for you and them. Your studies made you find a holy ritual that can remove the curse and give eternal peace to the pharaoh and his bride. Today is the day. Today planets are aligned. Next timeç it will be May 16ç 2161: too late for you. Today you will be able to remove the spellç at last. But there's a problem. The ritual is described in your father's notebookç that was never found. Your hope is that it's still in the museumç along the other treasures. You are not sure about thatç as in the last years you went here every day to visit the museum and you never saw it. But you have to tryç by inspecting the treasures and the findings hoping they will lead to the notebook. Because if you are not able to find it before tomorrow morningç it will be the end for you. May the luck be with youç I will be your ears and eyes.
+It's late at nightç it's cold and wet and you are outside the British Museumç at the bus stop. You know why you are there. You think again to last years' eventsç to your studies on the treasury your father found 30 years ago in the Iunnuh's pyramidç the curse that killed himç the evil forces that were freed. Your father is deadç killed by the curse and so are his colleagues. Now that evil force is attacking the sons of those who dared to desecrate the tomb of Iunnuh's and his wife Hanyke. You are the only hope for you and them. Your studies made you find a holy ritual that can remove the curse and give eternal peace to the pharaoh and his bride. Today is the day. Today planets are aligned. Next timeç it will be May 16ç 2161: too late for you. Today you will be able to remove the spellç at last. But there's a problem. The ritual is described in your father's notebookç that was never found. Your hope is that it's still in the museumç along the other treasures. You are not sure about thatç as in the last years you went here every day to visit the museum and you never saw it. But you have to tryç by inspecting the treasures and the findings hoping they will lead to the notebook. Because if you are not able to find it before tomorrow morningç it will be the end for you. May the luck be with youç I will be your ears and eyes.
 Introduction
 Introduction
 0
@@ -2136,7 +2136,7 @@ Introduction
 0
 0
 101
-Thirty years have passedç how time flies. I have just published version 3.0 of my AWSç the Adventure Writing Systemç a visual and integrated development system that allows writing very complex interactive fiction games with minimal programming knowledge.^M Could I avoid celebrating both things? And what could possibly be better than writing the sequel of the Iunnuh's pyramid?^MHere it is: Iunnuh 2ç the curse coming from the past.^M
+Thirty years have passedç how time flies. I have just published version 3.0 of my AWSç the Adventure Writing Systemç a visual and integrated development system that allows writing very complex interactive fiction games with minimal programming.^M Could I avoid celebrating both things? And what could possibly be better than writing the sequel of the Iunnuh's pyramid?^MHere it is: Iunnuh 2ç the curse from the past.^M
 Author's note
 Author's note
 0
@@ -2151,13 +2151,13 @@ Author's note
 0
 MESSAGGI
 50
-It's a nice screwdriverç useful only if you are an electrician. And you are not.
+It's a nice screwdriverç only useful if you are an electrician. And you are not.
 51
 Those are typical electrician's scissorsç with the notch where wires can be stripped.
 52
-It's a roll of very wide black insulating tape.
+It's a roll of wide black insulating tape.
 53
-It's a common ropeç what you wanted it to be? Looking at itç I would say it could support your weight.
+It's a common ropeç what did you wanted it to be? Looking at itç I would say it can support your weight.
 54
 Those are alkaline batteriesç for electric torches.
 55
@@ -2167,7 +2167,7 @@ It's the sapphire found by your father in the Iunnuh's pyramid. It glitters with
 57
 It's one of the artefacts found in the Iunnuh's pyramidç a perfectly crafted sword. It's a pity it's broken.
 58
-It's the sarcophagus where Iunnuh's mummy was placed. It's historiated finely with images of rare beauty.
+It's the sarcophagus where Iunnuh's mummy was placed. It's finely historiated with images of rare beauty.
 59
 It's Iunnuh's funerary mask. It's in gold and finely chiselled.
 60
@@ -2835,7 +2835,7 @@ It's too big to be handled!
 1005
 I can't take that!
 1006
-I don't see that anywhere!
+I can't do it.
 1007
 I don't have that with me!
 1008
