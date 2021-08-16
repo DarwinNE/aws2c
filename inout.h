@@ -3,8 +3,8 @@
 #include"systemd.h"
 #include"loadsave.h"
 
-void writesameln(char *line) FASTCALL;
-void writeln(char* line) FASTCALL;
+void writesameln(const char *line) FASTCALL;
+void writeln(const char* line) FASTCALL;
 unsigned int readln(void);
 char *eatcr(char *s) FASTCALL;
 void interrogationAndAnalysis(void);

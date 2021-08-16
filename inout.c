@@ -80,7 +80,7 @@ char c,d;
     #endif
 #endif
 
-void writesameln(char *line) FASTCALL
+void writesameln(const char *line) FASTCALL
 {
     #ifdef INTERNAL_DEF
     EFFSHORTINDEX pc;
@@ -187,7 +187,7 @@ void zeror(void)
 
 /** Same as writesameln, but adds a newline at the end of the message.
 */
-void writeln(char* line) FASTCALL
+void writeln(const char* line) FASTCALL
 {
     writesameln(line);
     NEWLINE_PUTC();

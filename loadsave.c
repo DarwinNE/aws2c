@@ -151,7 +151,7 @@ void loadgame(char *filename) FASTCALL
         return;
     }
     fgets(playerInput, BUFFERSIZE, f);
-    if(strcmp(playerInput, GAMEN"\n")!=0) {
+    if(strcmp(eatcr(playerInput), GAMEN)!=0) {
         PUTS("Incorrect game: ");
         PUTS(playerInput);
         fclose(f);

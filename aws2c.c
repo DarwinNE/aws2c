@@ -2958,7 +2958,7 @@ void output_optional_func(FILE *of, int max_room_code)
                 fprintf(of,"unsigned int");
             else
                 fprintf(of,"EFFSHORTINDEX");
-            fprintf(of," p, EFFSHORTINDEX c, boolean v, char *m)\n");
+            fprintf(of," p, EFFSHORTINDEX c, boolean v, const char *m)\n");
         }
 
         fprintf(of, "{\n");
@@ -3381,7 +3381,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
             fprintf(of,"unsigned int");
         else
             fprintf(of,"EFFSHORTINDEX");
-        fprintf(of," p, EFFSHORTINDEX c, boolean v, char *m);\n");
+        fprintf(of," p, EFFSHORTINDEX c, boolean v, const char *m);\n");
     }
 
     /* If a name and a noun and avai conditions are given */
@@ -3749,10 +3749,10 @@ unsigned int output_messages(FILE *of, message* msg, unsigned int msize,
         fprintf(of,"};\n\n");
     } else {
         if(use_6_directions) {
-            fprintf(of, "char* dir[6]={\n");
+            fprintf(of, "const char* dir[6]={\n");
             j=6;
         } else {
-            fprintf(of, "char* dir[10]={\n");
+            fprintf(of, "const char* dir[10]={\n");
             j=10;
         }
         for(i=0;i<j;++i) {

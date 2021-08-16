@@ -89,7 +89,7 @@ typedef struct object_d {
     #ifndef NOLONGDESC
         char *s;
     #endif
-    char *desc;
+    const char *desc;
     #ifndef NOSIZEWEIGHT    // Don't consider size and weight.
         unsigned int weight;
         unsigned int size;
