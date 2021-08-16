@@ -96,7 +96,7 @@ IF verb 216 AND roomlt 6 THEN mess 128 WAIT ENDIF  VAFFANCULO
 IF verb 216 AND roomgt 6 and roomlt 11 THEN mess 129 WAIT ENDIF  VAFFANCULO  
 IF verb 216 AND roomgt 20 and carr 3 THEN mess 130 WAIT ENDIF  VAFFANCULO  
 IF verb 216 THEN mess 131 WAIT ENDIF  VAFFANCULO
-IF verb 1100 THEN prin room WAIT ENDIF  ROOM
+IF verb 1100 THEN prin room WAIT ENDIF  ROOM  -> NOT IMPLEMENTED
 IF verb 1200 THEN prin ctr 120 WAIT ENDIF  PESO
 IF verb 1300 THEN RAMSAVE WAIT ENDIF RAMSAVE  
 IF verb 1301 THEN RAMLOAD WAIT ENDIF RAMLOAD
@@ -118,7 +118,7 @@ IF verb 70 AND noun 60 AND avai 105 THEN mess 501 WAIT ENDIF  ESAMINA  TAGHETTA 
 IF verb 70 AND noun 60 THEN mess 166 WAIT ENDIF  ESAMINA  TAGHETTA  GATTO
 IF verb 208 AND noun 60 AND avai 105 THEN mess 513 WAIT ENDIF  LEGGI  TAGHETTA  GATTO  
 IF VERB 208 AND NOUN 60 THEN MESS 166 WAIT ENDIF    LEGGI  TAGHETTA  GATTO
-IF verb 70 AND noun 5 THEN mess 515 WAIT ENDIF  ESAMINA  PORTA
+IF verb 70 AND noun 268 THEN mess 515 WAIT ENDIF  ESAMINA  PORTA
 IF verb 208 AND noun 18 AND avai 18 THEN mess 171 WAIT ENDIF  LEGGI  CARTELLO  
 IF verb 208 AND noun 18 THEN mess 172 WAIT ENDIF  LEGGI  CARTELLO  e non c'è il cartello
 IF verb 219 AND noun 18 THEN mess 177 WAIT ENDIF  LEGA  CARTELLO
@@ -206,7 +206,7 @@ IF verb 70 AND noun 9 THEN mess 278 WAIT ENDIF
 IF verb 31 OR verb 201 And noun 19 THEN mess 215 wait endif
 IF verb 233 OR verb 204 OR verb 234 OR verb 235 AND noun 117 THEN mess 304 WAIT ENDIF
 IF verb 206 OR verb 201 AND noun 112 THEN mess 305 WAIT ENDIF
-IF verb 70 OR verb 208 AND noun 232 THEN mess 306 WAIT ENDIF
+IF verb 70 OR verb 208 AND noun 60 THEN mess 306 WAIT ENDIF
 IF verb 70 AND noun 250 THEN mess 278 WAIT ENDIF esamina fermata
 IF verb 70 AND noun 252 THEN mess 368 WAIT ENDIF esamina ingresso
 IF verb 70 AND noun 254 THEN mess 369 WAIT ENDIF esamina british/museum/museo
@@ -222,8 +222,8 @@ IF verb 70 AND noun 296 THEN mess 278 WAIT ENDIF esamina biglietto/i
 IF verb 70 AND noun 261 THEN mess 374 WAIT ENDIF esamina piramide
 IF verb 70 AND noun 263 THEN mess 322 WAIT ENDIF esamina iunnuh/faraone
 IF verb 70 AND noun 264 then mess 375 WAIT ENDIF esamina maniglione/antipanico
-IF verb 70 AND noun 5 THEN mess 278 WAIT ENDIF esamina porta
-IF verb 70 AND noun 25 THEN mess 1009 WAIT ENDIF esamina sala
+IF verb 70 AND noun 268 THEN mess 278 WAIT ENDIF esamina porta
+IF verb 70 AND noun 23 THEN mess 1009 WAIT ENDIF esamina sala
 IF verb 70 AND noun 273 THEN mess 106 WAIT ENDIF esamina verde
 IF verb 70 AND noun 265 THEN mess 388 WAIT ENDIF esamina salone
 IF verb 70 AND noun 266 THEN mess 389 WAIT ENDIF esamina soffitto
@@ -237,9 +237,9 @@ IF verb 70 AND noun 274 THEN mess 378 WAIT ENDIF esamina pavimento
 IF verb 70 AND noun 404 THEN mess 278 WAIT ENDIF esamina lampadario
 IF verb 70 AND noun 409 THEN mess 278 WAIT ENDIF esamina cristallo
 IF verb 70 AND noun 298 THEN mess 106 WAIT ENDIF esamina forma
-IF verb 70 AND noun 28 THEN mess 278 WAIT ENDIF esamina scala
-IF verb 70 AND noun 62 THEN mess 278 WAIT ENDIF esamina segnale/divieto
-IF noun 25 OR noun 272 AND verb 70 THEN mess 253 WAIT ENDIF esamina sala/rosso
+IF verb 70 AND noun 251 THEN mess 278 WAIT ENDIF esamina scala
+IF verb 70 AND noun 18 THEN mess 278 WAIT ENDIF esamina segnale/divieto
+IF noun 23 OR noun 272 AND verb 70 THEN mess 253 WAIT ENDIF esamina sala/rosso
 IF verb 70 AND noun 297 THEN mess 379 WAIT ENDIF esamina anima
 IF verb 70 AND noun 260 THEN mess 278 WAIT ENDIF esamina accesso/i
 IF verb 70 AND noun 23 THEN mess 1009 WAIT ENDIF esamina stanza
@@ -251,7 +251,7 @@ IF verb 70 AND noun 299 THEN mess 379 WAIT ENDIF esamina vita
 IF verb 70 AND noun 279 THEN mess 278 WAIT ENDIF esamina immagine/i trapasso
 IF verb 70 AND noun 19 THEN mess 278 WAIT ENDIF esamina sarcofago
 IF verb 70 AND noun 408 THEN mess 278 WAIT ENDIF esamina piedi
-IF verb 70 AND noun 300 THEN mess 278 WAIT ENDIF esamina segni
+IF verb 70 AND noun 18 THEN mess 278 WAIT ENDIF esamina segni
 IF verb 70 AND noun 281 THEN mess 278 WAIT ENDIF esamina strumenti
 IF verb 50 AND noun 281 THEN mess 278 WAIT ENDIF prendi strumenti
 IF verb 70 AND noun 282 THEN mess 322 WAIT ENDIF esamina imbalsamatore
@@ -353,7 +353,7 @@ IF verb 70 AND noun 254 THEN mess 313 WAIT ENDIF esamina british/museum/museo
 12
 IF verb 70 AND noun 252 THEN mess 315 WAIT ENDIF esamina ingresso
 13
-IF verb 70 AND noun 5 THEN mess 514 WAIT ENDIF  ESAMINA  PORTA
+IF verb 70 AND noun 268 THEN mess 514 WAIT ENDIF  ESAMINA  PORTA
 13
 IF verb 70 OR verb 110 AND noun 93 THEN mess 518 WAIT ENDIF  ESAMINA  TASTIERINO
 13
@@ -369,9 +369,9 @@ IF verb 100 OR verb 204 OR verb 303 OR vbnoeq 0 AND noun 82  AND set? 5 THEN got
 13
 IF verb 100 OR verb 204 OR verb 303 OR vbnoeq 0 AND noun 82  THEN MESS 137 WAIT ENDIF  ENTRA  E MA LA PORTA è CHIUSA
 13
-IF verb 206 AND noun 5 AND set? 5 THEN mess 113 WAIT ENDIF  APRI  PORTA  ed è aperta
+IF verb 206 AND noun 268 AND set? 5 THEN mess 113 WAIT ENDIF  APRI  PORTA  ed è aperta
 13
-IF VERB 206 AND NOUN 5 THEN MESS 522 WAIT ENDIF  APRI  PORTA  ED è chiusa
+IF VERB 206 AND NOUN 268 THEN MESS 522 WAIT ENDIF  APRI  PORTA  ED è chiusa
 13
 IF verb 99 OR verb 101 AND noun 93 THEN mess 181 WAIT ENDIF premi digita tasto
 13
@@ -397,9 +397,9 @@ IF verb 70 AND noun 263 THEN mess 322 WAIT ENDIF esamina iunnuh/faraone
 15
 IF verb 70 AND noun 264 then mess 324 WAIT ENDIF esamina maniglione/antipanico
 15
-IF verb 70 AND noun 5 THEN mess 326 WAIT ENDIF esamina porta
+IF verb 70 AND noun 268 THEN mess 326 WAIT ENDIF esamina porta
 15
-IF verb 70 AND noun 25 THEN mess 253 WAIT ENDIF esamina sala
+IF verb 70 AND noun 23 THEN mess 253 WAIT ENDIF esamina sala
 15
 IF verb 70 AND noun 273 THEN mess 253 WAIT ENDIF esamina verde
 16
@@ -441,19 +441,19 @@ IF noun 410 OR noun 411 and verb 202 AND res? 33 THEN BRIN 100 mess 242 set 33 W
 20
 IF noun 410 OR noun 411 and verb 202 AND set? 33 THEN mess 243 WAIT ENDIF  TECA  VETRO
 20
-IF verb 70 AND noun 62 THEN mess 248 WAIT ENDIF  ESAMINA  DIVIETO
+IF verb 70 AND noun 18 THEN mess 248 WAIT ENDIF  ESAMINA  DIVIETO
 20
 IF verb 70 AND noun 298 THEN mess 335 WAIT ENDIF esamina forma
 20
-IF verb 70 AND noun 28 THEN mess 336 WAIT ENDIF esamina scala
+IF verb 70 AND noun 251 THEN mess 336 WAIT ENDIF esamina scala
 20
-IF verb 70 AND noun 62 THEN mess 337 WAIT ENDIF esamina segnale/divieto
+IF verb 70 AND noun 18 THEN mess 337 WAIT ENDIF esamina segnale/divieto
 20
 IF verb 100 OR verb 204 OR verb 303 OR vbnoeq 0 AND noun 84 THEN mess 228 goto 41 WAIT ENDIF  VAI  ALTO
 20
 IF noun 84 OR noun 0 AND verb 184 THEN mess 228 goto 41 WAIT ENDIF sali oppure sali in alto
 21
-IF noun 25 OR noun 272 AND verb 70 THEN mess 253 WAIT ENDIF esamina sala/rosso
+IF noun 23 OR noun 272 AND verb 70 THEN mess 253 WAIT ENDIF esamina sala/rosso
 21
 IF verb 70 AND noun 297 THEN mess 330 WAIT ENDIF esamina anima
 22
@@ -539,7 +539,7 @@ IF verb 70 AND noun 408 THEN mess 345 WAIT ENDIF esamina piedi
 25
 IF verb 70 AND noun 274 THEN mess 332 WAIT ENDIF esamina pavimento
 25
-IF verb 70 AND noun 300 THEN mess 344 WAIT ENDIF esamina segni
+IF verb 70 AND noun 18 THEN mess 344 WAIT ENDIF esamina segni
 26
 IF verb 70 AND noun 281 THEN mess 350 WAIT ENDIF esamina strumenti
 26
@@ -667,7 +667,7 @@ IF verb 70 AND noun 289 THEN mess 342 WAIT ENDIF esamina tunnel
 36
 IF verb 70 AND noun 263 THEN mess 322 WAIT ENDIF esamina iankho
 36
-IF verb 70 AND noun 25 THEN mess 253 WAIT ENDIF esamina sala
+IF verb 70 AND noun 23 THEN mess 253 WAIT ENDIF esamina sala
 36
 IF verb 70 AND noun 24 THEN mess 331 WAIT ENDIF esamina iscrizioni/geroglifici
 40
@@ -705,7 +705,7 @@ IF verb 233 OR verb 204 OR verb 234 OR verb 235 AND noun 117 THEN mess 300 WAIT 
 41
 IF verb 206 OR verb 201 AND noun 112 THEN mess 302 WAIT ENDIF
 41
-IF verb 70 OR verb 208 AND noun 232 THEN mess 303 WAIT ENDIF
+IF verb 70 OR verb 208 AND noun 60 THEN mess 303 WAIT ENDIF
 41
 IF verb 70 AND noun 61 THEN mess 363 WAIT ENDIF esamina balconata
 41
@@ -737,12 +737,6 @@ SCREWDRIVER
 4
 NOME
 SCISSORS
-5
-NOME
-SCISSORS
-5
-NOME
-DOOR
 5
 NOME
 LAMPSTAND
@@ -799,7 +793,13 @@ NOME
 SWORD
 17
 NOME
+SIGNS
+18
+NOME
 SIGN
+18
+NOME
+PROHIBITION
 18
 NOME
 SARCOPHAGUS
@@ -835,17 +835,11 @@ NOME
 INSCRIPTIONS
 24
 NOME
-ROOM
-25
-NOME
 HALLWAY
 26
 NOME
 SHAFT
 27
-NOME
-STAIRCASE
-28
 NOME
 TORCH
 29
@@ -907,17 +901,14 @@ VERBO
 TAG
 60
 NOME
+TAGS
+60
+NOME
 BALCONY
 61
 NOME
 TERRACE
 61
-NOME
-PROHIBITION
-62
-NOME
-SIGN
-62
 NOME
 EXAMINE
 70
@@ -989,6 +980,15 @@ COMPUTER
 90
 NOME
 TI99
+90
+NOME
+TI99/4A
+90
+NOME
+TI-99/4A
+90
+NOME
+TI
 90
 NOME
 CODE
@@ -1072,7 +1072,7 @@ NOME
 CAT
 105
 NOME
-CAT
+PUSS
 105
 NOME
 FLUTE
@@ -1276,12 +1276,6 @@ VERBO
 CLIMB
 231
 VERBO
-TAG
-232
-NOME
-TAGS
-232
-NOME
 OPERATE
 233
 VERBO
@@ -1507,12 +1501,6 @@ NOME
 LIFE
 299
 NOME
-SIGNS
-300
-NOME
-SIGN
-300
-NOME
 SPACE
 301
 NOME
@@ -1522,21 +1510,6 @@ NOME
 MOVED
 303
 VERBO
-COMPUTER
-403
-NOME
-TEXAS
-403
-NOME
-TI
-403
-NOME
-TI99
-403
-NOME
-TI99/4A
-403
-NOME
 CHANDELIER
 404
 NOME
@@ -1603,9 +1576,6 @@ VERBO
 LOAD
 989
 VERBO
-ROOM
-1100
-VERBO
 WEIGHT
 1200
 VERBO
@@ -1615,9 +1585,6 @@ VERBO
 RAMLOAD
 1301
 VERBO
-THEN
-9999
-SEPARATORE
 THEN
 9999
 SEPARATORE
@@ -2512,7 +2479,7 @@ The nails are small and thin� as if the boxes were closed hastily...
 267
 By prying with the screwdriver� you can remove the nails and open the boxes.
 268
-You already opened them!
+It's already open!
 269
 On one side there are some boxes.
 270
