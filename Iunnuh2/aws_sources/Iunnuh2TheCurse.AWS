@@ -1,0 +1,3148 @@
+AWS
+VERSIONE
+3.0
+7
+0
+7
+0
+Iunnuh 2 The curse from the past
+Aristide Torrelli
+2014
+For the 30th year of Iunnuh's Pyramid (September 1984)
+32514
+Courier New
+12
+0
+101
+FALSE
+8
+0
+CONDIZIONIHI
+if at 101 then mess 600 presskey goto 100 endif
+IF at 100 THEN set 125 set 126 cset 111 22 CSET 13 3 TO 3 1500 mess 600 presskey goto 1 ENDIF stampa introduzione aspetta un tasto e inizia
+IF carr 100 AND set? 23 THEN set 122 ENDIF  ho la torcia accesa
+IF carr 100 AND res? 23 THEN rese 122 ENDIF  ho la torcia spenta
+if res? 121 and res? 122 then decr 13 endif 
+if ctrgt 13 0 and res? 121 and res? 122 then mess 138 endif √® pericoloso muoversi al buio
+if ctreq 13 0 then mess 132 exit endif sei morto 
+IF in 104 35 THEN  cset 10 1 ENDIF  SCARABEO  
+IF in 104 29 THEN  cset 10 2 ENDIF  SCARABEO  
+IF ctreq 10 1 THEN cset 11 objloc 104 to 104 ctr 11 ENDIF  
+IF ctreq 10 2 THEN cset 11 objloc 104 addc 11 3 to 104 ctr 11 ENDIF
+IF HERE 105 AND prob 35 THEN mess 503 ENDIF  GATTO
+if then incr 110 endif incrementa contatore dei minuti
+IF CTREQ 110 60 THEN INCR 111 CSET 110 0 ENDIF sono passati 60 minuti incremento le ore
+IF CTREQ 111 24 THEN INCR 112 CSET 111 0 ENDIF sono passate 24 ore incremento i giorni
+IF ctreq 111 8 THEN mess 509 exit endif se sono le 8 ho perso
+IF here 105 THEN set 25 ENDIF  incontri il GATTO  
+IF set? 25 THEN brin 105 mess 506 ENDIF  porta qui il GATTO
+IF THEN decr 5 ENDIF  decrementa il contatore dei turni di porta aperta
+IF set? 5 AND ctreq 5 0 THEN rese 5 mess 521 ENDIF  la porta si richiude dopo ctr 5 turni
+IF at 10 AND res? 7 THEN mess 170 ENDIF  
+IF here 105 AND here 104 THEN mess 173 to 104 0 to 105 0 ENDIF  GATTO  mangia SCARABEO  
+IF at 25 AND set? 9 THEN mess 174 ENDIF  sarcofago spostato c'√® il foro
+IF at 25 AND set? 16 THEN mess 212 ENDIF  
+IF at 25 AND set? 16 AND res? 18 THEN mess 213 ENDIF  
+IF at 25 AND set? 16 AND set? 18 THEN mess 214 ENDIF  
+IF AT 28 AND set? 20 THEN mess 529 ENDIF
+IF at 33 AND set? 55 THEN mess 254 ENDIF  
+IF at 33 AND res? 55 THEN mess 255 ENDIF
+IF at 27 AND set? 51 THEN mess 264 ENDIF  c'√® passaggio
+IF at 34 AND set? 53 THEN mess 270 ENDIF  
+IF at 34 AND res? 53 THEN mess 269 ENDIF
+IF THEN ENDIF CSET 81 RAND 4 ADDC 81 899 MESS CTR 81 ENDIF deve essere l'ultima linea delle condizioni hi
+CONDIZIONILOW
+IF verb 501 THEN pict WAIT ENDIF  GRAFICA  
+IF verb 500 THEN text WAIT ENDIF  TESTO  
+if verb 40 then mess 500 quit endif
+if verb 74 and noun 72 then inve wait endif
+if verb 0 and noun 72 then inve wait endif
+if verb 987 then restart endif
+if verb 988 then save wait endif salva la partita
+if verb 989 then load wait endif carica la partita
+IF VERB 100 OR verb 204 OR verb 303 OR VBNOEQ 0 AND NOUN 80 THEN NORD WAIT ENDIF  VAI  NORD   VAI  NORD
+IF verb 100 OR verb 204 OR verb 303 OR vbnoeq 0 AND noun 81 THEN sud WAIT ENDIF  VAI  SUD
+IF verb 100 OR verb 204 OR verb 303 OR vbnoeq 0 AND noun 82 THEN est WAIT ENDIF  VAI  EST
+IF verb 100 OR verb 204 OR verb 303 OR vbnoeq 0 AND noun 83 THEN ovest WAIT ENDIF  VAI  OVEST
+IF verb 100 OR verb 204 OR verb 303 OR vbnoeq 0 AND noun 84 THEN alto WAIT ENDIF  VAI  ALTO
+IF noun 84 OR noun 0 AND verb 184 THEN alto WAIT ENDIF sali oppure sali in alto
+IF verb 100 OR verb 204 OR verb 303 OR vbnoeq 0 AND noun 85 THEN basso WAIT ENDIF  VAI  BASSO
+IF noun 85 OR noun 0 AND verb 185 THEN basso WAIT ENDIF scendi oppure scendi in basso
+IF VERB 50 AND NOUN 6 THEN GET 6  RESE 20 OKAY ENDIF   PRENDI candelabro
+IF verb 50 AND no1lt 22 AND ismovable no1 THEN get no1 OKAY ENDIF  PRENDI
+IF verb 50 AND no1lt 22 AND isnotmovable no1 THEN get no1 WAIT ENDIF  PRENDI
+IF verb 50 AND noun 105 AND here 105 THEN mess 251 WAIT ENDIF  PRENDI  GATTA  GATTA
+IF verb 50 AND noun 105 THEN mess 505 WAIT ENDIF  PRENDI  GATTO  e non c'√® il gatto
+IF verb 50 AND noun 106 AND here 106 THEN mess 179 WAIT ENDIF  PRENDI  FLAUTO  FLAUTO  
+IF verb 50 AND noun 106 THEN mess 180 WAIT ENDIF  PRENDI  FLAUTO  
+IF verb 50 OR verb 111 OR verb 204 AND noun 108 THEN mess 106 WAIT ENDIF  PRENDI  RITRATTO  
+IF verb 50 AND noun 96 AND here 101 THEN mess 183 WAIT ENDIF   PRENDI  foto
+IF verb 50 AND noun 96 AND here 102 THEN mess 183 WAIT ENDIF   PRENDI  foto
+IF verb 50 AND noun 97 AND here 22 THEN mess 184 WAIT ENDIF prendi scheletro
+IF noun 285 OR noun 286 AND verb 50 THEN mess 278 WAIT ENDIF prendi tracce/muffa
+IF noun 283 OR noun 284 AND verb 50 THEN mess 278 WAIT ENDIF prendi vaso/i canopi
+IF verb 50 AND noun 412 THEN getall WAIT ENDIF  PRENDI  TUTTO
+IF verb 50 THEN mess 235 WAIT ENDIF  PRENDI senza nome consciuto
+IF verb 55 AND noun 8 AND no2eq 221 THEN mess 216 WAIT ENDIF  GETTA  CORDA  BUCO  
+IF verb 55 OR verb 102 AND noun 6 AND no2eq 10 AND carr 6 THEN mess 530 WAIT ENDIF  POSA  METTI  CANDELABRO  ALTARE  CANDELABRO  
+IF verb 55 OR verb 102 AND noun 6 AND no2eq 10 THEN mess 527 WAIT ENDIF  POSA  METTI  CANDELABRO  ALTARE  no CANDELABRO  
+IF verb 102 AND noun 6 AND avai 6 THEN mess 528 WAIT ENDIF  METTI  CANDELABRO 
+IF verb 55 AND noun 6 AND carr 6 THEN drop 6 okay ENDIF  POSA  CANDELABRO  ho CANDELABRO  CANDELABRO  
+IF verb 55 AND noun 6 THEN WAIT ENDIF  POSA  CANDELABRO  non ho CANDELABRO  
+IF VERB 55 AND NO1LT 22 THEN DROP NO1 OKAY ENDIF     LASCIA
+IF verb 55 AND noun 412 THEN dropall WAIT ENDIF  POSA  TUTTO
+IF verb 55 THEN mess 234 WAIT ENDIF  BUTTA  senza nome consciuto
+IF verb 216 AND roomlt 6 THEN mess 128 WAIT ENDIF  VAFFANCULO
+IF verb 216 AND roomgt 6 and roomlt 11 THEN mess 129 WAIT ENDIF  VAFFANCULO  
+IF verb 216 AND roomgt 20 and carr 3 THEN mess 130 WAIT ENDIF  VAFFANCULO  
+IF verb 216 THEN mess 131 WAIT ENDIF  VAFFANCULO
+IF verb 1100 THEN prin room WAIT ENDIF  ROOM  -> NOT IMPLEMENTED
+IF verb 1200 THEN prin ctr 120 WAIT ENDIF  PESO
+IF verb 1300 THEN RAMSAVE WAIT ENDIF RAMSAVE  
+IF verb 1301 THEN RAMLOAD WAIT ENDIF RAMLOAD
+IF verb 70 AND noun 104 AND here 104 THEN mess 165 WAIT ENDIF  ESAMINA  SCARABEO  e c'√® lo SCARABEO  
+IF verb 70 AND noun 104 THEN mess 166 WAIT ENDIF  ESAMINA  SCARABEO  e non c'√® lo SCARABEO
+IF VERB 208 OR VERB 110 AND NOUN 3 AND AVAI 3 THEN MESS 507 PRINNOLF CTR 111 MESSNOLF 508 PRINNOLF CTR 110 LF WAIT ENDIF LEGGI  OROLOGIO
+if verb 110 then look wait endif
+IF VERB 70 and NOUN 3 and AVAI 3 then MESS 510 wait endif esamina orologio
+IF verb 75 AND noun 105 AND avai 105 THEN mess 511 WAIT ENDIF  PARLA  GATTO  e c'√® GATTO  
+IF VERB 75 AND NOUN 105 THEN MESS 505 WAIT ENDIF    PARLA  GATTO  E NON C'√® IL GATTO
+IF verb 70 AND noun 90 THEN mess 1006 WAIT ENDIF  ESAMINA  COMPUTER
+IF verb 208 AND noun 1 AND avai 1 THEN mess 201 lf mess 200 WAIT ENDIF  LEGGI  VOLANTINO  VOLANTINO  
+IF VERB 208 AND NOUN 1 THEN MESS 166 WAIT ENDIF  LEGGI  VOLANTINO     LEGGI  VOLANTINO
+IF verb 70 AND noun 1 AND avai 1 THEN mess 501 WAIT ENDIF  ESAMINA  VOLANTINO  VOLANTINO  
+IF verb 70 AND noun 1 THEN mess 166 WAIT ENDIF  ESAMINA  VOLANTINO
+IF verb 70 AND noun 105 AND avai 105 THEN mess 512 WAIT ENDIF  ESAMINA  GATTO  GATTO  
+IF VERB 70 AND NOUN 105 THEN MESS 505 WAIT ENDIF  ESAMINA  GATTO  GATTO     ESAMINA  GATTO
+IF verb 70 AND noun 60 AND avai 105 THEN mess 501 WAIT ENDIF  ESAMINA  TAGHETTA  GATTO
+IF verb 70 AND noun 60 THEN mess 166 WAIT ENDIF  ESAMINA  TAGHETTA  GATTO
+IF verb 208 AND noun 60 AND avai 105 THEN mess 513 WAIT ENDIF  LEGGI  TAGHETTA  GATTO  
+IF VERB 208 AND NOUN 60 THEN MESS 166 WAIT ENDIF    LEGGI  TAGHETTA  GATTO
+IF verb 70 AND noun 268 THEN mess 515 WAIT ENDIF  ESAMINA  PORTA
+IF verb 208 AND noun 18 AND avai 18 THEN mess 171 WAIT ENDIF  LEGGI  CARTELLO  
+IF verb 208 AND noun 18 THEN mess 172 WAIT ENDIF  LEGGI  CARTELLO  e non c'√® il cartello
+IF verb 219 AND noun 18 THEN mess 177 WAIT ENDIF  LEGA  CARTELLO
+IF verb 219 AND noun 8 AND no2eq 19 THEN mess 215 WAIT ENDIF  LEGA  CORDA  SARCOFAGO  
+IF verb 219 AND noun 8 THEN mess 177 WAIT ENDIF  LEGA  CORDA
+IF verb 502 THEN scripton mess 523 WAIT ENDIF  SCRIPT  
+IF verb 503 THEN scriptoff mess 524 WAIT ENDIF  NOSCRIPT
+IF verb 85 OR verb 215 AND noun 221 THEN mess 216 WAIT ENDIF  SCENDI  SALTA  BUCO  
+IF verb 85 AND noun 8 THEN mess 177 WAIT ENDIF  SCENDI  CORDA  
+IF verb 230 AND noun 8 THEN mess 225 WAIT ENDIF  USA  CORDA
+IF verb 215 THEN mess 134 WAIT ENDIF  SALTA
+IF verb 405 OR verb 406 AND noun 105 AND avai 105 THEN mess 232 WAIT ENDIF  TOCCA  ACCAREZZA  GATTO e c'√® GATTO
+IF verb 405 OR verb 406 AND noun 105 THEN mess 505 WAIT ENDIF  TOCCA  ACCAREZZA  GATTO e non c'√® GATTO
+IF verb 407 AND noun 8 THEN mess 233 WAIT ENDIF  TAGLIA  CORDA
+IF verb 50 AND noun 29 AND here 100 THEN get 100 OKAY ENDIF  PRENDI  TORCIA  e c'√® torcia
+IF noun 411 OR noun 410 AND verb 202 THEN mess 515 WAIT ENDIF  VETRO  TECA  ROMPI
+IF VERB 55 AND NOUN 29 AND CARR 100 THEN DROP 100 OKAY ENDIF   POSA TORCIA  E ho TORCIA
+IF verb 213 AND noun 29 AND avai 100 THEN mess 395 WAIT ENDIF  ACCENDI  TORCIA  
+IF VERB 213 AND NOUN 29 THEN MESS 396 WAIT ENDIF    ACCENDI  TORCIA  e non c'√® torcia
+IF verb 102 AND noun 13 AND no2eq 29 AND avai 100 AND avai 13 AND res? 23 THEN set 23 TO 13 0 mess 244 WAIT ENDIF  INSERISCI  BATTERIA  TORCIA
+IF verb 102 AND noun 13 AND avai 13 THEN mess 245 WAIT ENDIF  INSERISCI  BATTERIA
+IF verb 111 AND noun 13 AND avai 100 AND set? 23 THEN mess 246 WAIT ENDIF  ESTRAI  BATTERIE  mess non √® il caso
+IF verb 70 AND noun 29 AND avai 100 AND set? 23 THEN obj 100  mess 163 WAIT ENDIF  ESAMINA  TORCIA  accesa
+IF verb 70 AND noun 29 AND avai 100 AND res? 23 THEN obj 100  mess 164 WAIT ENDIF  ESAMINA  TORCIA  spenta
+IF verb 70 OR verb 208 AND noun 24 THEN mess 250 WAIT ENDIF  ESAMINA  GEROGLIFICI
+IF noun 113 OR noun 409 AND verb 70 THEN mess 1009 WAIT ENDIF  BRACCIO  CRISTALLO  ESAMINA
+IF VERB 95 AND NOUN 109 THEN MESS 106 WAIT ENDIF  COPRI  LO SPECCHIO   COPRI  LO SPECCHIO
+IF verb 95 AND noun 109 THEN mess 258 WAIT ENDIF  COPRI  lo specchio
+IF verb 202 AND noun 109 THEN mess 106 WAIT ENDIF  ROMPI  SPECCHIO
+IF verb 206 AND noun 115 THEN mess 106 WAIT ENDIF  APRI  CASSE
+IF noun 160 OR noun 162 OR noun 161 OR noun 163 AND verb 70 THEN mess 278 WAIT ENDIF  SCRITTOIO  LAMPADA  LIBRI  BIBLIOTECA  ESAMINA
+IF verb 70 AND noun 12 AND avai 12 THEN mess 277 WAIT ENDIF  ESAMINA  TACCUINO avai TACCUINO  
+IF verb 70 AND noun 12 THEN mess 279 WAIT ENDIF  ESAMINA  TACCUINO not avai TACCUINO  
+IF verb 208 AND noun 12 AND avai 12 THEN mess 276 set 60 WAIT ENDIF  LEGGI  TACCUINO avai TACCUINO  
+IF verb 208 AND noun 12 THEN mess 279 WAIT ENDIF  LEGGI  TACCUINO not avai TACCUINO
+IF verb 120 OR verb 102 AND noun 9 AND avai 9 THEN wear 9 mess 280 WAIT ENDIF  INDOSSA  PARAMENTI  disponibili PARAMENTI  
+IF verb 120 OR verb 102 AND noun 9 AND iswearing 9 THEN mess 391 WAIT ENDIF  INDOSSA  PARAMENTI  e gi√† indossati
+IF verb 120 OR verb 102 AND noun 9 THEN mess 281 WAIT ENDIF  INDOSSA  PARAMENTI  non disponibili PARAMENTI
+IF verb 111 OR verb 121 AND noun 9 AND iswearing 9 THEN mess 282 WAIT ENDIF  TOGLI  SVESTI  PARAMENTI  PARAMENTI  
+IF verb 111 OR verb 121 AND noun 9 THEN mess 281 WAIT ENDIF  TOGLI  SVESTI  PARAMENTI  PARAMENTI
+IF verb 208 AND noun 2 AND avai 2 THEN mess 283 WAIT ENDIF  LEGGI  LIBRO  dei morti   
+IF verb 208 AND noun 2 THEN mess 284 WAIT ENDIF  LEGGI  LIBRO  dei morti   non c’è
+IF verb 70 AND noun 10 THEN mess 286 WAIT ENDIF  ESAMINA  ALTARE
+IF verb 34 OR verb 33 AND noun 32 THEN mess 515 WAIT ENDIF  RECITA  OFFICIA  RITO
+IF verb 45 THEN scripton mess 523 WAIT ENDIF  CAZZO
+IF verb 70 AND noun 106 AND avai 106 THEN mess 178 WAIT ENDIF  ESAMINA  FLAUTO  FLAUTO  
+IF verb 70 AND noun 106 THEN mess 180 WAIT ENDIF  ESAMINA  FLAUTO
+IF verb 70 OR verb 208 AND noun 98 THEN mess 299 WAIT ENDIF esamina tavola e non c'√®
+IF verb 70 AND noun 4 AND avai 4 THEN mess 50 WAIT ENDIF esamina cacciavite e c’è il cacciavite
+IF verb 70 AND noun 4 THEN mess 69 WAIT ENDIF esamina cacciavite e non c’è il cacciavite
+IF verb 70 AND noun 5 AND avai 5 THEN mess 51 WAIT ENDIF forbici
+IF verb 70 AND noun 5 THEN mess 70 WAIT ENDIF 
+IF verb 70 AND noun 7 AND avai 7 THEN mess 52 WAIT ENDIF nastro
+IF verb 70 AND noun 7 THEN mess 278 WAIT ENDIF
+IF verb 70 AND noun 8 AND avai 8 THEN mess 53 WAIT ENDIF corda
+IF verb 70 AND noun 8 THEN mess 278 WAIT ENDIF
+IF verb 70 AND noun 13 AND avai 13 THEN mess 54 WAIT ENDIF batterie
+IF verb 70 AND noun 13 THEN mess 278 WAIT ENDIF  
+IF verb 70 AND noun 14 AND avai 14 THEN mess 55 WAIT ENDIF droghe
+IF verb 70 AND noun 14 THEN mess 278 WAIT ENDIF
+IF verb 70 AND noun 16 AND avai 16 THEN mess 56 WAIT ENDIF zaffiro
+IF verb 70 AND noun 16 THEN mess 166 WAIT ENDIF
+IF verb 70 AND noun 17 AND avai 17 THEN mess 57 WAIT ENDIF spada
+IF verb 70 AND noun 17 THEN mess 278 WAIT ENDIF
+IF verb 70 AND noun 19 AND avai 19 THEN mess 58 WAIT ENDIF sarcofago
+IF verb 70 AND noun 19 THEN mess 215 WAIT ENDIF
+IF verb 70 AND noun 20 AND avai 20 THEN mess 59 WAIT ENDIF maschera
+IF verb 70 AND noun 20 THEN mess 278 WAIT ENDIF
+IF verb 70 AND noun 21 AND avai 21 THEN mess 60 WAIT ENDIF mummia
+IF verb 70 AND noun 21 THEN mess 71 WAIT ENDIF
+IF verb 70 AND noun 97 AND avai 22 THEN mess 61 WAIT ENDIF scheletro
+IF verb 70 AND noun 97 THEN mess 278 WAIT ENDIF
+IF verb 70 AND noun 108 AND avai 108 THEN mess 64 WAIT ENDIF tela
+IF verb 70 AND noun 108 THEN mess 72 WAIT ENDIF
+IF verb 70 AND noun 109 AND avai 109 THEN mess 65 WAIT ENDIF specchio
+IF verb 70 AND noun 109 THEN mess 73 WAIT ENDIF
+IF verb 70 AND noun 116 AND avai 110 THEN mess 67 WAIT ENDIF frammenti
+IF verb 70 AND noun 116 THEN mess 278 WAIT ENDIF
+IF verb 70 AND noun 117 AND avai 112 THEN mess 68 WAIT ENDIF interruttori
+IF verb 70 AND noun 117 THEN mess 278 WAIT ENDIF
+IF verb 70 AND noun 6 AND avai 6 THEN mess 74 WAIT ENDIF candelabro
+IF verb 70 AND noun 6 THEN mess 278 WAIT ENDIF
+IF verb 70 AND noun 9 AND avai 9 THEN mess 75 WAIT ENDIF paramenti
+IF verb 70 AND noun 9 THEN mess 278 WAIT ENDIF
+IF verb 31 OR verb 201 And noun 19 THEN mess 215 wait endif
+IF verb 233 OR verb 204 OR verb 234 OR verb 235 AND noun 117 THEN mess 304 WAIT ENDIF
+IF verb 206 OR verb 201 AND noun 112 THEN mess 305 WAIT ENDIF
+IF verb 70 OR verb 208 AND noun 60 THEN mess 306 WAIT ENDIF
+IF verb 70 AND noun 250 THEN mess 278 WAIT ENDIF esamina fermata
+IF verb 70 AND noun 252 THEN mess 368 WAIT ENDIF esamina ingresso
+IF verb 70 AND noun 254 THEN mess 369 WAIT ENDIF esamina british/museum/museo
+IF verb 208 AND noun 250 THEN mess 278 WAIT ENDIF leggi fermata
+IF verb 70 AND noun 251 THEN mess 370 WAIT ENDIF esamina scalinata
+IF verb 70 AND noun 253 THEN mess 371 WAIT ENDIF esamina marciapiede
+IF noun 255 OR noun 256 AND verb 70 THEN mess 278 WAIT ENDIF esamina serie/scalino/i
+IF verb 70 AND noun 257 THEN mess 372 WAIT ENDIF esamina atrio
+IF verb 70 AND noun 258 THEN mess 373 WAIT ENDIF esamina biglietteria
+IF noun 259 OR noun 252 AND verb 70 THEN mess 278 WAIT ENDIF esamina varco/accesso/i
+IF verb 70 AND noun 261 THEN mess 278 WAIT ENDIF esamina sportello/i
+IF verb 70 AND noun 296 THEN mess 278 WAIT ENDIF esamina biglietto/i
+IF verb 70 AND noun 261 THEN mess 374 WAIT ENDIF esamina piramide
+IF verb 70 AND noun 263 THEN mess 322 WAIT ENDIF esamina iunnuh/faraone
+IF verb 70 AND noun 264 then mess 375 WAIT ENDIF esamina maniglione/antipanico
+IF verb 70 AND noun 268 THEN mess 278 WAIT ENDIF esamina porta
+IF verb 70 AND noun 23 THEN mess 1009 WAIT ENDIF esamina sala
+IF verb 70 AND noun 273 THEN mess 106 WAIT ENDIF esamina verde
+IF verb 70 AND noun 265 THEN mess 388 WAIT ENDIF esamina salone
+IF verb 70 AND noun 266 THEN mess 389 WAIT ENDIF esamina soffitto
+IF verb 70 AND noun 267 THEN mess 390 WAIT ENDIF esamina struttura
+IF verb 70 AND noun 268 THEN mess 376 WAIT ENDIF esamina portone
+IF verb 70 AND noun 24 THEN mess 278 WAIT ENDIF esamina iscrizioni/geroglifici
+IF verb 70 AND noun 269 THEN mess 278 WAIT ENDIF esamina riproduzione/i
+IF verb 70 AND noun 270 THEN mess 377 WAIT ENDIF esamina parete/i
+IF verb 70 AND noun 271 THEN mess 106 WAIT ENDIF esamina bianco
+IF verb 70 AND noun 274 THEN mess 378 WAIT ENDIF esamina pavimento
+IF verb 70 AND noun 404 THEN mess 278 WAIT ENDIF esamina lampadario
+IF verb 70 AND noun 409 THEN mess 278 WAIT ENDIF esamina cristallo
+IF verb 70 AND noun 298 THEN mess 106 WAIT ENDIF esamina forma
+IF verb 70 AND noun 251 THEN mess 278 WAIT ENDIF esamina scala
+IF verb 70 AND noun 18 THEN mess 278 WAIT ENDIF esamina segnale/divieto
+IF noun 23 OR noun 272 AND verb 70 THEN mess 253 WAIT ENDIF esamina sala/rosso
+IF verb 70 AND noun 297 THEN mess 379 WAIT ENDIF esamina anima
+IF verb 70 AND noun 260 THEN mess 278 WAIT ENDIF esamina accesso/i
+IF verb 70 AND noun 23 THEN mess 1009 WAIT ENDIF esamina stanza
+IF verb 70 AND noun 276 THEN mess 322 WAIT ENDIF esamina alchimista
+IF verb 70 AND noun 500 THEN mess 278 WAIT ENDIF esamina testi
+IF verb 70 AND noun 277 THEN mess 323 WAIT ENDIF esamina hanyke
+IF verb 70 AND noun 278 THEN mess 278 WAIT ENDIF esamina scena/e
+IF verb 70 AND noun 299 THEN mess 379 WAIT ENDIF esamina vita
+IF verb 70 AND noun 279 THEN mess 278 WAIT ENDIF esamina immagine/i trapasso
+IF verb 70 AND noun 19 THEN mess 278 WAIT ENDIF esamina sarcofago
+IF verb 70 AND noun 408 THEN mess 278 WAIT ENDIF esamina piedi
+IF verb 70 AND noun 18 THEN mess 278 WAIT ENDIF esamina segni
+IF verb 70 AND noun 281 THEN mess 278 WAIT ENDIF esamina strumenti
+IF verb 50 AND noun 281 THEN mess 278 WAIT ENDIF prendi strumenti
+IF verb 70 AND noun 282 THEN mess 322 WAIT ENDIF esamina imbalsamatore
+IF noun 283 OR noun 284 AND verb 70 THEN mess 278 WAIT ENDIF esamina vaso/i canopi
+IF noun 285 OR noun 286 AND verb 70 THEN mess 278 WAIT ENDIF esamina tracce/muffa
+IF verb 70 AND noun 8 THEN mess 380 WAIT ENDIF esamina corda
+IF verb 70 AND noun 287 THEN mess 381 WAIT ENDIF esamina cappella
+IF verb 70 AND noun 10 THEN mess 382 WAIT ENDIF esamina altare/insanguinato
+IF verb 70 AND noun 288 THEN mess 322 WAIT ENDIF esamina nonno
+IF verb 70 AND noun 289 THEN mess 106 WAIT ENDIF esamina tunnel
+IF verb 70 AND noun 290 THEN mess 383 WAIT ENDIF esamina studio
+IF verb 70 AND noun 291 THEN mess 322 WAIT ENDIF esamina padre
+IF verb 70 AND noun 160 THEN mess 278 WAIT ENDIF esamina scrittoio
+IF verb 70 AND noun 162 THEN mess 278 WAIT ENDIF esamina lampada
+IF verb 70 AND noun 292 THEN mess 384 WAIT ENDIF esamina arredo
+IF verb 70 AND noun 293 THEN mess 385 WAIT ENDIF esamina legno/mogano
+IF verb 70 AND noun 301 THEN mess 386 WAIT ENDIF esamina locale
+IF verb 70 AND noun 270 THEN mess 387 WAIT ENDIF esamina parete/i
+IF noun 2 OR noun 161 AND verb 70 THEN mess 278 WAIT ENDIF esamina libro/i
+IF verb 70 AND noun 263 THEN mess 322 WAIT ENDIF esamina iankho
+IF verb 70 AND noun 295 THEN mess 278 WAIT ENDIF esamina rame
+IF verb 70 AND noun 61 THEN mess 106 WAIT ENDIF esamina balconata
+IF verb 70 AND noun 302 THEN mess 278 WAIT ENDIF esamina parapetto
+IF verb 405 AND noun 404 THEN mess 278 WAIT ENDIF tocca lampadario
+IF verb 405 AND noun 108 THEN mess 394 WAIT ENDIF  TOCCA  RITRATTO e non c'√®
+IF verb 111 OR verb 220 AND noun 18 AND notat 10 THEN mess 172 WAIT ENDIF  STACCA  SLEGA  CARTELLO  
+IF verb 111 OR verb 220 AND noun 18 AND notat 12 THEN mess 172 WAIT ENDIF  STACCA  SLEGA  CARTELLO
+IF verb 211 AND noun 14 AND avai 14 THEN mess 531 hold 2 mess 532 hold 2 mess 533 to 14 0 WAIT ENDIF  MANGIA  DROGHE  
+IF verb 211 AND noun 14 THEN mess 534 WAIT ENDIF  MANGIA  DROGHE
+IF here 101 OR here 102 AND verb 70 AND noun 96 THEN mess 537 WAIT ENDIF  ESAMINA  FOTO  
+IF verb 70 AND noun 96 THEN mess 536 WAIT ENDIF  ESAMINA  FOTO
+CONDIZIONILOCALI
+1
+IF verb 70 AND noun 250 THEN mess 310 WAIT ENDIF esamina fermata
+1
+IF verb 70 AND noun 252 THEN mess 315 WAIT ENDIF esamina ingresso
+1
+IF verb 70 AND noun 254 THEN mess 313 WAIT ENDIF esamina british/museum/museo
+1
+IF verb 208 AND noun 250 THEN mess 311 WAIT ENDIF leggi fermata
+1
+IF verb 70 AND noun 251 THEN mess 312 WAIT ENDIF esamina scalinata
+2
+IF verb 70 AND noun 251 THEN mess 312 WAIT ENDIF esamina scalinata
+2
+IF verb 70 AND noun 253 THEN mess 314 WAIT ENDIF esamina marciapiede
+3
+IF verb 70 AND noun 251 THEN mess 312 WAIT ENDIF esamina scalinata
+3
+IF verb 70 AND noun 253 THEN mess 314 WAIT ENDIF esamina marciapiede
+4
+IF verb 70 AND noun 251 THEN mess 312 WAIT ENDIF esamina scalinata
+4
+IF noun 255 OR noun 256 AND verb 70 THEN mess 316 WAIT ENDIF esamina serie/scalino/i
+5
+IF verb 70 AND noun 251 THEN mess 312 WAIT ENDIF esamina scalinata
+5
+IF noun 255 OR noun 256 AND verb 70 THEN mess 316 WAIT ENDIF esamina serie/scalino/i
+6
+IF verb 70 AND noun 251 THEN mess 312 WAIT ENDIF esamina scalinata
+6
+IF noun 255 OR noun 256 AND verb 70 THEN mess 316 WAIT ENDIF esamina serie/scalino/i
+7
+IF verb 70 AND noun 251 THEN mess 312 WAIT ENDIF esamina scalinata
+7
+IF verb 70 AND noun 252 THEN mess 315 WAIT ENDIF esamina ingresso
+8
+IF verb 70 AND noun 251 THEN mess 312 WAIT ENDIF esamina scalinata
+8
+IF verb 70 AND noun 252 THEN mess 315 WAIT ENDIF esamina ingresso
+9
+IF verb 70 AND noun 251 THEN mess 312 WAIT ENDIF esamina scalinata
+9
+IF verb 70 AND noun 252 THEN mess 315 WAIT ENDIF esamina ingresso
+10
+IF verb 208 AND noun 18 AND res? 7 THEN mess 171 WAIT ENDIF  LEGGI  CARTELLO  e il cartello √® attaccato
+10
+IF NOUN 8 OR NOUN 18 AND VERB 220 AND RES? 7 THEN SET 7 brin 18 brin 8 OKAY ENDIF   SLEGA  CARTELLO
+10
+IF NOUN 8 OR NOUN 18 AND VERB 111 AND RES? 7 THEN SET 7 brin 18 brin 8 OKAY ENDIF   Stacca CARTELLO
+10
+IF verb 70 AND noun 257 THEN mess 317 WAIT ENDIF esamina atrio
+10
+IF verb 70 AND noun 254 THEN mess 313 WAIT ENDIF esamina british/museum/museo
+10
+IF verb 70 AND noun 252 THEN mess 315 WAIT ENDIF esamina ingresso
+11
+IF verb 70 AND noun 257 THEN mess 317 WAIT ENDIF esamina atrio
+11
+IF verb 70 AND noun 254 THEN mess 313 WAIT ENDIF esamina british/museum/museo
+11
+IF verb 70 AND noun 252 THEN mess 315 WAIT ENDIF esamina ingresso
+12
+IF verb 208 AND noun 18 THEN mess 182 WAIT ENDIF  LEGGI  CARTELLO
+12
+IF verb 70 AND noun 257 THEN mess 317 WAIT ENDIF esamina atrio
+12
+IF verb 70 AND noun 254 THEN mess 313 WAIT ENDIF esamina british/museum/museo
+12
+IF verb 70 AND noun 252 THEN mess 315 WAIT ENDIF esamina ingresso
+13
+IF verb 70 AND noun 268 THEN mess 514 WAIT ENDIF  ESAMINA  PORTA
+13
+IF verb 70 OR verb 110 AND noun 93 THEN mess 518 WAIT ENDIF  ESAMINA  TASTIERINO
+13
+IF VERB 101 OR VERB 102 OR VERB 103 AND NOUN 92 THEN MESS 516 hold 2 mess 517 set 5 cset 5 3 WAIT ENDIF   DIGITA  INSERISCI  INGRESSA  30091984#
+13
+IF verb 101 OR verb 102 OR verb 103 AND noun 91 THEN mess 519 WAIT ENDIF  DIGITA  INSERISCI  INGRESSA  COMBINAZIONE
+13
+IF verb 31 AND set? 5 THEN goto 15 WAIT ENDIF  ENTRA  E
+13
+IF VERB 31 THEN MESS 137 WAIT ENDIF  ENTRA  E   ENTRA  E MA LA PORTA √® CHIUSA
+13
+IF verb 100 OR verb 204 OR verb 303 OR vbnoeq 0 AND noun 82  AND set? 5 THEN goto 15 WAIT ENDIF  ENTRA  E
+13
+IF verb 100 OR verb 204 OR verb 303 OR vbnoeq 0 AND noun 82  THEN MESS 137 WAIT ENDIF  ENTRA  E MA LA PORTA √® CHIUSA
+13
+IF verb 206 AND noun 268 AND set? 5 THEN mess 113 WAIT ENDIF  APRI  PORTA  ed √® aperta
+13
+IF VERB 206 AND NOUN 268 THEN MESS 522 WAIT ENDIF  APRI  PORTA  ED √® chiusa
+13
+IF verb 99 OR verb 101 AND noun 93 THEN mess 181 WAIT ENDIF premi digita tasto
+13
+IF verb 99 OR verb 101 AND noun 91 THEN mess 181 WAIT ENDIF premi digita tasto
+13
+IF verb 70 AND noun 252 THEN mess 315 WAIT ENDIF esamina ingresso
+14
+IF verb 70 AND noun 258 THEN mess 321 WAIT ENDIF esamina biglietteria
+14
+IF  noun 259 OR noun 252 AND verb 70 THEN mess 318 WAIT ENDIF esamina varco/accesso/i
+14
+IF verb 70 AND noun 261 THEN mess 319 WAIT ENDIF esamina sportello/i
+14
+IF verb 70 AND noun 296 THEN mess 320 WAIT ENDIF esamina biglietto/i
+15
+IF VERB 76 THEN MESS 520 GOTO 13 WAIT ENDIF  ESCI  O   ESCI  O
+15
+IF verb 100 OR verb 204 OR verb 303 OR vbnoeq 0 AND noun 83 THEN mess 520 goto 13 WAIT ENDIF Esci ovest
+15
+IF verb 70 AND noun 261 THEN mess 325 WAIT ENDIF esamina piramide
+15
+IF verb 70 AND noun 263 THEN mess 322 WAIT ENDIF esamina iunnuh/faraone
+15
+IF verb 70 AND noun 264 then mess 324 WAIT ENDIF esamina maniglione/antipanico
+15
+IF verb 70 AND noun 268 THEN mess 326 WAIT ENDIF esamina porta
+15
+IF verb 70 AND noun 23 THEN mess 253 WAIT ENDIF esamina sala
+15
+IF verb 70 AND noun 273 THEN mess 253 WAIT ENDIF esamina verde
+16
+IF verb 70 AND noun 90 THEN mess 167 WAIT ENDIF  ESAMINA  COMPUTER
+16
+IF verb 70 AND noun 265 THEN mess 327 WAIT ENDIF esamina salone
+16
+IF verb 70 AND noun 266 THEN mess 253 WAIT ENDIF esamina soffitto
+16
+IF verb 70 AND noun 267 THEN mess 328 WAIT ENDIF esamina struttura
+16
+IF verb 70 AND noun 268 THEN mess 329 WAIT ENDIF esamina portone
+17
+IF verb 70 OR verb 208 AND noun 24 THEN mess 249 WAIT ENDIF  ESAMINA o leggi  GEROGLIFICI
+17
+IF verb 70 AND noun 269 THEN mess 331 WAIT ENDIF esamina riproduzione/i
+17
+IF verb 70 AND noun 270 THEN mess 253 WAIT ENDIF esamina parete/i
+18
+IF verb 70 AND noun 271 THEN mess 253 WAIT ENDIF esamina bianco
+19
+IF verb 70 AND noun 265 THEN mess 327 WAIT ENDIF esamina salone
+19
+IF verb 70 AND noun 274 THEN mess 332 WAIT ENDIF esamina pavimento
+19
+IF verb 70 AND noun 404 THEN mess 333 WAIT ENDIF esamina lampadario
+19
+IF verb 70 AND noun 409 THEN mess 334 WAIT ENDIF esamina cristallo
+20
+IF verb 70 AND noun 410 AND res? 33 THEN mess 239 WAIT ENDIF  ESAMINA  TECA  ed √® integra
+20
+IF verb 70 AND noun 410 AND set? 33 THEN mess 240 WAIT ENDIF  ESAMINA  TECA  ed √® rotta
+20
+IF verb 50 AND noun 29 AND res? 33 THEN mess 241 WAIT ENDIF  PRENDI  TORCIA  teca integra
+20
+IF VERB 50 AND NOUN 29 AND SET? 33 AND AVAI 100 THEN GET 100 OKAY ENDIF   PRENDI  TORCIA  TECA ROTTA
+20
+IF noun 410 OR noun 411 and verb 202 AND res? 33 THEN BRIN 100 mess 242 set 33 WAIT ENDIF  TECA  VETRO
+20
+IF noun 410 OR noun 411 and verb 202 AND set? 33 THEN mess 243 WAIT ENDIF  TECA  VETRO
+20
+IF verb 70 AND noun 18 THEN mess 248 WAIT ENDIF  ESAMINA  DIVIETO
+20
+IF verb 70 AND noun 298 THEN mess 335 WAIT ENDIF esamina forma
+20
+IF verb 70 AND noun 251 THEN mess 336 WAIT ENDIF esamina scala
+20
+IF verb 70 AND noun 18 THEN mess 337 WAIT ENDIF esamina segnale/divieto
+20
+IF verb 100 OR verb 204 OR verb 303 OR vbnoeq 0 AND noun 84 THEN mess 228 goto 41 WAIT ENDIF  VAI  ALTO
+20
+IF noun 84 OR noun 0 AND verb 184 THEN mess 228 goto 41 WAIT ENDIF sali oppure sali in alto
+21
+IF noun 23 OR noun 272 AND verb 70 THEN mess 253 WAIT ENDIF esamina sala/rosso
+21
+IF verb 70 AND noun 297 THEN mess 330 WAIT ENDIF esamina anima
+22
+IF verb 70 AND noun 265 THEN mess 327 WAIT ENDIF esamina salone
+22
+IF verb 70 AND noun 260 THEN mess 338 WAIT ENDIF esamina accesso/i
+22
+IF verb 70 AND noun 23 THEN mess 253 WAIT ENDIF esamina stanza
+22
+IF verb 70 AND noun 266 THEN mess 253 WAIT ENDIF esamina soffitto
+22
+IF verb 70 AND noun 274 THEN mess 332 WAIT ENDIF esamina pavimento
+23
+IF verb 70 OR verb 208 AND noun 98 THEN mess 298 WAIT ENDIF  ESAMINA  LEGGI  TAVOLA
+23
+IF verb 70 AND noun 276 THEN mess 340 WAIT ENDIF esamina alchimista
+23
+IF verb 70 AND noun 500 THEN mess 339 WAIT ENDIF esamina testi
+23
+IF verb 50 AND noun 98 THEN mess 535 WAIT ENDIF  PRENDI  TAVOLA
+24
+IF verb 70 AND noun 277 THEN mess 323 WAIT ENDIF esamina hanyke
+24
+IF verb 70 AND noun 270 THEN mess 253 WAIT ENDIF esamina parete/i
+24
+IF verb 70 AND noun 278 THEN mess 253 WAIT ENDIF esamina scena/e
+24
+IF verb 70 AND noun 299 THEN mess 253 WAIT ENDIF esamina vita
+24
+IF verb 70 AND noun 279 THEN mess 341 WAIT ENDIF esamina immagine/i trapasso
+25
+IF verb 204 AND noun 19 AND res? 9 THEN set 9 mess 175 look WAIT ENDIF  MUOVI  SARCOFAGO
+25
+IF verb 204 AND noun 19 THEN mess 176 WAIT ENDIF  MUOVI  SARCOFAGO gi√† mosso
+25
+IF verb 219 AND noun 8 AND no2eq 19 AND avai 8 AND res? 16 THEN mess 211 set 16 WAIT ENDIF  LEGA  CORDA  SARCOFAGO  CORDA
+25
+IF verb 219 AND noun 8 AND no2eq 19 AND res? 16 THEN mess 218 WAIT ENDIF  LEGA  CORDA  SARCOFAGO  no CORDA
+25
+IF verb 219 AND noun 8 AND no2eq 19 AND set? 16 THEN mess 217 WAIT ENDIF  LEGA  CORDA  SARCOFAGO  gi√† legata
+25
+IF verb 219 AND noun 8 AND no2eq 408 AND avai 8 AND res? 16 THEN mess 211 set 16 WAIT ENDIF  LEGA  CORDA  zampe CORDA
+25
+IF verb 219 AND noun 8 AND no2eq 408 AND res? 16 THEN mess 218 WAIT ENDIF  LEGA  CORDA  zampe no CORDA
+25
+IF verb 219 AND noun 8 AND no2eq 408 AND set? 16 THEN mess 217 WAIT ENDIF  LEGA  CORDA  SARCOFAGO  gi√† legata
+25
+IF verb 55 OR verb 102 AND noun 8 AND no2eq 221 AND avai 8 AND set? 9 AND set? 16 THEN set 18 TO 8 0 mess 221 WAIT ENDIF  GETTA  CORDA  BUCO  CORDA
+25
+IF VERB 55 OR verb 102 AND NOUN 8 AND NO2EQ 221 AND AVAI 8 AND SET? 9 THEN MESS 222 TO 8 27 WAIT ENDIF  GETTA  CORDA  BUCO  CORDA non legata
+25
+IF verb 219 AND noun 8 AND avai 8 THEN mess 210 WAIT ENDIF  LEGA  CORDA
+25
+IF verb 220 AND noun 8 AND set? 16 THEN mess 220 WAIT ENDIF  SLEGA  CORDA
+25
+IF verb 220 AND noun 8 AND res? 16 THEN mess 219 WAIT ENDIF  SLEGA  CORDA
+25
+IF verb 50 AND noun 8 AND avai 8 AND res? 16 THEN get 8 OKAY ENDIF  PRENDI  CORDA  CORDA  CORDA
+25
+IF verb 185 OR verb 215 AND noun 221 AND set? 18 THEN mess 223 rese 121 goto 27 WAIT ENDIF  SCENDI  BUCO
+25
+IF verb 185 OR verb 215 AND noun 221 AND res? 18 THEN mess 398 WAIT ENDIF  SCENDI  BUCO
+25
+IF verb 185 OR verb 230 AND noun 8 AND set? 18 THEN mess 223 rese 121 goto 27 WAIT ENDIF  SCENDI  corda
+25
+IF verb 185 OR verb 230 AND noun 8 AND res? 18 THEN mess 398 WAIT ENDIF  SCENDI  corda
+25
+IF verb 85 THEN mess 227 WAIT ENDIF gi√π, basso
+25
+IF verb 100 OR verb 204 OR verb 303 OR vbnoeq 0 AND noun 85 THEN mess 227 WAIT ENDIF  VAI  BASSO
+25
+IF noun 85 OR noun 0 AND verb 185 THEN mess 227 WAIT ENDIF scendi oppure scendi in basso
+25
+IF verb 70 AND noun 19 THEN mess 343 WAIT ENDIF esamina sarcofago
+25
+IF verb 70 AND noun 263 THEN mess 322 WAIT ENDIF esamina iunnuh/faraone
+25
+IF verb 70 AND noun 278 THEN mess 253 WAIT ENDIF esamina scena/e
+25
+IF verb 70 AND noun 299 THEN mess 346 WAIT ENDIF esamina vita
+25
+IF verb 70 AND noun 408 THEN mess 345 WAIT ENDIF esamina piedi
+25
+IF verb 70 AND noun 274 THEN mess 332 WAIT ENDIF esamina pavimento
+25
+IF verb 70 AND noun 18 THEN mess 344 WAIT ENDIF esamina segni
+26
+IF verb 70 AND noun 281 THEN mess 350 WAIT ENDIF esamina strumenti
+26
+IF verb 50 AND noun 281 THEN mess 351 WAIT ENDIF prendi strumenti
+26
+IF verb 70 AND noun 282 THEN mess 322 WAIT ENDIF esamina imbalsamatore
+26
+IF noun 283 OR noun 284 AND verb 70 THEN mess 352 WAIT ENDIF esamina vaso/i canopi
+26
+IF noun 283 OR noun 284 AND verb 50 THEN mess 351 WAIT ENDIF prendi vaso/i canopi
+26
+IF verb 31 OR verb 201 OR verb 206 AND noun 19 THEN mess 301 wait endif
+27
+IF verb 231 THEN mess 226 set 121 goto 25 WAIT ENDIF  ARRAMPICATI  ALTO
+27
+IF verb 100 OR verb 204 OR verb 303 OR vbnoeq 0 AND noun 84 THEN mess 226 set 121 goto 25 WAIT ENDIF  VAI  ALTO
+27
+IF noun 84 OR noun 0 AND verb 184 THEN mess 226 set 121 goto 25 WAIT ENDIF sali oppure sali in alto
+27
+IF verb 100 OR verb 204 OR verb 303 OR vbnoeq 0 AND noun 83 AND set? 51 THEN goto 29 WAIT ENDIF  VAI  OVEST
+27
+IF verb 95 AND noun 109 AND no2eq 7 AND res? 50 AND avai 7  THEN set 50 mess 259 WAIT ENDIF  COPRI  SPECCHIO  NASTRO  NASTRO
+27
+IF VERB 95 AND NOUN 109 AND NO2EQ 7 AND RES? 50 AND NOTAVAI 7  THEN MESS 261 WAIT ENDIF  COPRI  SPECCHIO  NASTRO
+27
+IF VERB 95 AND NOUN 109 AND NO2EQ 7 AND SET? 50 THEN MESS 260 WAIT ENDIF  COPRI  SPECCHIO  NASTRO
+27
+IF verb 95 AND noun 109 THEN mess 258 WAIT ENDIF  COPRI  lo specchio
+27
+IF verb 202 AND noun 109 AND set? 50 THEN mess 263 set 51 brin 110 WAIT ENDIF  ROMPI  SPECCHIO
+27
+IF verb 202 AND noun 109 AND res? 50 THEN mess 262 EXIT ENDIF  ROMPI  SPECCHIO
+27
+IF noun 285 OR noun 286 AND verb 70 THEN mess 348 WAIT ENDIF esamina tracce/muffa
+27
+IF noun 285 OR noun 286 AND verb 50 THEN mess 349 WAIT ENDIF prendi tracce/muffa
+27
+IF verb 70 AND noun 8 THEN mess 347 WAIT ENDIF esamina corda
+28
+IF verb 70 AND noun 10 THEN mess 285 WAIT ENDIF  ESAMINA  ALTARE
+28
+IF verb 33 OR verb 34 AND noun 32 AND set? 59 AND avai 6 AND avai 2 AND iswearing 9 AND set? 60 THEN mess 291 mess 290 hold 3 mess 292 hold 3 mess 293 hold 3 mess 294 hold 3 mess 295 hold 3 mess 296 hold 3 mess 297 exit ENDIF  CANDELABRO  LIBRO  PARAMENTI
+28
+IF verb 33 OR verb 34 AND noun 32 AND res? 59 THEN mess 287 wait ENDIF
+28
+IF verb 33 OR verb 34 AND noun 32 AND notavai 6 THEN mess 261 wait ENDIF
+28
+IF verb 33 OR verb 34 AND noun 32 AND notavai 2 THEN mess 261 wait ENDIF
+28
+IF verb 33 OR verb 34 AND noun 32 AND isnotwearing 9 THEN mess 288 wait ENDIF
+28
+IF verb 33 OR verb 34 AND noun 32 AND res? 60 THEN mess 289 wait ENDIF
+28
+IF verb 70 AND noun 287 THEN mess 353 WAIT ENDIF esamina cappella
+28
+IF verb 70 AND noun 10 THEN mess 354 WAIT ENDIF esamina altare/insanguinato
+28
+IF verb 70 AND noun 291 THEN mess 322 WAIT ENDIF esamina padre
+28
+IF verb 70 AND noun 275 THEN mess 355 WAIT ENDIF esamina marmo/pentelico/imetto
+28
+if verb 102 or verb 55 and noun 6 and no2eq 10 and carr 6 and res? 20 then mess 525 drop 6 set 20 wait endif
+28
+if verb 102 or verb 55 and noun 6 and no2eq 10 and carr 6 and set? 20 then mess 526 wait endif
+28
+if verb 102 or verb 55 and noun 6 and no2eq 10 and notavai 6 then mess 527 wait endif
+29
+IF verb 70 AND noun 289 THEN mess 342 WAIT ENDIF esamina tunnel
+30
+IF verb 70 AND noun 160 AND res? 63 THEN mess 274 set 63 brin 12 WAIT ENDIF  ESAMINA  SCRITTOIO  TACCUINO
+30
+IF verb 70 AND noun 160 AND set? 63 THEN mess 253 WAIT ENDIF  ESAMINA  SCRITTOIO  TACCUINO
+30
+IF verb 70 AND noun 162 THEN mess 275 WAIT ENDIF  ESAMINA  LAMPADA
+30
+IF noun 163 OR noun 161 AND verb 70 THEN mess 392 WAIT ENDIF  BIBLIOTECA  LIBRI  ESAMINA
+30
+IF verb 70 AND noun 290 THEN mess 356 WAIT ENDIF esamina studio
+30
+IF verb 70 AND noun 291 THEN mess 322 WAIT ENDIF esamina padre
+30
+IF verb 70 AND noun 160 THEN mess 357 WAIT ENDIF esamina scrittoio
+30
+IF verb 70 AND noun 292 THEN mess 359 WAIT ENDIF esamina arredo/i
+30
+IF verb 70 AND noun 293 THEN mess 358 WAIT ENDIF esamina legno/mogano
+31
+IF verb 70 AND noun 289 THEN mess 342 WAIT ENDIF esamina tunnel
+32
+IF verb 70 AND noun 289 THEN mess 342 WAIT ENDIF esamina tunnel
+33
+IF verb 100 AND noun 221 AND set? 55 THEN goto 30 WAIT ENDIF  VAI  BUCO
+33
+IF verb 50 OR verb 111 OR verb 204 AND noun 108 AND no2eq 114 AND res? 55 THEN set 55 mess 256 brin 108 WAIT ENDIF  PRENDI  RITRATTO  MURO
+33
+IF verb 50 OR verb 111 OR verb 204 AND noun 108 AND set? 55 THEN mess 257 WAIT ENDIF  PRENDI  RITRATTO
+33
+IF verb 100 OR verb 204 OR verb 303 OR vbnoeq 0 AND noun 82 AND SET? 55 THEN GOTO 30 WAIT ENDIF vai a est
+33
+IF verb 70 AND noun 301 THEN mess 360 WAIT ENDIF esamina locale
+33
+IF verb 70 AND noun 270 THEN mess 253 WAIT ENDIF esamina parete/i
+33
+IF noun 2 OR noun 161 AND verb 70 THEN mess 361 WAIT ENDIF esamina libro/i
+33
+IF verb 70 AND noun 23 THEN mess 253 WAIT ENDIF esamina stanza
+33
+IF verb 70 AND noun 266 THEN mess 253 WAIT ENDIF esamina soffitto
+33
+IF verb 70 AND noun 274 THEN mess 253 WAIT ENDIF esamina pavimento
+33
+IF verb 405 AND noun 108 THEN mess 393 WAIT ENDIF  TOCCA  RITRATTO
+34
+IF verb 70 AND noun 115 THEN mess 399 WAIT ENDIF  ESAMINA  CASSE
+34
+IF verb 206 AND noun 115 AND no2eq 4 AND avai 4 AND res? 53 THEN mess 265 hold 1 mess 266 hold 1 mess 267 hold 1 mess 271 brin 6 brin 2 brin 9 set 53 WAIT ENDIF  APRI  CASSE  CACCIAVITE  CACCIAVITE  CANDELABRO  LIBRO  PARAMENTI
+34
+IF verb 206 AND noun 115 AND no2eq 4 AND avai 4 AND set? 53 THEN mess 268 WAIT ENDIF  APRI  CASSE  CACCIAVITE
+34
+IF verb 206 AND noun 115 AND res? 53 THEN mess 272 WAIT ENDIF  APRI  CASSE
+34
+IF verb 70 AND noun 289 THEN mess 342 WAIT ENDIF esamina tunnel
+35
+IF verb 70 AND noun 289 THEN mess 342 WAIT ENDIF esamina tunnel
+36
+IF verb 70 AND noun 263 THEN mess 322 WAIT ENDIF esamina iankho
+36
+IF verb 70 AND noun 23 THEN mess 253 WAIT ENDIF esamina sala
+36
+IF verb 70 AND noun 24 THEN mess 331 WAIT ENDIF esamina iscrizioni/geroglifici
+40
+IF verb 70 AND noun 404 THEN set 30 mess 236 WAIT ENDIF  ESAMINA  LAMPADARIO
+40
+IF noun 409 OR noun 94 AND verb 208 AND set? 30 THEN mess 238 set 59 WAIT ENDIF  CRISTALLO  SCRITTA  LEGGI
+40
+IF noun 409 OR noun 94 AND verb 208 AND res? 30 THEN mess 237 WAIT ENDIF  CRISTALLO  SCRITTA  LEGGI
+40
+IF verb 215 AND noun 61 THEN goto 41 WAIT ENDIF  SALTA  sulla balconata
+40
+IF verb 215 THEN mess 230 exit WAIT ENDIF  SALTA
+40
+IF verb 70 AND noun 113 THEN mess 253 WAIT ENDIF  ESAMINA  BRACCI
+40
+IF verb 70 AND noun 409 THEN set 30 mess 252 WAIT ENDIF  ESAMINA  CRISTALLO
+40
+IF verb 70 AND noun 295 THEN mess 362 WAIT ENDIF esamina rame
+40
+IF verb 70 AND noun 265 THEN mess 327 WAIT ENDIF esamina salone
+40
+IF verb 70 AND noun 61 THEN mess 363 WAIT ENDIF esamina balconata
+41
+IF verb 100 OR verb 204 OR verb 303 OR vbnoeq 0 AND noun 85 THEN mess 229 goto 20 WAIT ENDIF  VAI  BASSO
+41
+IF noun 85 OR noun 0 AND verb 185 THEN mess 229 goto 20 WAIT ENDIF scendi oppure scendi in basso
+41
+IF verb 215 AND noun 404 THEN mess 231 goto 40 WAIT ENDIF  SALTA  LAMPADARIO
+41
+IF verb 215 THEN mess 230 exit WAIT ENDIF  SALTA
+41
+IF verb 70 AND noun 112 THEN mess 247 WAIT ENDIF  ESAMINA  QUADRO
+41
+IF verb 233 OR verb 204 OR verb 234 OR verb 235 AND noun 117 THEN mess 300 WAIT ENDIF
+41
+IF verb 206 OR verb 201 AND noun 112 THEN mess 302 WAIT ENDIF
+41
+IF verb 70 OR verb 208 AND noun 60 THEN mess 303 WAIT ENDIF
+41
+IF verb 70 AND noun 61 THEN mess 363 WAIT ENDIF esamina balconata
+41
+IF verb 70 AND noun 302 THEN mess 364 WAIT ENDIF esamina parapetto
+41
+IF verb 70 AND noun 270 THEN mess 253 WAIT ENDIF esamina parete/i
+41
+IF verb 70 AND noun 265 THEN mess 327 WAIT ENDIF esamina salone
+41
+IF verb 70 AND noun 404 THEN mess 365 WAIT ENDIF esamina lampadario
+41
+IF verb 405 AND noun 404 THEN mess 366 WAIT ENDIF tocca lampadario
+41
+IF verb 70 AND noun 409 THEN mess 367 WAIT ENDIF esamina cristallo
+DIZIONARIO
+FLYER
+1
+NOME
+BOOK
+2
+NOME
+TIME
+3
+NOME
+CLOCK
+3
+NOME
+SCREWDRIVER
+4
+NOME
+SCISSORS
+5
+NOME
+LAMPSTAND
+6
+NOME
+CANDLESTICK
+6
+NOME
+RIBBON
+7
+NOME
+ROLL
+7
+NOME
+ROPE
+8
+NOME
+VESTMENTS
+9
+NOME
+ALTAR
+10
+NOME
+BLOODY
+10
+NOME
+BANDAGES
+11
+NOME
+NOTEBOOK
+12
+NOME
+BATTERY
+13
+NOME
+BATTERIES
+13
+NOME
+SET
+13
+NOME
+DRUG
+14
+NOME
+DRUGS
+14
+NOME
+COBRA
+15
+NOME
+SAPPHIRE
+16
+NOME
+SWORD
+17
+NOME
+SIGNS
+18
+NOME
+SIGN
+18
+NOME
+PROHIBITION
+18
+NOME
+SARCOPHAGUS
+19
+NOME
+MASK
+20
+NOME
+MUMMY
+21
+NOME
+SAND
+22
+NOME
+ROOM
+23
+NOME
+ROOMS
+23
+NOME
+HIEROGLYPHICS
+24
+NOME
+HIEROGLYPH
+24
+NOME
+HIEROGLYPHS
+24
+NOME
+HIEROGLYPHIC
+24
+NOME
+INSCRIPTIONS
+24
+NOME
+HALLWAY
+26
+NOME
+SHAFT
+27
+NOME
+TORCH
+29
+NOME
+ENTER
+31
+VERBO
+CEREMONY
+32
+NOME
+RITUAL
+32
+NOME
+EXECUTE
+33
+VERBO
+MINISTER
+33
+VERBO
+DO
+33
+VERBO
+SAY
+34
+VERBO
+OFFICIATE
+34
+VERBO
+QUIT
+40
+VERBO
+BYE
+40
+VERBO
+FUCK
+45
+VERBO
+TAKE
+50
+VERBO
+GRAB
+50
+VERBO
+PUT
+55
+VERBO
+THROW
+55
+VERBO
+DROP
+55
+VERBO
+TOSS
+55
+VERBO
+LEAVE
+55
+VERBO
+TAG
+60
+NOME
+TAGS
+60
+NOME
+BALCONY
+61
+NOME
+TERRACE
+61
+NOME
+EXAMINE
+70
+VERBO
+X
+70
+VERBO
+INV
+72
+NOME
+INVE
+72
+NOME
+INVENTORY
+72
+NOME
+SHOW
+74
+VERBO
+TALK
+75
+VERBO
+EXIT
+76
+VERBO
+N
+80
+NOME
+NORTH
+80
+NOME
+S
+81
+NOME
+SOUTH
+81
+NOME
+E
+82
+NOME
+EAST
+82
+NOME
+W
+83
+NOME
+WEST
+83
+NOME
+UP
+84
+NOME
+ABOVE
+84
+NOME
+UPSTAIRS
+84
+NOME
+DOWN
+85
+NOME
+BELOW
+85
+NOME
+DOWNSTAIRS
+85
+VERBO
+UNDER
+85
+NOME
+COMPUTER
+90
+NOME
+TI99
+90
+NOME
+TI99/4A
+90
+NOME
+TI-99/4A
+90
+NOME
+TI
+90
+NOME
+CODE
+91
+NOME
+COMBINATION
+91
+NOME
+NUMBERS
+91
+NOME
+NUMBER
+91
+NOME
+30091984
+92
+NOME
+KEYS
+93
+NOME
+KEYBOARD
+93
+NOME
+PAD
+93
+NOME
+KEY
+93
+NOME
+WRITING
+94
+NOME
+COVER
+95
+VERBO
+TAPE
+95
+VERBO
+PICTURE
+96
+NOME
+PHOTOGRAPH
+96
+NOME
+PHOTOGRAPHS
+96
+NOME
+SKELETON
+97
+NOME
+EMERALD
+98
+NOME
+TABLE
+98
+NOME
+PRIZES
+99
+VERBO
+WALK
+100
+VERBO
+RUN
+100
+VERBO
+GO
+100
+VERBO
+TYPE
+101
+VERBO
+WRITE
+101
+VERBO
+INSERT
+102
+VERBO
+SCARAB
+104
+NOME
+CAT
+105
+NOME
+PUSS
+105
+NOME
+FLUTE
+106
+NOME
+PORTRAIT
+108
+NOME
+CANVAS
+108
+NOME
+MIRROR
+109
+NOME
+L
+110
+VERBO
+LOOK
+110
+VERBO
+EXTRACT
+111
+VERBO
+REMOVE
+111
+VERBO
+DETACH
+111
+VERBO
+ELECTRICAL
+112
+NOME
+PANEL
+112
+NOME
+ARMS
+113
+NOME
+ARM
+113
+NOME
+WALL
+114
+NOME
+BOX
+115
+NOME
+BOXES
+115
+NOME
+FRAGMENTS
+116
+NOME
+FRAGMENT
+116
+NOME
+SWITCH
+117
+NOME
+SWITCHES
+117
+NOME
+WEAR
+120
+VERBO
+DRESS
+120
+VERBO
+UNDRESS
+121
+VERBO
+UNWEAR
+121
+VERBO
+TO
+150
+AVVERBIO
+DESK
+160
+NOME
+BOOKS
+161
+NOME
+LAMP
+162
+NOME
+LIBRARY
+163
+NOME
+CLIMB
+184
+VERBO
+DESCEND
+185
+VERBO
+DRINK
+200
+VERBO
+CLOSE
+201
+VERBO
+HIT
+202
+VERBO
+BREAK
+202
+VERBO
+STRIKE
+202
+VERBO
+WRECK
+202
+VERBO
+SCORE
+203
+VERBO
+MOVE
+204
+VERBO
+GIVE
+205
+VERBO
+OPEN
+206
+VERBO
+PLAY
+207
+VERBO
+READ
+208
+VERBO
+WAVE
+209
+VERBO
+DIG
+210
+VERBO
+SWALLOW
+211
+VERBO
+EAT
+211
+VERBO
+DRINK
+212
+VERBO
+LIGHT
+213
+VERBO
+SWITCH
+213
+VERBO
+SWITCH
+214
+VERBO
+JUMP
+215
+VERBO
+DIE
+216
+VERBO
+SHIT
+216
+VERBO
+FUCKHEAD
+216
+VERBO
+ASSHOLE
+216
+VERBO
+PISS
+216
+VERBO
+SHIT
+216
+VERBO
+CHANGE
+217
+VERBO
+IN
+218
+AVVERBIO
+TIE
+219
+VERBO
+UNTIE
+220
+VERBO
+HOLE
+221
+NOME
+HOLE
+221
+NOME
+USE
+230
+VERBO
+CLIMB
+231
+VERBO
+OPERATE
+233
+VERBO
+WORK
+233
+VERBO
+ACTUATE
+233
+VERBO
+PUSH
+234
+VERBO
+PULL
+235
+VERBO
+STOP
+250
+NOME
+STEPS
+251
+NOME
+STAIRCASE
+251
+NOME
+ENTRANCE
+252
+NOME
+SIDEWALK
+253
+NOME
+BRITISH
+254
+NOME
+MUSEUM
+254
+NOME
+MUSEUM
+254
+NOME
+SERIES
+255
+NOME
+STEPS
+256
+NOME
+STEP
+256
+NOME
+LOBBY
+257
+NOME
+TICKET
+258
+NOME
+GAP
+259
+NOME
+ACCESS
+260
+NOME
+ACCESS
+260
+NOME
+DESKS
+261
+NOME
+DESK
+261
+NOME
+PYRAMID
+262
+NOME
+PHARAOH
+263
+NOME
+IUNNUH
+263
+NOME
+PANIC
+264
+NOME
+BAR
+264
+NOME
+HALL
+265
+NOME
+CEILINGS
+266
+NOME
+CEILING
+266
+NOME
+STRUCTURE
+267
+NOME
+DOOR
+268
+NOME
+REPRODUCTION
+269
+NOME
+REPRODUCTIONS
+269
+NOME
+WALLS
+270
+NOME
+WHITE
+271
+NOME
+RED
+272
+NOME
+GREEN
+273
+NOME
+FLOOR
+274
+NOME
+HYMETTUS
+275
+NOME
+MARBLE
+275
+NOME
+PENTELIC
+275
+NOME
+ALCHEMIST
+276
+NOME
+HANYKE
+277
+NOME
+BRIDE
+277
+NOME
+SCENE
+278
+NOME
+SCENES
+278
+NOME
+IMAGE
+279
+NOME
+IMAGES
+279
+NOME
+PASSING
+279
+NOME
+DEAD
+280
+NOME
+INSTRUMENTS
+281
+NOME
+EMBALMER
+282
+NOME
+JARS
+283
+NOME
+JAR
+283
+NOME
+CANOPIC
+284
+NOME
+TRACES
+285
+NOME
+MOLD
+286
+NOME
+CHAPEL
+287
+NOME
+GRANDFATHER
+288
+NOME
+TUNNEL
+289
+NOME
+STUDIO
+290
+NOME
+FATHER
+291
+NOME
+FURNITURE
+292
+NOME
+DECOR
+292
+NOME
+WOOD
+293
+NOME
+MAHOGANY
+293
+NOME
+IANKHO
+294
+NOME
+COPPER
+295
+NOME
+TICKETS
+296
+NOME
+TICKET
+296
+NOME
+SOUL
+297
+NOME
+SHAPE
+298
+NOME
+LIFE
+299
+NOME
+SPACE
+301
+NOME
+RAILING
+302
+NOME
+MOVED
+303
+VERBO
+CHANDELIER
+404
+NOME
+TOUCH
+405
+VERBO
+CARESS
+406
+VERBO
+CUT
+407
+VERBO
+FOOT
+408
+NOME
+FEET
+408
+NOME
+LEG
+408
+NOME
+LEGS
+408
+NOME
+CRYSTALS
+409
+NOME
+CRYSTAL
+409
+NOME
+SHRINE
+410
+NOME
+GLASS
+411
+NOME
+EVERYTHING
+412
+NOME
+TEXT
+500
+NOME
+TEXT
+500
+VERBO
+GRAPHIC
+501
+VERBO
+SCRIPT
+502
+VERBO
+NOSCRIPT
+503
+VERBO
+OOPS
+950
+VERBO
+RESTART
+987
+VERBO
+SAVE
+988
+VERBO
+LOAD
+989
+VERBO
+WEIGHT
+1200
+VERBO
+RAMSAVE
+1300
+VERBO
+RAMLOAD
+1301
+VERBO
+THEN
+9999
+SEPARATORE
+LOCAZIONI
+1
+You are standing close to the bus stationÁ a few steps from the staircase that climbs towards the entrance of the British Museum.
+Sidewalk
+Sidewalk
+2
+3
+5
+0
+0
+0
+0
+0
+0
+0
+2
+You are standing on the sidewalkÁ a few steps from the staircase.
+Sidewalk
+Sidewalk
+0
+1
+4
+0
+0
+0
+0
+0
+0
+0
+3
+You are standing on the sidewalkÁ a few steps from the staircase.
+Sidewalk
+Sidewalk
+1
+0
+6
+0
+0
+0
+0
+0
+0
+0
+4
+You are on the first of a long series of steps that make up this staircase.
+At the bottom of the staircase. North side
+At the bottom of the staircase
+0
+5
+7
+2
+0
+0
+0
+0
+0
+0
+5
+You are on the first of a long series of steps that make up this staircase.
+At the bottom of the staircase
+At the bottom of the staircase
+4
+6
+8
+1
+0
+0
+0
+0
+0
+0
+6
+You are on the first of a long series of steps that make up this staircase.
+At the bottom of the staircase. South side
+At the bottom of the staircase
+5
+0
+9
+3
+0
+0
+0
+0
+0
+0
+7
+You are on the staircase leading towards the museum's entrance.
+Staircase. North side
+Staircase
+0
+8
+10
+4
+0
+0
+0
+0
+0
+0
+8
+You are on the staircase leading towards the museum's entrance.
+Staircase.
+Staircase
+7
+9
+11
+5
+0
+0
+0
+0
+0
+0
+9
+You are on the staircase leading towards the museum's entrance.
+Staircase. South side
+Staircase
+8
+0
+12
+6
+0
+0
+0
+0
+0
+0
+10
+You are in the big hall at the museum's entrance. You can see a large billboardÁ at least ten feet high.
+Entrance hall. North side
+Entrance hall
+0
+11
+13
+7
+0
+0
+0
+0
+0
+0
+11
+You are in the big hall at the museum's entrance.
+Entrance hall
+Entrance hall
+10
+12
+14
+8
+0
+0
+0
+0
+0
+0
+12
+You are in the big hall at the museum's entrance. You can see a large billboardÁ at least ten feet high.
+Entrance hall. South side
+Entrance hall
+11
+0
+0
+9
+0
+0
+0
+0
+0
+0
+13
+You are in front of the employee-only door.
+Employee-only door.
+Door
+0
+14
+0
+10
+0
+0
+0
+0
+0
+0
+14
+You are in front of the museum's ticket office. The entrance is closed nowÁ as well as the desks where tickets are sold.
+Ticket office.
+Ticket office
+13
+0
+0
+11
+0
+0
+0
+0
+0
+0
+15
+The green room is an exact replica of the same room in the Iunnuh's pyramid. Everything is perfectly reproduced to the smallest details.^MOn the west sideÁ there's a security door with a panic bar.
+Green room.
+Green room
+0
+16
+18
+0
+0
+0
+0
+0
+0
+0
+16
+You are at the entrance of the centre hallÁ very largeÁ with high ceilings. The structure is clearly from the nineteenth century. On the west sideÁ there's the main entrance doorÁ shut. On one sideÁ there's a vintage computerÁ a TI99-4A.
+Centre hall. West side
+Centre hall
+15
+17
+19
+0
+0
+0
+0
+0
+0
+0
+17
+The room is covered everywhere by inscriptions in hieroglyphics dating back from the dynasty of Iunnuh Pharaoh. Those are incredibly accurate replicas of the inscriptions found inside the pyramid. They don't come from a single room in particularÁ it seems that the inscriptions from the various rooms originally in the pyramid have been collected on the walls here.
+Hieroglyphics' room
+Hieroglyphics' room
+16
+0
+20
+0
+0
+0
+0
+0
+0
+0
+18
+You are in a completely white roomÁ of a blinding whiteness.
+White room
+White room
+0
+19
+21
+15
+0
+0
+0
+0
+0
+0
+19
+You are in the middle of the centre hall. The floor in Pentelic marble from Greece is spotless. Looking above you can see a large crystal chandelierÁ surely installed between the nineteenth and the beginning of the twentieth centuryÁ the period of maximum interest in explorations in Egypt.
+Centre hall
+Centre hall
+18
+20
+22
+16
+0
+0
+0
+0
+0
+0
+20
+The particular shape of this room is what strikes you the most. For the restÁ this room doesn't differ very much from the others. On one side there's a small staircase that leads upwards. There's a no entry sign in front of the staircase.
+Triangular room
+Triangular room
+19
+0
+23
+17
+0
+0
+0
+0
+0
+0
+21
+You are in a completely red roomÁ the colour strikes your soul and makes you feel uneasy.
+Red room
+Red room
+0
+22
+24
+18
+0
+0
+0
+0
+0
+0
+22
+You are on the other side of the big centre hallÁ from which you can access the other rooms in the museum. Ceilings are very high and mirror themselves in a spotless floor.
+Centre hall. East side
+Centre hall
+21
+23
+25
+19
+0
+0
+0
+0
+0
+0
+23
+This room is a reconstruction of an alchemist's laboratory from ancient EgyptÁ place where alchemy was bornÁ founded by the Thoth god. The room contains texts of Greek philosophers survived in the Islamic translations. As you knowÁ the Egyptian texts were lost in the Alexandria library's fire in 391. Notable is the Emerald Table of which a copy is present here.
+Alchemist's laboratory
+Alchemist's laboratory
+22
+0
+26
+20
+0
+0
+0
+0
+0
+0
+24
+This room is a copy of the funerary room of HanykeÁ the bride of the Pharaoh Iunnuh. The walls are frescoed with scenes from Hanyke's life and the classic images of the trespass in the afterlife that are present in the Book of Dead.
+Hanyke's room
+Hanyke's room
+0
+25
+0
+21
+0
+0
+0
+0
+0
+0
+25
+This large hall contains the huge sarcophagus of Pharaoh IunnuhÁ finely decorated with scenes from his life and supported by four Sphinx-shaped legs. On the floor there are some stripesÁ similar to those left after an object is pulled.
+Sarcophagus' hall
+Sarcophagus' hall
+24
+26
+0
+22
+0
+0
+0
+0
+0
+0
+26
+Object of charm and attraction in ancient timesÁ mummies are one of the symbols of ancient Egyptian civility and are the product of an unsurpassed ancient art. In ancient EgyptÁ the mummy was a guarantee of survival in the afterlife: following religious believingsÁ the soul depended on the body because through it could keep a contact with the world of livings andÁ more importantlyÁ continue to exploit the offerings and the funerary ritualÁ mandatory for the survival in the afterlife; the destruction of the mortal coil would inevitably produce a second and definitive deathÁ the greatest fear of Egyptians. You can see around you the typical embalmer's instruments as well as some Canopic vases.
+Embalmer's laboratory
+Embalmer's laboratory
+25
+0
+0
+23
+0
+0
+0
+0
+0
+0
+27
+You are in a square roomÁ wet and with mold traces on the walls. A rope is dangling from a hole in the ceiling.
+Cellar
+Cellar
+0
+0
+0
+0
+25
+0
+0
+0
+0
+0
+28
+You are in the funerary chapel. It's a perfect reproduction of the funerary chapel of Iunnuh's pyramid. There's a big altar stained with blood and this is not a reproduction but the original!^MAnother strangeness from your father?
+Funerary chapel
+Funerary chapel
+0
+0
+0
+31
+0
+0
+0
+0
+0
+0
+29
+You are in a tunnel.
+Tunnel
+Tunnel
+0
+0
+27
+32
+0
+0
+0
+0
+0
+0
+30
+You are in your father's office inside the museum! You notice with pleasure the elegance of the writing desk and the refinement of the furniture. Tons of books cover the wallsÁ neatly ordered in a mahogany library. In a cornerÁ there's an elegant desk with a lamp.
+Studio
+Studio
+0
+0
+0
+33
+0
+0
+0
+0
+0
+0
+31
+You are in a tunnel. 
+Tunnel
+Tunnel
+0
+0
+28
+34
+0
+0
+0
+0
+0
+0
+32
+You are in a tunnel.
+Tunnel
+Tunnel
+0
+0
+29
+35
+0
+0
+0
+0
+0
+0
+33
+You are in a room full of shelves on the walls. Tons of books cover all the sidesÁ from the floor to the ceiling.
+Library
+Library
+0
+0
+0
+36
+0
+0
+0
+0
+0
+0
+34
+You are in a tunnel.
+Tunnel
+Tunnel
+0
+35
+31
+0
+0
+0
+0
+0
+0
+0
+35
+You are in a tunnel. A writing says: don't pass or YOU'LL DIE.
+Tunnel
+Tunnel
+34
+36
+32
+0
+0
+0
+0
+0
+0
+0
+36
+You are in a room perfectly identical to Iankho's room in the Iunnuh's pyramid. It's unadornedÁ put the hieroglyphics on the walls are a perfect reproduction of the originals that you admired so many times in your father's pictures and notes.
+Iankho's room
+Iankho's room
+35
+0
+33
+0
+0
+0
+0
+0
+0
+0
+40
+You sit on one of the copper arms of the vast crystal chandelier that is on top of the museum's centre hallÁ very close to the balcony.
+Crystal chandelier
+Chandelier
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+41
+You are in the balcony that is placed high on the hall's walls. Looking downÁ you can see the museum's big centre hall. In front of you there's the large crystal chandelier. You can almost touch it. On one sideÁ there's an electrical switch panelÁ closed.
+Service balcony
+Balcony
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+It's late at nightÁ it's cold and wet and you are outside the British MuseumÁ at the bus stop. You know why you are there. You think again to last years' eventsÁ to your studies on the treasury your father found 30 years ago in the Iunnuh's pyramidÁ the curse that killed himÁ the evil forces that were freed. Your father is deadÁ killed by the curse and so are his colleagues. Now that evil force is attacking the sons of those who dared to desecrate the tomb of Iunnuh's and his wife Hanyke. You are the only hope for you and them. Your studies made you find a holy ritual that can remove the curse and give eternal peace to the pharaoh and his bride. Today is the day. Today planets are aligned. Next timeÁ it will be May 16Á 2161: too late for you. Today you will be able to remove the spellÁ at last. But there's a problem. The ritual is described in your father's notebookÁ that was never found. Your hope is that it's still in the museumÁ along the other treasures. You are not sure about thatÁ as in the last years you went here every day to visit the museum and you never saw it. But you have to tryÁ by inspecting the treasures and the findings hoping they will lead to the notebook. Because if you are not able to find it before tomorrow morningÁ it will be the end for you. May the luck be with youÁ I will be your ears and eyes.
+Introduction
+Introduction
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+101
+Thirty years have passedÁ how time flies. I have just published version 3.0 of my AWSÁ the Adventure Writing SystemÁ a visual and integrated development system that allows writing very complex interactive fiction games with minimal programming.^M Could I avoid celebrating both things? And what could possibly be better than writing the sequel of the Iunnuh's pyramid?^MHere it is: Iunnuh 2Á the curse from the past.^M
+Author's note
+Author's note
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+MESSAGGI
+50
+It's a nice screwdriverÁ only useful if you are an electrician. And you are not.
+51
+Those are typical electrician's scissorsÁ with the notch where wires can be stripped.
+52
+It's a roll of wide black insulating tape.
+53
+It's a common ropeÁ what did you wanted it to be? Looking at itÁ I would say it can support your weight.
+54
+Those are alkaline batteriesÁ for electric torches.
+55
+Those are hallucinogenic drugs from three thousand years ago.
+56
+It's the sapphire found by your father in the Iunnuh's pyramid. It glitters with a magnificent bluish shade of colour and its size is impressiveÁ even if it's far smaller than the 563 carats of Star of India.
+57
+It's one of the artefacts found in the Iunnuh's pyramidÁ a perfectly crafted sword. It's a pity it's broken.
+58
+It's the sarcophagus where Iunnuh's mummy was placed. It's finely historiated with images of rare beauty.
+59
+It's Iunnuh's funerary mask. It's in gold and finely chiselled.
+60
+It's the guardian mummy found in the Iunnuh's pyramid; the one with dirty bandages to whom your father gave the clean ones.
+61
+It's the skeleton to whom your father gave back its skull.
+62
+The pictures show the dunes around the Iunnuh's pyramid. The sun seems to burn the desert.
+63
+Those are pictures of the Great Iunnuh's Pyramid. It shows signs of time passing byÁ the three thousand years passed from its constructionÁ but its majesty is unrivalled.
+64
+It's a wonderful painting from a famous painter. It's the portrait of your father while entering the Iunnuh's pyramid.
+65
+It's a very simple mirror similar to those used in gymsÁ a large reflecting rectangle that covers all the wall.
+66
+Listen to meÁ you don't need those. Leave them here.
+67
+Those are glass fragments: they are not interesting.
+68
+Those are electrical switches from ABBÁ of 64Á 32 and 16 amps. Every one has its own tag.
+69
+What screwdriver?
+70
+What scissors?
+71
+I can't see any mummy here.
+72
+I can't see any portrait.
+73
+I can't see mirrors around here.
+74
+It's a wonderful golden candlestickÁ weighting about two kilograms. It represent the Isis goddess kneeling and with spread wings. The open arms carry a candle each.
+75
+Those are the vestments of an ancient Egyptian priest and the High Priest of AmunÁ Amenhotep. Those are very rich vestments and finely wovenÁ a clear example of the power and the richness of the powerful Teban clergyÁ which would later go in contrast with the pharaoh.
+100
+I'am not buying this!
+101
+It's best to leave everything openÁ who knows.
+102
+If you like breaking thingsÁ why don't you play an arcade game?
+104
+Which writing?
+105
+I see something... 
+106
+What?
+107
+I don't know this word.
+108
+I don't understand you.
+110
+I can't go there.
+111
+I don't know the word 
+112
+There's nothing to open here.
+113
+But it's open!
+114
+The door is open.
+115
+I don't have anything to do that.
+116
+It works! The cobra goes away.
+117
+Let's try...
+118
+Nothing happens.
+119
+It says: wave me.
+120
+There's a passage leading downwards.
+121
+That's incredible! The wall lights up and a passage appears leading downwards.
+122
+I find something!
+123
+I only have my bare hands to dig; I can only dig the sand. I dig with my hands and...
+124
+... I don't find anything.
+125
+It doesn't taste good.
+126
+AAGHHH!
+127
+I don't like it!
+128
+LookÁ the adventure will be long and difficult if you start this way!
+129
+For me it's already difficult; you should try by your own.
+130
+Stop cursing and use your brain!
+131
+WellÁ let's pretend we didn't understand...
+132
+I fell and I broke my neck!
+133
+Maybe it's better if you say in which way!
+134
+Whee! It's fun.
+137
+The door is locked.
+138
+Now it's pitch black! It's dangerous to move in the dark.
+139
+The mummy says: ThanksÁ strangerÁ it was about time that someone passed byÁ now I can rest in peace for another two thousand years. It takes the bandages and goes away.
+140
+I don't see any mummy here.
+141
+Try to write GIVE THE BANDAGES TO...
+142
+It's better to have them; I mean the bandages...
+144
+There's a ladder hanging from the ceiling.
+145
+There's a girder that allows to pass towards the south.
+146
+Wow! Now I can go south by passing on the girder.
+147
+The cobra bit me! I die in terrible pain.
+148
+Don't be silly!
+149
+Don't act as a stupid!
+150
+Explain yourself.
+151
+It's already off.
+152
+Don't joke about that.
+153
+It's already on.
+154
+I can'tÁ batteries are dead!
+155
+You have 
+156
+ points on 
+157
+.
+158
+I don't have charged batteries with me.
+159
+Those already there are still OK.
+160
+Explain yourself.
+161
+Congratulations! You finished the adventure.
+162
+What should I dig?
+163
+The torch is already on.
+164
+The torch is off.
+165
+The Egyptian ScarabÁ called khepererÁ is considered a powerful amulet ever since the Tinitian periodÁ with a magical-apotropaic function assuring eternal rebirth in growth and transformationÁ fostering happiness and a constant improvement of intuitive and spiritual faculties.
+166
+Which one?
+167
+I read the screenÁ where lines of text are written...^MYou are in the antechamber of Iunnuh's pyramid...^Mbut...^MIt can't be...^MOf courseÁ yes! It's the Pyramid as described in the game published 30 years ago on MC microcomputer (september 1984)Á after my father's findings.^MThat's incredibleÁ they've found also thisÁ a 30-year old game!^MBut waitÁ they must've exposed it todayÁ because yesterday it wasn't here.
+170
+On the billboardÁ there's another signÁ hung with a rope. There's something written on it.
+171
+On the signÁ it's written: "The exposition dedicated to the treasures of Iunnuh's pyramid is extended for another month!"
+172
+I can't see any sign!
+173
+The catÁ with an agile jumpÁ catches the scarab and swallows it whole!
+174
+There's a hole in the floorÁ in the middle of the room.
+175
+With a great effortÁ inch after inchÁ the sarcophagus moves.
+176
+I already moved itÁ don't waste my forces!
+177
+There is no point in itÁ think about something useful!
+178
+It's a clay fluteÁ a reproduction of the artefact found in the Iunnuh's pyramid. It can be bought for a few pounds a the museum's gift shop.
+179
+There is no point using itÁ leave it here.
+180
+What flute?
+181
+It's not useful to type random numbers...
+182
+On the wallÁ the writing advertises the exposition of treasures of the Iunnuh's pyramidÁ the fruit of your father's work.
+183
+The pictures are well attached to the walls and are part of the exposition. You can't take them!
+184
+The skeletonÁ apart being a relic of the Iunnuh's PyramidÁ is part of the exposition and can't be moved!
+200
+Hi to allÁ a few weeks ago I spent some of my spare time reading old magazines about micro computers. I have always been attracted by interactive fiction games that were well appreciated at the time; I transcribed in Java one of the programs that were proposed by MCmicrocoputer. The game is called "The Innuh's pyramid" and was written for the TI-99/4A by Aristide Torrelli (MCmicrocomputer 33Á september 1984) and translated for the ZX Spectrum by Manlio Severi (MCmicrocomputer 35Á november 1984). The game is a full transcript of the original adventure and can be played in the browser: ^M^MLa piramide di Innuh - Davide Bucci (http://davbucci.chez-alice.fr/index.php?argument=varie/innuh/innuh.inc)^M^MI showed to some people (interested or not in retrocomputing)Á and the game had a certain successÁ thanks probably to the engaging story written by Aristide Torrelli. I advertise here the gameÁ if someone is interested in such things.
+201
+As I saidÁ I've always been keen of interactive fiction games and the Iunnuh's Pyramid is my first game published by MCmicrocomputerÁ in the archeological month of September 1984Á on number 33. At the timeÁ I was programming a TI99/4A and I wrote the game in BASIC. I have been very happy to found againÁ a while agoÁ some web posts discussing about myself and the pyramid! The name has become Innuh but I haven't been offended by thatÁ as I read some nice words about it. The author of that was Davide Bucci whoÁ as citing myself wasn't enoughÁ translated the pyramid in Java and made it playable in the browser (Java version of January 8 2011Á davbucci@tiscali.it). Kudos!
+210
+To which should I tie it?
+211
+DoneÁ I tied the rope to one of the sarcophagus' legs.
+212
+There's a rope tied to one of the sarcophagus' legs.
+213
+The rope is on the floor.
+214
+The other end of the rope is hanging through the hole.
+215
+Where do you see a sarcophagus?
+216
+What hole?
+217
+It's already tied!
+218
+What rope?
+219
+But it's not tied!
+220
+It's better to avoid that.
+221
+The free end of the rope falls into the hole and touches the floor below. You understand it from the noise of the rope hitting something hard.
+222
+The rope falls in the hole and lands on the floor downstairs with a loud noise.
+223
+You rappel down the rope with skill and elegance.
+224
+You try to get down but badly fall and you break your neck. You're dead.
+225
+Do you want to hang yourself? I don't think it is a solution.
+226
+You climb on the rope as a monkey!
+227
+Be more precise. Where should I go down?
+228
+You ignore the sign and you climb the metallic steps. The noise of your footsteps echoes in the museum.
+229
+With a fast pace you goes down the ladder.
+230
+You fall from the balcony and with a loud thud you heavily hit the floor. You're dead.
+231
+With a leap of unsuspected agility in an ancient Egypt scholarÁ you jump in the empty space and land on the chandelier. Well done!
+232
+You tenderly caress BastetÁ the professor's catÁ and she purrs back.
+233
+If by cut the rope you mean to cut and runÁ I don't think it is the right thing to do. Years of studyÁ of hypothesis and researches and then you want to flee right close to the goal? But maybe you meant to literally cut the rope. NoÁ forget itÁ cutting the rope or other things if that matters will not help you!
+234
+I should free myself from what?
+235
+What should I take?
+236
+By watching carefullyÁ it seems that there's something written on one of the crystals of the chandelier.
+237
+Can you foresee the future?
+238
+Thanks to my studiesÁ I can read the hieroglyphics... ^M·∏èd mdw jn Imn-R' ·∏´nt(y) Jp.t-Sw.t ... ^MIt is an invocationÁ a ritual spell. I found the formula for the ritual that my father spoke about in his writings!
+239
+In the shrineÁ there is the torch used by your father during the exploration of the Iunnuh's pyramid.
+240
+The shrine has the glass broken.
+241
+How can I do itÁ should I pass through the glass?
+242
+A good punch shutters the glass of the shrine.
+243
+The shrine is already broken!
+244
+You put the batteries in the torch and it lights upÁ almost by miracle after so many years. HoweverÁ the switch is blocked in the ON position and you can't switch it off.
+245
+Where should I put those? NO! Watch your language!
+246
+It's better to leave the torch onÁ as the batteries will last very long and you have time only until tomorrow morning!
+247
+The electrical panel is a class 4 breaker panel with rows of switches with tags. It is clearly the object that controls the whole lighting of the museum. The glass door that closes it can be opened only with a special key.
+248
+It is a regular no access signÁ a red disc with a horizontal white bar.
+249
+Those hieroglyphics have been the focus of your studies for years and you already read and translated all of them. You learnt them by heartÁ don't start again!
+250
+What hieroglyphics?
+251
+BastetÁ the catÁ doesn't like to be carried. She will follow you faithfully.
+252
+It seems there's something written!
+253
+I can't see anything special.
+254
+There's a hole in the east wall.
+255
+A large portrait of your father covers almost all the east wall.
+256
+With the greatest care you detach the portrait from the wall and put it on the floor.
+257
+Leave it there!
+258
+With what should I cover it?
+259
+The mirror is completely covered by the tape.
+260
+The mirror is already covered by the tape.
+261
+There's something missing...
+262
+The glass fragments are very sharp and cut you all over. It's a painful death.
+263
+The mirror breaksÁ but the fragmentsÁ kept together by the tapeÁ deposit themselves on the floor without any collateral damage (to you in particular).
+264
+There is a passage to the westÁ where the mirror was placed.
+265
+It's very hard to open the boxes with an electrician's screwdriverÁ but you try anyway.
+266
+The nails are small and thinÁ as if the boxes were closed hastily...
+267
+By prying with the screwdriverÁ you can remove the nails and open the boxes.
+268
+It's already open!
+269
+On one side there are some boxes.
+270
+On one side there are some open boxes.
+271
+You plunge your hands inside and found something interesting!
+272
+You only have the bare hands to open them. You can't do that!
+273
+A large mirror completely covers the west wall.
+274
+There is a notebook on the desk!
+275
+It's a Tiffany lampÁ finely decorated. A rare piece of art.
+276
+It's your father's notebookÁ where the ritual is accurately described. The only thing missing is the prayer to declaim that isÁ literallyÁ hidden in a very high place!
+277
+It's your father's notebookÁ a nice notebook with parchment pages bound in red Morocco leather.
+278
+I can't see that around!
+279
+I can't see any notebook here!
+280
+You wear the holy vestments of the High Priest of the ancient Egypt and a lymph of pure energy seems to flow in your veins. You have a hieratic appearance while wearing the vestments.
+281
+What vestments?
+282
+Keep wearing themÁ they might be useful...
+283
+You begin to read the Book of the Dead. The chanting seems to wake spirits sleeping for centuries. The book will be useful for the ceremony.
+284
+I can't see any book!
+285
+The altar is the one that was placed in the Iunnuh's pyramid and that your father and his staff took away. The stone on which it was carved is still stained with the blood of countless human sacrifices where it played the leading role.
+286
+What altar?
+287
+But you don't know the ritual verses to say!
+288
+You should be wearing something!
+289
+But you don't know the phases of the ceremony!
+290
+In the name of AtumÁ Thoth and Horus...
+291
+You begin to say the words of the ancient prayer...
+292
+You begin to feel a strong energy in the air while the wordsÁ in an ancient language unpronounced for thousands of yearsÁ get out of your mouth...
+293
+A loud rumble shakes the room...
+294
+The altar begins to tremble...
+295
+A lightingÁ an appearanceÁ the god AtumÁ son of NunÁ is in front of you.
+296
+His words echo loud and clearÁ the curse is removed!
+297
+Well done! Now you can live long without any problemsÁ apart paying the rentÁ taxes and bills! But this is another story...
+298
+It's the text of Hermes Trismegistus: "VerumÁ sine mendacio certum et verissimumÁ quod est inferiusÁ est sicut quod est superiusÁ et quod est superiusÁ est sicut quod est inferius: ad perpetranda miracula rei unius. Et sicut omnes res ...". It's not worth to read everythingÁ you don't have time and it's pointless.
+299
+I beg your pardonÁ what Emerald Table? I can't see any.
+300
+The different switches are behind the door of the panel and can't be reached!
+301
+Think about something more useful!
+302
+The panel can't be opened or closed without a special key available only to maintenance staff.
+303
+The different tags bear writings such as HALL LIGHTSÁ ENTRANCE LIGHTSÁ HALLWAY LIGHTS and so onÁ to indicate the function of each switch.
+304
+I can't see any switch around.
+305
+I can't see any panel around.
+306
+I can't see tags here.
+310
+It's the bus stop where you stopped to get here.
+311
+There are the names and the paths of the buses. Nothing useful to you.
+312
+It's a staircase that you know pretty well as you walked there every day in the last twenty years.
+313
+What do you want me to say? Do you want me to explain what's the British Museum?
+314
+It's a perfectly normal authentic Cockney sidewalk!
+315
+You already saw it thousands of timesÁ there's nothing new on it.
+316
+Don't loose yourself behind some stepsÁ there's nothing special about them!
+317
+It's a large square whereÁ when the Museum is openÁ the visitors gathers themselves before getting inside.
+318
+It's the gap through which visitors get inside the Museum. There's nothing different from all other days when you saw it!
+319
+It's always the very same desk where the very same tickets are sold to get in the museum. ClearlyÁ now it's closed and nothing is sold.
+320
+To examine a ticket you should have it and you don't! And you don't need it as the museum is closed and nobody is around!
+321
+It's the good old ticket office that you know very wellÁ a series of desks for the sale and gaps for the entrance. There's anything special.
+322
+You should bring him back to life to examine him!
+323
+You should bring her back to life to examine her!
+324
+I don't notice anything peculiar in the panic bar.
+325
+You are not in a pyramid!
+326
+It's the entrance door from the inner side of the museumÁ a metallic structureÁ burglar-resistant and very heavy. It's equipped with a panic bar to evacuate rapidly in case of emergency.
+327
+The hall is rectangularÁ very large and spotless. It has been set up to recreate the internal of the Iunnuh's Pyramid to give the impression to visitors to be there.
+328
+The structure of the hall is typical of Victorian buildingsÁ with very high ceilingsÁ large rooms and columns to support all that structure.
+329
+It's the main access door to the museum. It's shut and it seems very robustÁ burglar-proof. If you had to pass through thereÁ probably you would still be outsideÁ thinking about how to get in!
+330
+Your exploring of metaphysics is somewhat fascinating...^MBut now get back to workÁ listen to me!
+331
+The hieroglyphical writingsÁ or better their reproductionsÁ tell tales of the life of Pharaoh Iunnuh and of his brideÁ of his great victories in battlesÁ of the temples he built and of offerings to gods. Tales of a life of a great pharaohÁ in short.
+332
+The floor shines for the cleanliness of marble just polished. You are almost shy about walking andÁ by thisÁ dirty it!
+333
+It's a wonderfulÁ enormousÁ crystal chandelierÁ whose size is absolutely incredibleÁ with plenty of lightbulbs. God knows the work they've to do to clean it!
+334
+Maybe you mean to examine the chandelier? NoÁ because the crystal isÁ indeedÁ only... crystal!
+335
+It's triangularÁ the shape...
+336
+It's a completely metallic stairÁ steps and handrail comprised.
+337
+It's a no entry sign (white bar on a red circle). It's placed on the floor and stands in front of the steps of the stair. If I were a scoundrelÁ I'd ignore it...
+338
+Accesses to other rooms are simple apertures in the room's walls.
+339
+Text refers to the different themes typical of alchemy. If you had more timeÁ you could stay here to study some of themÁ but unfortunately you don't have it!
+340
+If I could see the alchemistÁ I'd ask him about the philosopher's stoneÁ to transmute lead in gold.
+341
+You studied on books for years the images of the trespass and the carrying in the Death's reign. Nothing is unknown to youÁ after all you are a son worthy of your father's name.
+342
+It's a very normal tunnelÁ even if it's placed in the dungeons of the British Museum!
+343
+It's a wooden simulacrumÁ covered with gold leavesÁ here it's the sarcophagus of Pharaoh Iunnuh. On this load of gold are visible paintings in various colours: redÁ blue and green and a series of hieroglyphics hailing to the greatness of the pharaoh.
+344
+Those are dark and ugly tracesÁ as if someone dragged something...
+345
+The feet on which the sarcophagus lays are wooden and finely decorated. They seem the feet of the sphinx.
+346
+You will run out of time if you insist losing it this way!
+347
+It's the rope you tied to the sarcophagus to rappel downÁ did you forget already?
+348
+It seems a very ordinary greenish mouldÁ such as the one usually found in wet cellars.
+349
+It's not pleasant to wander around with mould in your pocketsÁ trust me.
+350
+Those are the typical iron instruments used for embalming. You can notice the two long curved needles that were used to remove the brain from the nose.
+351
+They're part of the exposition: don't damage them. And you'll not need thoseÁ I know that!
+352
+Those are wonderful Canopic vases containing the organs of Iunnuh pharaoh. The vases are finely historiated and decorated with scenes of battles where the pharaoh played the main role. Every one of the four vases has a head-shaped coverÁ for each one of the four sons of Horus: Imset for the liverÁ Hapi for the lungsÁ Qebehsenuef for the intestines and Duamutef for the stomach.
+353
+I already told you what can be seen!
+354
+It's the original altar found in the Iunnuh's pyramidÁ removed from there and carried to the museum. It's carved in a delicate rose stoneÁ probably Pentelic or Hymettus Greek marble. Darker stains can be noticedÁ certainly from the blood of human sacrifices that remained on the altar.
+355
+It's only marbleÁ particularly good looking if you wishÁ but only marble!
+356
+It's the elegant studio of your fatherÁ decorated with great taste.
+357
+It's an ancient desk in precious mahogany woodÁ with no drawer. It's very elegant in its austere simplicity.
+358
+It's only woodÁ particularly good-looking if you wishÁ but only wood!
+359
+The furnishing in your father's studio are very refined. Try to examine them by calling their name one by one...
+360
+As already saidÁ you are in a room with shelves on the wall. Tons of books cover all the sides of the roomÁ from the floor to the ceiling.
+361
+Those are books on ancient EgyptÁ the ritualsÁ the structures and the social conventions. Those are the very same books that you have in your home libraryÁ books left by your father. The only differenceÁ and what a differenceÁ it that those are the original ones. But you already know by heart their content.
+362
+Copper? What do you want to know? That the symbol is Cu? Don't waste your time with copperÁ it's not useful.
+363
+It's a balcony that is placed high on all the centre hall's walls. It has a handrail about three feet highÁ to avoid falling below. There's almost nothing special in this balcony.
+364
+I can't see anything special on the handrail.
+365
+It's an enormous crystal chandelier with many arms. It's so close that you can almost touch it...
+366
+I said you're so close that you can ALMOST touch it!
+367
+If I were closerÁ I would examine it better. From hereÁ it seems only crystal.
+368
+What entrance?
+369
+What museum?
+370
+What staircase?
+371
+What sidewalk?
+372
+What lobby?
+373
+What ticket desk?
+374
+Where do you see a pyramid?
+375
+I can't see any panic bar!
+376
+What door?
+377
+What wall?
+378
+Think to other thingsÁ not to the floor...
+379
+We start thinking to paranormalÁ now....
+380
+What rope?
+381
+What chapel?
+382
+What altar?
+383
+What studio?
+384
+What furniture?
+385
+What wood?
+386
+What room?
+387
+What wall?
+388
+What hall?
+389
+What ceiling?
+390
+What structure?
+391
+You are already wearing the vestments!
+392
+The books are many and treat a lot of things. You take one randomlyÁ and then another one and finally a third one... It doesn't seem there's anything useful and the time you have available doesn't allow you to read everything.
+393
+Your fingers run on the surface of the portrait leaving yourself with the characteristic feeling of oil paint. 
+394
+Where are you seeing a portrait?
+395
+I can't do that: the switch is blocked on the ON position and doesn't move. Try with the batteries...
+396
+Torch? What torch?
+397
+The hieroglyphics on the sarcophagus show various scenes of different moments of the glorious life of Iunnuh.
+398
+Notice that the rope is on the floor...
+399
+They are simple wooden boxes used to carry findings.
+500
+You leave the quest for your father's notebook and the solution of the Iunnuh's curse as a rookie. Lord Carnarvon is turning in his grave!
+501
+There's something written on it!
+502
+It's a nice professional torch: with a 1000 candela light bulb and a Fresnel lens.
+503
+The cat softly meows...
+504
+It's no good luck to carry a cat. Better don't do that.
+505
+What cat?
+506
+The cat is following you.
+507
+It's 
+508
+:
+509
+It's 8 o' clock in the morning. Planets loose their alignment and the conditions are not favourable anymore for the ceremony.^MYou failed!^MYou sit downÁ  waiting with curved shoulder the sad death destiny that awaits you.^MIunnuh finally won!
+510
+It's a wonderful mechanical wristwatch with automatic movement and golden caseÁ left by your father as a legacy.
+511
+You are no Saint Francis of AssisiÁ who talked with animals!
+512
+It's a wonderful specimen of Egyptian Mau catÁ considered sacred by Egyptians who bred them three thousands years ago! The cat has a tag on the necklace.
+513
+My name is Bastet and I am the Professor's she-cat. If you found me aloneÁ please bring me back to him. The code is: 30091984#.
+514
+The door is a security door with an electric lock controlled by a numeric keypad.
+515
+It's not here where you should do that!
+516
+I hear metallic noises...
+517
+The latch is unlocked and the door opens electrically..
+518
+It's a numeric keypad with numbers from 0 to 9 and the symbols asterisk and hashÁ or pound as the smart ones use to say!
+519
+You must key in the combination!
+520
+You press the panic barÁ the door opens and you get out. Then the door closes behind you.
+521
+The access door closes with a loud clang that echoes all over the place.
+522
+I don't think it'll be easy!
+523
+Scripting active.
+524
+Scripting inactive.
+525
+I put the candlestick on the altar.
+526
+The candlestick is already on the altar.
+527
+What candlestick?
+528
+You want to put it in some place in particular?
+529
+The candlestick is on the altar.
+530
+I don't see any altar here!
+531
+You eat the drugs with a certain fear. Even if they are thousands years oldÁ their effect is quick and strong...
+532
+You feel light and you have the impression to be carried in a movie where you see yourself playing the main role of an incredible adventure in the ancient EgyptÁ among magic catsÁ mummies and pharaohs. You feel yourself invincible.
+533
+Then the effect fades and you come back on the presentÁ here and now. You should quit doing strange substancesÁ you have something much more important to accomplish!
+534
+Drugs? What drugs? I can't see any around here!
+535
+You know by heart the content of the Table of Emerald: carrying it with yourself will not be useful. Leave it there.
+536
+Pictures? Where are you seeing pictures?
+537
+Those are a series of pictures printed in 10x12 sizeÁ certainly contact printed from large format negatives. They show the archeological site of the Iunnuh's pyramidÁ with the digs in various development stages.
+600
+[PRESS A KEY]
+900
+What shall I do?
+901
+What do you want I do?
+902
+Now? 
+903
+Tell me: 
+1000
+Okay.
+1001
+Done.
+1002
+Done.
+1003
+I am already carrying too much!
+1004
+It's too big to be handled!
+1005
+I can't take that!
+1006
+I can't do it.
+1007
+I don't have that with me!
+1008
+I can't go that way!
+1009
+I beg your pardon?
+1010
+I can't.
+1011
+I already have that with me!
+1012
+What shall I do?
+1013
+It's darkÁ I can't see anything.
+1014
+You spent 
+1015
+ turns to reach 
+1016
+ points.
+1018
+I wear 
+1019
+I already wear it.
+1020
+I can go towards: 
+1021
+north
+1022
+south
+1023
+east
+1024
+west
+1025
+up
+1026
+down
+1027
+northeast
+1028
+northwest
+1029
+southeast
+1030
+southwest
+1031
+I can see: 
+1032
+I have with me: 
+1033
+I don't have anything with me.
+1035
+enough
+1050
+Place: 
+1051
+Points: 
+1052
+Turn: 
+OGGETTI
+1
+flyer
+an advertising flyer
+1
+0
+16
+FALSE
+FALSE
+2
+book
+the Book of Dead of Iunnuh's pharaoh
+1
+0
+0
+FALSE
+FALSE
+3
+wristwatch
+a wristwatch
+0
+0
+0
+FALSE
+FALSE
+4
+screwdriver
+a Usag screwdriver with insulated handle for live working
+0
+0
+41
+FALSE
+FALSE
+5
+scissors
+a pair of electrician's scissors
+0
+0
+41
+FALSE
+FALSE
+6
+candlestick
+a beautifully crafted Egyptian candlestick
+1
+0
+0
+FALSE
+FALSE
+7
+tape
+a roll of insulating plastic tape 2 inches wide
+0
+0
+41
+FALSE
+FALSE
+8
+rope
+a rope about ten feet long
+1
+0
+0
+FALSE
+FALSE
+9
+vestments
+the holy vestments of the High Priest found in the Iunnuh's pyramid
+0
+0
+0
+FALSE
+TRUE
+10
+
+a bloody altar
+0
+0
+0
+TRUE
+FALSE
+12
+notebook
+a notebook
+1
+0
+0
+FALSE
+FALSE
+13
+batteries
+a set of fully charged batteries
+0
+0
+41
+FALSE
+FALSE
+14
+
+drugs
+1
+0
+18
+FALSE
+FALSE
+16
+
+a *sapphire*
+1
+0
+15
+TRUE
+FALSE
+17
+
+a broken sword
+1
+0
+16
+FALSE
+FALSE
+18
+panel
+a panel about three feet width
+2
+4
+0
+FALSE
+FALSE
+19
+
+an open sarcophagus
+0
+0
+25
+TRUE
+FALSE
+20
+
+a *golden mask*
+1
+0
+17
+FALSE
+FALSE
+21
+
+a mummy with clean bandages
+0
+0
+17
+TRUE
+FALSE
+22
+
+a happy skeleton
+0
+0
+22
+TRUE
+FALSE
+23
+shrine
+a wooden shrine finely decorated and covered by a glass
+0
+0
+20
+TRUE
+FALSE
+100
+torch
+an old used torch
+0
+0
+0
+FALSE
+FALSE
+101
+pictures
+some pictures of the desert around the Iunnuh's Pyramid
+0
+0
+16
+TRUE
+FALSE
+102
+pictures of the pyramid
+some pictures of the desert with in the middle the great Iunnuh's Pyramid
+0
+0
+19
+TRUE
+FALSE
+104
+scarab
+a holy scarab
+0
+0
+35
+FALSE
+FALSE
+105
+black cat
+a black short haired cat
+0
+0
+6
+TRUE
+FALSE
+106
+flute
+a clay flute
+1
+0
+6
+FALSE
+FALSE
+108
+portrait
+a portrait of your fatherÁ of unreasonable size
+0
+0
+0
+TRUE
+FALSE
+109
+mirror
+a very large mirror completely covering the west wall
+0
+0
+27
+TRUE
+FALSE
+110
+fragments
+fragments of the mirror covered by the tape
+0
+0
+0
+TRUE
+FALSE
+112
+panel
+an electrical panel with many switches
+0
+0
+41
+TRUE
+FALSE
+FINEDATI
