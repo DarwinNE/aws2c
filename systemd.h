@@ -945,39 +945,49 @@
     #include <sys/ioctl.h>
     #include <font/font.h>
 
-    #define BUFFERSIZE 128
-    #define B_SIZE 120
+    #define BUFFERSIZE 64
+    #define B_SIZE 64
 
     #define GETS(buffer, size) fgets_cons((buffer),(size)); rowc=0
-
 
     #define waitscreen()
     #define LOAD SIMPLELOAD
     #define SAVE SIMPLESAVE
     // The number of columns of the screen
     #ifndef NCOL
-        #define NCOL 80
+        #define NCOL 64
     #endif
     #ifndef NROW
-        #define NROW 30
+        #define NROW 20
     #endif
 
     #define waitkey() getchar(); rowc=0
+    /* These definitions work with a black screen
     #define inputtxt() textcolor(14)
     #define evidence1() textcolor(12)
     #define evidence2() textcolor(13)
     #define evidence3() textcolor(11)
+    #define normaltxt() textcolor(15)
+    */
+
+    #define inputtxt() textcolor(1)
+    #define evidence1() textcolor(2)
+    #define evidence2() textcolor(5)
+    #define evidence3() textcolor(4)
+    #define normaltxt() textcolor(0)
+
     #define cls()
 
-    #define normaltxt() textcolor(15)
     #define tab() fputs("\t", stdout)
     #define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
         retTime);}
 
-    #define init_term() {int mode=66; \
-        void *font = font_8x8_zx_system;\
-        console_ioctl(IOCTL_GENCON_SET_MODE, &mode);\
-        console_ioctl(IOCTL_GENCON_SET_FONT32, &font);\
+    #define init_term() {/*int mode=66;*/ \
+        /*void *font = font_8x8_zx_system;*/\
+        textbackground(7);\
+        clrscr();\
+        /*console_ioctl(IOCTL_GENCON_SET_MODE, &mode);\
+        console_ioctl(IOCTL_GENCON_SET_FONT32, &font);*/\
         /*console_ioctl(IOCTL_GENCON_SET_FONT64, &font_4x8_screen80);*/\
         }
     #define leave()
