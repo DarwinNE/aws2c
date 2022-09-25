@@ -7,7 +7,7 @@
     Some basic configuration can also be done by adjusting the systemdef.h file
     to your needs.
 
-    Davide Bucci, October 2018-February 2021
+    Davide Bucci, October 2018-January 2022
 */
 
 #include <stdio.h>
@@ -315,7 +315,7 @@ void interrogationAndAnalysis()
     while(ls<lc) {
         for(k=0; ls<lc && k<BUFFERSIZE; ++ls) {
             c=playerInput[ls];
-            if(c==' ') {
+            if(c==' ' || c=='\'') {
                 ++ls;
                 break;
             }

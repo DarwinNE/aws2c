@@ -3491,8 +3491,8 @@ void compress_5bit(char *buffer)
     }
 }
 
-/*  Store the dictionary check_position_marker_on a 3-byte hash code for each word.
-    The result is a 3-character string that substitutes the original one.
+/*  Store the dictionary check_position_marker_on a 3-byte hash code for each 
+    word. The result is a 3-character string that substitutes the original one.
 */
 void compress_hash(char *buffer)
 {
@@ -3532,14 +3532,25 @@ void output_dictionary(FILE *of, word* dictionary, unsigned int dsize)
         for(i=0; i<dsize;++i) {
             compress_hash(dictionary[i].w);
         }
-    }
-
-    for(i=0; i<dsize;++i) {
-        for(j=i+1; j<dsize;++j) {
-            if(strcmp(dictionary[i].w, dictionary[j].w)==0 &&
-                strlen(dictionary[i].w)==strlen(dictionary[j].w)) {
-                printf("WARNING: repeated words in the dictionary at codes %d"
-                    " and %d.\n",dictionary[i].code,dictionary[j].code);
+        for(i=0; i<dsize;++i) {
+            for(j=i+1; j<dsize;++j) {
+                if( dictionary[i].w[0]==dictionary[j].w[0] &&
+                    dictionary[i].w[1]==dictionary[j].w[1] &&
+                    dictionary[i].w[2]==dictionary[j].w[2])
+                {
+                    printf("WARNING: repeated words in at codes %d"
+                        " and %d.\n",dictionary[i].code,dictionary[j].code);
+                }
+            }
+        }
+    } else {
+        for(i=0; i<dsize;++i) {
+            for(j=i+1; j<dsize;++j) {
+                if(strcmp(dictionary[i].w, dictionary[j].w)==0 &&
+                    strlen(dictionary[i].w)==strlen(dictionary[j].w)) {
+                    printf("WARNING: repeated words in at codes %d"
+                        " and %d.\n",dictionary[i].code,dictionary[j].code);
+                }
             }
         }
     }
