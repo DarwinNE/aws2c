@@ -220,6 +220,7 @@ unsigned int readln(void)
     inputtxt();
     writesameln("> ");
     GETS(playerInput,BUFFERSIZE);
+    end_inputtxt();
     normaltxt();
     // remove the '\n'
     eatcr(playerInput);

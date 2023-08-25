@@ -3183,6 +3183,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     } else {
         fprintf(of,TAB TAB TAB "writeln(obj[cdummy].desc);\\\n");
     }
+    fprintf(of,TAB TAB TAB "end_evidence2();\\\n");
     fprintf(of,TAB TAB TAB "normaltxt();\\\n");
     fprintf(of,TAB TAB TAB "if(dummy==WEARED){\\\n");
     fprintf(of,TAB TAB TAB TAB "printspace();\\\n");
@@ -3966,6 +3967,7 @@ void output_gameloop(FILE *f, int osize)
         fprintf(f, TAB TAB TAB TAB TAB "writeln(obj[k].desc);\n");
     }
     fprintf(f, TAB TAB TAB TAB "}\n");
+    fprintf(f, TAB TAB TAB "end_evidence2();\n");
     fprintf(f, TAB TAB TAB "normaltxt();\n");
 
     fprintf(f, TAB TAB TAB "if(marker[124]) {\n");
@@ -3989,7 +3991,9 @@ void output_gameloop(FILE *f, int osize)
     else
         fprintf(f, TAB TAB TAB TAB TAB "show_messagenlf(dir[k]);\n");
     fprintf(f, TAB TAB TAB TAB TAB "printspace();\n");
+    fprintf(f, TAB TAB TAB TAB TAB "end_evidence3();\n");
     fprintf(f, TAB TAB TAB TAB "}\n");
+
     fprintf(f, TAB TAB TAB TAB "normaltxt();\n");
     fprintf(f, TAB TAB TAB TAB "printnewline();\n");
     fprintf(f, TAB TAB TAB "}\n");
@@ -4053,6 +4057,7 @@ void print_header(FILE *f, info *header)
                 encodechar(header->version));
         }
     }
+    fprintf(f, TAB "end_evidence2();\n");
     fprintf(f, TAB "normaltxt();\n");
     fprintf(f, TAB "waitkey();\n");
 

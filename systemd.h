@@ -1047,7 +1047,7 @@
 
     #define waitkey() getchar(); rowc=0
 
-    #ifdef NOANSI
+    #ifdef NOANSID
         #define inputtxt()
         #define evidence1()
         #define evidence2()
@@ -1196,8 +1196,20 @@
     #define SHIFTPETSCII
 #endif
 
+#ifndef end_inputtxt
+    #define end_inputtxt()
+#endif
+
 #ifndef end_evidence1
     #define end_evidence1()
+#endif
+
+#ifndef end_evidence2
+    #define end_evidence2()
+#endif
+
+#ifndef end_evidence3
+    #define end_evidence2()
 #endif
 
 #ifndef PUTC
