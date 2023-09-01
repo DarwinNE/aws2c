@@ -2083,7 +2083,8 @@ unsigned int action_prin(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, TAB TAB "printf(\"%%d\\n\",%s);\n",function_res);
+    fprintf(f, TAB TAB "sprintf(playerInput,\"%s\");\n",function_res);
+    fprintf(f, TAB TAB "writesameln(playerInput);\n");
     return scanpos;
 }
 /** PRINNOLF */
@@ -2091,7 +2092,9 @@ unsigned int action_prinnolf(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, TAB TAB "printf(\"%%d\",%s);\n",function_res);
+    fprintf(f, TAB TAB "sprintf(playerInput,\"%s\");\n",function_res);
+    fprintf(f, TAB TAB "writesameln(playerInput);\n");
+    fprintf(f, TAB TAB "printnewline();\n");
     return scanpos;
 }
 /** ADDC */

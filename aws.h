@@ -1,6 +1,7 @@
 #ifndef _AWS_H_
 #define _AWS_H_
 
+#include <stdio.h>
 typedef unsigned char boolean;
 #define true 1
 #define false 0
