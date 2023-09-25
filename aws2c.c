@@ -4039,9 +4039,9 @@ void print_header(FILE *f, info *header)
             if(!no_header_description)
                 fprintf(f, TAB "show_message(headerdescription);\n");
         } else {
-            fprintf(f, TAB "write_textsl(headername);\n");
+            fprintf(f, TAB "write_text(header);\n");
             if(!no_header_description)
-                fprintf(f, TAB "write_textsl(headerdescription);\n");
+                fprintf(f, TAB "write_text(headerdescription);\n");
         }
     } else {
         if(!no_header_description) {

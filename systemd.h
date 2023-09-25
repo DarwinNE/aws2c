@@ -1209,7 +1209,7 @@
 #endif
 
 #ifndef end_evidence3
-    #define end_evidence2()
+    #define end_evidence3()
 #endif
 
 #ifndef PUTC
