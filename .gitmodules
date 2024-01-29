@@ -1,3 +1,6 @@
 [submodule "tdttr"]
 	path = tdttr
 	url = https://github.com/DarwinNE/tdttr.git
+[submodule "The_Queens_Footsteps_1_1"]
+	path = The_Queens_Footsteps_1_1
+	url = https://github.com/DarwinNE/The-Queen-s-Footsteps.git
