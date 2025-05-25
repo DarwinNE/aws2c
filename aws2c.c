@@ -496,7 +496,7 @@ room* read_rooms(FILE *f, int size)
             getlinep(f);
             if(sscanf(buffer,"%d",&(world[i].directions[j]))!=1) {
                 printf("Error reading directions.\n");
-                printf("Object code %d, direction %d\n",world[i].code,j+1);
+                printf("Room code %d, direction %d\n",world[i].code,j+1);
                 getlinep(f);
                 printf("line [%s]\n",buffer);
                 return NULL;
@@ -2024,7 +2024,7 @@ unsigned int action_move(FILE *f, char *line, unsigned int scanpos, unsigned int
 {
     unsigned int position, value;
     /* This second version should work all the times. */
-    fprintf(f, TAB TAB "move(%d);\n", dir-1);
+    fprintf(f, TAB TAB "m_move(%d);\n", dir-1);
     return scanpos;
 }
 /** LOOK */
@@ -3204,7 +3204,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     else
         fprintf(of,TAB "if(gs==false) show_message(message1033);\\\n}\n\n");
 
-    fprintf(of, "void move(EFFSHORTINDEX dir) FASTCALL\n");
+    fprintf(of, "void m_move(EFFSHORTINDEX dir) FASTCALL\n");
     fprintf(of, "{\n");
     if(max_room_code>255)
         fprintf(of, TAB "unsigned int p;\n");
@@ -3405,6 +3405,9 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
 
     fprintf(of, TAB  "if(odummy->position==CARRIED){\\\n");
     fprintf(of, TAB TAB "odummy->position=current_position;\\\n");
+    // This command prevents a bug in z88dk where the position is not updated.
+    fprintf(of, TAB TAB "dummy=odummy->position;\\\n");
+
     if(dont_care_size_weight==false) {
         fprintf(of, TAB TAB "--counter[119];\\\n");
         fprintf(of, TAB TAB "counter[120]-=odummy->weight;\\\n");

@@ -4,3 +4,6 @@
 [submodule "The_Queens_Footsteps_1_1"]
 	path = The_Queens_Footsteps_1_1
 	url = https://github.com/DarwinNE/The-Queen-s-Footsteps.git
+[submodule "Silk-Dust"]
+	path = Silk-Dust
+	url = https://github.com/DarwinNE/Silk-Dust.git
