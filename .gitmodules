@@ -7,3 +7,6 @@
 [submodule "Silk-Dust"]
 	path = Silk-Dust
 	url = https://github.com/DarwinNE/Silk-Dust.git
+[submodule "IPassiDellaRegina"]
+	path = IPassiDellaRegina
+	url = https://github.com/DarwinNE/IPassiDellaRegina
