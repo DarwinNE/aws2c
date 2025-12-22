@@ -1032,6 +1032,41 @@
     #endif
     #define leave()
 
+#elif defined(APPLE2E) /* Definitions for a plain text terminal, with no ansi
+                         support Apple 2 enhanced, it supports 80 columns */
+
+    #include<stdio.h>
+    #include<apple2enh.h>
+
+    #define BUFFERSIZE 128
+    #define B_SIZE 120
+
+    #define waitscreen()
+    #define LOAD SIMPLELOAD
+    #define SAVE SIMPLESAVE
+    // The number of columns of the screen
+    #ifndef NCOL
+        #define NCOL 80
+    #endif
+    #ifndef NROW
+        #define NROW 24
+    #endif
+
+    #define waitkey() getchar(); rowc=0
+    #define inputtxt()
+    #define evidence1()
+    #define evidence2()
+    #define evidence3()
+    #define cls()
+
+    #define normaltxt()
+    #define tab() fputs("\t", stdout)
+    #define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
+        retTime);}
+
+    #define init_term() {videomode(VIDEOMODE_80COL);}
+    #define leave()
+
 #elif defined(MSDOS) /* Definitions for MS-DOS terminals*/
     #include<stdio.h>
     #define BUFFERSIZE 255

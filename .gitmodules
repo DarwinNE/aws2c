@@ -10,3 +10,6 @@
 [submodule "IPassiDellaRegina"]
 	path = IPassiDellaRegina
 	url = https://github.com/DarwinNE/IPassiDellaRegina
+[submodule "Tra_due_giorni_la_gara"]
+	path = Tra_due_giorni_la_gara
+	url = https://github.com/DarwinNE/TraDueGiorniLaGara.git
