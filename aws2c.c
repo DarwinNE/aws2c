@@ -1254,6 +1254,12 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
                     /* 70 (EXAMINE) is by far the most frequent verb.
                    this is done only if the noun has a code <256. */
                     fprintf(f, "cvn70(%s)", arg2);
+                } else if(strcmp(arg1,"50")==0 &&  
+                    sscanf(arg2, "%d",&val2)==1 && val2<256)
+                {
+                    /* 50 (GET) is also common.
+                   this is done only if the noun has a code <256. */
+                    fprintf(f, "cvn50(%s)", arg2);
                 } else {
                     fprintf(f, "check_verb_noun(%s,%s)", arg1,arg2);
                 }
@@ -2843,6 +2849,10 @@ void output_optional_func(FILE *of, int max_room_code)
         fprintf(of, "{\n");
         fprintf(of, "    return check_verb_noun(70,n);\n");
         fprintf(of, "}\n");
+        fprintf(of, "boolean cvn50(EFFSHORTINDEX n) FASTCALL\n");
+        fprintf(of, "{\n");
+        fprintf(of, "    return check_verb_noun(50,n);\n");
+        fprintf(of, "}\n");
     }
     if(need_check_verb_actor) {
         /* Check for a verb and actor */
@@ -3283,6 +3293,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     /* Check for a verb and noun */
     fprintf(of, "boolean check_verb_noun(unsigned int v, unsigned int n);\n");
     fprintf(of, "boolean cvn70(EFFSHORTINDEX n) FASTCALL;\n");
+    fprintf(of, "boolean cvn50(EFFSHORTINDEX n) FASTCALL;\n");
 
     /* Check for a name and an actor */
     fprintf(of, "boolean check_verb_actor(unsigned int v, ACTORTYPE n);\n");
