@@ -109,6 +109,7 @@ boolean need_non1=false;
 boolean need_cvn=false;
 boolean need_check_verb_actor=false;
 boolean need_cv=false;
+boolean need_cv70=false;
 boolean need_hold=false;
 boolean need_cvna=false;
 boolean need_sendallroom=false;
@@ -1233,12 +1234,18 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
                     proc=true;
                 }
             } else if(strcmp(next,"OR")==0) {
-                if(sscanf(arg1, "%d",&val1)==1 && val1<256)
-                    fprintf(f, "cv(%s)", arg1);
-                else
+                if(sscanf(arg1, "%d",&val1)==1 && val1<256){
+                    if(val1==70) {
+                        fprintf(f, "cv70()");
+                        need_cv70=true;
+                    } else {
+                        fprintf(f, "cv(%s)", function_res);
+                        need_cv=true;
+                    }
+                } else {
                     fprintf(f, "verb==%s", arg1);
+                }
 
-                need_cv=true;
                 scanpos=tt;
                 proc=true;
             } else if(strcmp(next,"THEN")==0) {
@@ -1269,12 +1276,17 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
             if(arg2!=NULL) free(arg2);
 
         } else {
-            if(sscanf(function_res, "%d",&val1)==1 && val1<256)
-                fprintf(f, "cv(%s)", function_res);
-            else
+            if(sscanf(function_res, "%d",&val1)==1 && val1<256) {
+                if(val1==70) {
+                    fprintf(f, "cv70()");
+                    need_cv70=true;
+                } else {
+                    fprintf(f, "cv(%s)", function_res);
+                    need_cv=true;
+                }
+           } else {
                 fprintf(f, "verb==%s", function_res);
-
-            need_cv=true;
+            }
         }
     } else if(shortcuts==true&&(strcmp(next,"OR")==0)) {
         sp=peek_token(line, sp);
@@ -1332,8 +1344,13 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
         }
     } else {
         if(shortcuts==true &&sscanf(function_res, "%d",&val1)==1 && val1<256) {
-            fprintf(f, "cv(%s)", function_res);
-            need_cv=true;
+            if(val1==70) {
+                fprintf(f, "cv70()");
+                need_cv70=true;
+            } else {
+                fprintf(f, "cv(%s)", function_res);
+                need_cv=true;
+            }
         } else {
             fprintf(f, "verb==%s", function_res);
         }
@@ -2792,6 +2809,15 @@ void output_optional_func(FILE *of, int max_room_code)
         fprintf(of, "}\n");
         fprintf(of, "#endif\n");
     }
+    if(need_cv70) {
+        /* Check for a verb */
+        fprintf(of, "#ifdef CV_IS_A_FUNCTION\n");
+        fprintf(of, "boolean cv70(void) FASTCALL\n");
+        fprintf(of, "{\n");
+        fprintf(of, "    return verb==70;\n");
+        fprintf(of, "}\n");
+        fprintf(of, "#endif\n");
+    }
     if(need_vov) {
         /* Check among two verbs */
 
@@ -3318,8 +3344,10 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     /* Check for a verb */
     fprintf(of, "#ifdef CV_IS_A_FUNCTION\n");
     fprintf(of, "    boolean cv(unsigned char v) FASTCALL;\n");
+    fprintf(of, "    boolean cv70(void) FASTCALL;\n");
     fprintf(of, "#else\n");
     fprintf(of, "    #define cv(v) verb==(v)\n");
+    fprintf(of, "    #define cv70() verb==70\n");
     fprintf(of, "#endif\n");
 
     /* Send all objects to a room in particular */
