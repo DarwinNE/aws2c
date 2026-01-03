@@ -1,4 +1,4 @@
-cc65_options = -O -Cl -t apple2enh -D APPLE2E -D NCOL=80
+cc65_options = -O -Cl  -t apple2enh -D APPLE2E -D NCOL=80
 output_dir = Apple2e_Iunnuh
 aws_options  = -m -c -s -d -n -w -3 -kk
 
@@ -12,7 +12,8 @@ iunnuh2_no_utf8_en.c: ../../aws_sources/Iunnuh2TheCurse.AWS
 
 
 Apple2e: inout.c iunnuh2_no_utf8.c iunnuh2_no_utf8_en.c
-	cl65  -DCONFIG_FILENAME=\"config_it_nu.h\" $(cc65_options) iunnuh2_no_utf8_LC_segment.c --code-name LC inout.c -o iunnuh2e -C apple2enh-system.cfg
+	cl65  -DCONFIG_FILENAME=\"config_it_nu.h\" $(cc65_options) iunnuh2_no_utf8_LC_segment.c --code-name LC inout.c -o iunnuh2e -C apple2enh-system.cfg -m map.txt
+	
 	#cl65 -t apple2enh -DCONFIG_FILENAME=\"config_en_nu.h\" $(cc65_options) iunnuh2_no_utf8_en.c inout.c  loadsave.c -o iunnuh2it
 
 

@@ -6,7 +6,9 @@ The Adventure Writing System (AWS) is a tool put together by Aristide Torrelli
 to easily write interactive fiction games.
 
 Aristide describes his tool here: 
-http://www.aristidetorrelli.it/aws3/Avventure.html
+https://web.archive.org/web/20240417220214/http://www.aristidetorrelli.it/aws3/Avventure.html
+
+(Unfortunately, the page is no longer active, hence the link to archive.org)
 
 I thought it would have been fun to put together a converter that creates
 a standard C source from the files produced by the AWS tool.

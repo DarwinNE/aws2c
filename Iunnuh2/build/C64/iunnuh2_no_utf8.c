@@ -1927,6 +1927,7 @@ boolean are_you_sure(void)
             gs=true;\
             evidence2();\
             show_messagenlf(obj[cdummy].desc);\
+            end_evidence2();\
             normaltxt();\
             if(dummy==WEARED){\
                 printspace();\
@@ -1938,7 +1939,7 @@ boolean are_you_sure(void)
     if(gs==false) show_message(message1033);\
 }
 
-void move(EFFSHORTINDEX dir) FASTCALL
+void m_move(EFFSHORTINDEX dir) FASTCALL
 {
     EFFSHORTINDEX p;
     p=cr->directions[dir];
@@ -2036,6 +2037,7 @@ boolean drop(unsigned int o) FASTCALL
     odummy=search_object_p(o);\
     if(odummy->position==CARRIED){\
         odummy->position=current_position;\
+        dummy=odummy->position;\
         --counter[119];\
         counter[120]-=odummy->weight;\
         counter[124]-=odummy->size;\
@@ -2295,49 +2297,49 @@ void low_cond(void)
 
     // IF VERB 100 OR verb 204 OR verb 303 OR VBNOEQ 0 AND NOUN 80 THEN NORD WAIT ENDIF  VAI  NORD   VAI  NORD
     if(vov(100,204)||vovn(303,0,80)) {
-        move(0);
+        m_move(0);
         return;
     }
 
     // IF verb 100 OR verb 204 OR verb 303 OR vbnoeq 0 AND noun 81 THEN sud WAIT ENDIF  VAI  SUD
     if(vov(100,204)||vovn(303,0,81)) {
-        move(1);
+        m_move(1);
         return;
     }
 
     // IF verb 100 OR verb 204 OR verb 303 OR vbnoeq 0 AND noun 82 THEN est WAIT ENDIF  VAI  EST
     if(vov(100,204)||vovn(303,0,82)) {
-        move(2);
+        m_move(2);
         return;
     }
 
     // IF verb 100 OR verb 204 OR verb 303 OR vbnoeq 0 AND noun 83 THEN ovest WAIT ENDIF  VAI  OVEST
     if(vov(100,204)||vovn(303,0,83)) {
-        move(3);
+        m_move(3);
         return;
     }
 
     // IF verb 100 OR verb 204 OR verb 303 OR vbnoeq 0 AND noun 84 THEN alto WAIT ENDIF  VAI  ALTO
     if(vov(100,204)||vovn(303,0,84)) {
-        move(4);
+        m_move(4);
         return;
     }
 
     // IF noun 84 OR noun 0 AND verb 184 THEN alto WAIT ENDIF sali oppure sali in alto
     if(non1(84,0)) if(cv(184)) {
-        move(4);
+        m_move(4);
         return;
     }
 
     // IF verb 100 OR verb 204 OR verb 303 OR vbnoeq 0 AND noun 85 THEN basso WAIT ENDIF  VAI  BASSO
     if(vov(100,204)||vovn(303,0,85)) {
-        move(5);
+        m_move(5);
         return;
     }
 
     // IF noun 85 OR noun 0 AND verb 185 THEN basso WAIT ENDIF scendi oppure scendi in basso
     if(non1(85,0)) if(cv(185)) {
-        move(5);
+        m_move(5);
         return;
     }
 
@@ -2530,13 +2532,15 @@ void low_cond(void)
 
     // IF verb 1100 THEN prin room WAIT ENDIF  ROOM
     if(verb==1100) {
-        printf("%d\n",current_position);
+        sprintf(playerInput,"current_position");
+        writesameln(playerInput);
         return;
     }
 
     // IF verb 1200 THEN prin ctr 120 WAIT ENDIF  PESO
     if(verb==1200) {
-        printf("%d\n",counter[120]);
+        sprintf(playerInput,"counter[120]");
+        writesameln(playerInput);
         return;
     }
 
@@ -2565,9 +2569,13 @@ void low_cond(void)
     // IF VERB 208 OR VERB 110 AND NOUN 3 AND AVAI 3 THEN MESS 507 PRINNOLF CTR 111 MESSNOLF 508 PRINNOLF CTR 110 LF WAIT ENDIF LEGGI  OROLOGIO
     if(vovn(208,110,3)) if(object_is_available(3)) {
         show_message(message507);
-        printf("%d",counter[111]);
+        sprintf(playerInput,"counter[111]");
+        writesameln(playerInput);
+        printnewline();
         show_messagenlf(message508);
-        printf("%d",counter[110]);
+        sprintf(playerInput,"counter[110]");
+        writesameln(playerInput);
+        printnewline();
         printnewline();
         return;
     }
@@ -5179,6 +5187,7 @@ void game_cycle(void)
                     }
                     show_message(obj[k].desc);
                 }
+            end_evidence2();
             normaltxt();
             if(marker[124]) {
                 pa=false;
@@ -5191,6 +5200,7 @@ void game_cycle(void)
                     evidence3();
                     show_messagenlf(dir[k]);
                     printspace();
+                    end_evidence3();
                 }
                 normaltxt();
                 printnewline();
@@ -5220,6 +5230,7 @@ int main(void)
     evidence2();
     show_message(header);
     show_message(headerdescription);
+    end_evidence2();
     normaltxt();
     waitkey();
     game_cycle();
