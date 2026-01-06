@@ -27,7 +27,7 @@
     #define cls()
 
     #define normaltxt()
-    #define tab() fputs("\t", stdout)
+    #define tab()
     #define wait1s()    {}
 
     #define init_term() {}

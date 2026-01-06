@@ -1939,13 +1939,14 @@ boolean get(unsigned int o) FASTCALL\
     }
     return true;
 }
-boolean vov(unsigned int v1, unsigned int v2);
+boolean verb_or_verb(unsigned int v1, unsigned int v2);
 boolean vovn(unsigned int v1, unsigned int v2, unsigned int n);
 boolean vovn100_0(EFFSHORTINDEX n) FASTCALL;
 boolean non1(unsigned int n1, unsigned int n2);
 void ok(void);
 boolean check_verb_noun(unsigned int v, unsigned int n);
-boolean cvn70(EFFSHORTINDEX n) FASTCALL;
+boolean cvn70(unsigned int n) FASTCALL;
+boolean cvn50(unsigned int n) FASTCALL;
 boolean check_verb_actor(unsigned int v, ACTORTYPE n);
 boolean check_verb75_actor(EFFSHORTINDEX n) FASTCALL;
 boolean check_verb75_actor_available(EFFSHORTINDEX n) FASTCALL;
@@ -1954,8 +1955,12 @@ boolean check_verb70_actor_available(EFFSHORTINDEX n) FASTCALL;
 unsigned char ams(unsigned char  v, unsigned char n, char* m);
 #ifdef CV_IS_A_FUNCTION
     boolean cv(unsigned char v) FASTCALL;
+    boolean cv70(void) FASTCALL;
+    boolean cv50(void) FASTCALL;
 #else
     #define cv(v) verb==(v)
+    #define cv70() verb==70
+    #define cv50() verb==50
 #endif
 void sendallroom(unsigned int s) FASTCALL;
 #ifdef CV_IS_A_FUNCTION
@@ -2036,7 +2041,7 @@ void hi_cond(void)
 {
     retv=true;
     // if at 101 then mess 600 presskey goto 100 endif
-    if(current_position==101) {
+    if(101==current_position) {
         show_message(message600);
         waitkey();
         jump(100);
@@ -2044,7 +2049,7 @@ void hi_cond(void)
     }
 
     // IF at 100 THEN set 125 set 126 cset 111 22 CSET 13 3 TO 3 1500 mess 600 presskey goto 1 ENDIF stampa introduzione aspetta un tasto e inizia
-    if(current_position==100) {
+    if(100==current_position) {
         marker[125]=true;
         marker[126]=true;
         counter[111]=22;
@@ -2174,12 +2179,12 @@ void hi_cond(void)
     if(1) amsm(25,16,1,message212);
 
     // IF at 25 AND set? 16 AND res? 18 THEN mess 213 ENDIF  
-    if(current_position==25) if(marker[16]) if(marker[18]==false) {
+    if(25==current_position) if(marker[16]) if(marker[18]==false) {
         show_message(message213);
     }
 
     // IF at 25 AND set? 16 AND set? 18 THEN mess 214 ENDIF  
-    if(current_position==25) if(marker[16]) if(marker[18]) {
+    if(25==current_position) if(marker[16]) if(marker[18]) {
         show_message(message214);
     }
 
@@ -2261,31 +2266,31 @@ void low_cond(void)
     }
 
     // IF VERB 100 OR verb 204 OR verb 303 OR VBNOEQ 0 AND NOUN 80 THEN NORD WAIT ENDIF  VAI  NORD   VAI  NORD
-    if(vov(100,204)||vovn(303,0,80)) {
+    if(verb_or_verb(100,204)||vovn(303,0,80)) {
         m_move(0);
         return;
     }
 
     // IF verb 100 OR verb 204 OR verb 303 OR vbnoeq 0 AND noun 81 THEN sud WAIT ENDIF  VAI  SUD
-    if(vov(100,204)||vovn(303,0,81)) {
+    if(verb_or_verb(100,204)||vovn(303,0,81)) {
         m_move(1);
         return;
     }
 
     // IF verb 100 OR verb 204 OR verb 303 OR vbnoeq 0 AND noun 82 THEN est WAIT ENDIF  VAI  EST
-    if(vov(100,204)||vovn(303,0,82)) {
+    if(verb_or_verb(100,204)||vovn(303,0,82)) {
         m_move(2);
         return;
     }
 
     // IF verb 100 OR verb 204 OR verb 303 OR vbnoeq 0 AND noun 83 THEN ovest WAIT ENDIF  VAI  OVEST
-    if(vov(100,204)||vovn(303,0,83)) {
+    if(verb_or_verb(100,204)||vovn(303,0,83)) {
         m_move(3);
         return;
     }
 
     // IF verb 100 OR verb 204 OR verb 303 OR vbnoeq 0 AND noun 84 THEN alto WAIT ENDIF  VAI  ALTO
-    if(vov(100,204)||vovn(303,0,84)) {
+    if(verb_or_verb(100,204)||vovn(303,0,84)) {
         m_move(4);
         return;
     }
@@ -2297,7 +2302,7 @@ void low_cond(void)
     }
 
     // IF verb 100 OR verb 204 OR verb 303 OR vbnoeq 0 AND noun 85 THEN basso WAIT ENDIF  VAI  BASSO
-    if(vov(100,204)||vovn(303,0,85)) {
+    if(verb_or_verb(100,204)||vovn(303,0,85)) {
         m_move(5);
         return;
     }
@@ -2309,7 +2314,7 @@ void low_cond(void)
     }
 
     // IF VERB 50 AND NOUN 6 THEN GET 6  RESE 20 OKAY ENDIF   PRENDI candelabro
-    if(check_verb_noun(50,6)) {
+    if(cvn50(6)) {
         if(get(6)) return;
         marker[20]=false;
         ok();
@@ -2317,80 +2322,80 @@ void low_cond(void)
     }
 
     // IF verb 50 AND no1lt 22 AND ismovable no1 THEN get no1 OKAY ENDIF  PRENDI
-    if(cv(50)) if((noun1>0&&noun1<22)) if((search_object_p(noun1)->attributes&ISNOTMOVABLE)==false) {
+    if(cv50()) if((noun1>0&&noun1<22)) if((search_object_p(noun1)->attributes&ISNOTMOVABLE)==false) {
         if(get(noun1)) return;
         ok();
         return;
     }
 
     // IF verb 50 AND no1lt 22 AND isnotmovable no1 THEN get no1 WAIT ENDIF  PRENDI
-    if(cv(50)) if((noun1>0&&noun1<22)) if((search_object_p(noun1)->attributes&ISNOTMOVABLE)) {
+    if(cv50()) if((noun1>0&&noun1<22)) if((search_object_p(noun1)->attributes&ISNOTMOVABLE)) {
         if(get(noun1)) return;
         return;
     }
 
     // IF verb 50 AND noun 105 AND here 105 THEN mess 251 WAIT ENDIF  PRENDI  GATTA  GATTA
-    if(check_verb_noun(50,105)) if(object_is_here(105)) {
+    if(cvn50(105)) if(object_is_here(105)) {
         show_message(message251);
         return;
     }
 
     // IF verb 50 AND noun 105 THEN mess 505 WAIT ENDIF  PRENDI  GATTO  e non c'è il gatto
-    if(check_verb_noun(50,105)) {
+    if(cvn50(105)) {
         show_message(message505);
         return;
     }
 
     // IF verb 50 AND noun 106 AND here 106 THEN mess 179 WAIT ENDIF  PRENDI  FLAUTO  FLAUTO  
-    if(check_verb_noun(50,106)) if(object_is_here(106)) {
+    if(cvn50(106)) if(object_is_here(106)) {
         show_message(message179);
         return;
     }
 
     // IF verb 50 AND noun 106 THEN mess 180 WAIT ENDIF  PRENDI  FLAUTO  
-    if(check_verb_noun(50,106)) {
+    if(cvn50(106)) {
         show_message(message180);
         return;
     }
 
     // IF verb 50 OR verb 111 OR verb 204 AND noun 108 THEN mess 106 WAIT ENDIF  PRENDI  RITRATTO  
-    if(vov(50,111)||check_verb_noun(204,108)) {
+    if(verb_or_verb(50,111)||check_verb_noun(204,108)) {
         show_message(message106);
         return;
     }
 
     // IF verb 50 AND noun 96 AND here 101 THEN mess 183 WAIT ENDIF   PRENDI  foto
-    if(check_verb_noun(50,96)) if(object_is_here(101)) {
+    if(cvn50(96)) if(object_is_here(101)) {
         show_message(message183);
         return;
     }
 
     // IF verb 50 AND noun 96 AND here 102 THEN mess 183 WAIT ENDIF   PRENDI  foto
-    if(check_verb_noun(50,96)) if(object_is_here(102)) {
+    if(cvn50(96)) if(object_is_here(102)) {
         show_message(message183);
         return;
     }
 
     // IF verb 50 AND noun 97 AND here 22 THEN mess 184 WAIT ENDIF prendi scheletro
-    if(check_verb_noun(50,97)) if(object_is_here(22)) {
+    if(cvn50(97)) if(object_is_here(22)) {
         show_message(message184);
         return;
     }
 
     // IF noun 285 OR noun 286 AND verb 50 THEN mess 278 WAIT ENDIF prendi tracce/muffa
-    if(non1(285,286)) if(cv(50)) {
+    if(non1(285,286)) if(cv50()) {
         show_message(message278);
         return;
     }
 
     // IF noun 283 OR noun 284 AND verb 50 THEN mess 278 WAIT ENDIF prendi vaso/i canopi
-    if(non1(283,284)) if(cv(50)) {
+    if(non1(283,284)) if(cv50()) {
         show_message(message278);
         return;
     }
 
     // IF verb 50 AND noun 412 THEN getall WAIT ENDIF  PRENDI  TUTTO
-    if(check_verb_noun(50,412)) {
+    if(cvn50(412)) {
         for(dummy=0; dummy<OSIZE;++dummy)
             odummy=&obj[dummy];
             if(odummy->position==current_position) {
@@ -2400,7 +2405,7 @@ void low_cond(void)
     }
 
     // IF verb 50 THEN mess 235 WAIT ENDIF  PRENDI senza nome consciuto
-    if(cv(50)) {
+    if(cv50()) {
         show_message(message235);
         return;
     }
@@ -2632,7 +2637,7 @@ void low_cond(void)
     }
 
     // IF verb 70 AND noun 268 THEN mess 515 WAIT ENDIF  ESAMINA  PORTA
-    if(check_verb_noun(70,268)) {
+    if(cvn70(268)) {
         show_message(message515);
         return;
     }
@@ -2722,7 +2727,7 @@ void low_cond(void)
     }
 
     // IF verb 50 AND noun 29 AND here 100 THEN get 100 OKAY ENDIF  PRENDI  TORCIA  e c'è torcia
-    if(check_verb_noun(50,29)) if(object_is_here(100)) {
+    if(cvn50(29)) if(object_is_here(100)) {
         if(get(100)) return;
         ok();
         return;
@@ -2794,7 +2799,7 @@ void low_cond(void)
     }
 
     // IF noun 113 OR noun 409 AND verb 70 THEN mess 1009 WAIT ENDIF  BRACCIO  CRISTALLO  ESAMINA
-    if(non1(113,409)) if(cv(70)) {
+    if(non1(113,409)) if(cv70()) {
         show_message(message1009);
         return;
     }
@@ -2824,7 +2829,7 @@ void low_cond(void)
     }
 
     // IF noun 160 OR noun 162 OR noun 161 OR noun 163 AND verb 70 THEN mess 278 WAIT ENDIF  SCRITTOIO  LAMPADA  LIBRI  BIBLIOTECA  ESAMINA
-    if(non1(160,162)||non1(161,163)) if(cv(70)) {
+    if(non1(160,162)||non1(161,163)) if(cv70()) {
         show_message(message278);
         return;
     }
@@ -3167,7 +3172,7 @@ void low_cond(void)
     }
 
     // IF verb 233 OR verb 204 OR verb 234 OR verb 235 AND noun 117 THEN mess 304 WAIT ENDIF
-    if(vov(233,204)||vovn(234,235,117)) {
+    if(verb_or_verb(233,204)||vovn(234,235,117)) {
         show_message(message304);
         return;
     }
@@ -3221,61 +3226,61 @@ void low_cond(void)
     }
 
     // IF noun 255 OR noun 256 AND verb 70 THEN mess 278 WAIT ENDIF esamina serie/scalino/i
-    if(non1(255,256)) if(cv(70)) {
+    if(non1(255,256)) if(cv70()) {
         show_message(message278);
         return;
     }
 
     // IF verb 70 AND noun 257 THEN mess 372 WAIT ENDIF esamina atrio
-    if(check_verb_noun(70,257)) {
+    if(cvn70(257)) {
         show_message(message372);
         return;
     }
 
     // IF verb 70 AND noun 258 THEN mess 373 WAIT ENDIF esamina biglietteria
-    if(check_verb_noun(70,258)) {
+    if(cvn70(258)) {
         show_message(message373);
         return;
     }
 
     // IF noun 259 OR noun 252 AND verb 70 THEN mess 278 WAIT ENDIF esamina varco/accesso/i
-    if(non1(259,252)) if(cv(70)) {
+    if(non1(259,252)) if(cv70()) {
         show_message(message278);
         return;
     }
 
     // IF verb 70 AND noun 261 THEN mess 278 WAIT ENDIF esamina sportello/i
-    if(check_verb_noun(70,261)) {
+    if(cvn70(261)) {
         show_message(message278);
         return;
     }
 
     // IF verb 70 AND noun 296 THEN mess 278 WAIT ENDIF esamina biglietto/i
-    if(check_verb_noun(70,296)) {
+    if(cvn70(296)) {
         show_message(message278);
         return;
     }
 
     // IF verb 70 AND noun 261 THEN mess 374 WAIT ENDIF esamina piramide
-    if(check_verb_noun(70,261)) {
+    if(cvn70(261)) {
         show_message(message374);
         return;
     }
 
     // IF verb 70 AND noun 263 THEN mess 322 WAIT ENDIF esamina iunnuh/faraone
-    if(check_verb_noun(70,263)) {
+    if(cvn70(263)) {
         show_message(message322);
         return;
     }
 
     // IF verb 70 AND noun 264 then mess 375 WAIT ENDIF esamina maniglione/antipanico
-    if(check_verb_noun(70,264)) {
+    if(cvn70(264)) {
         show_message(message375);
         return;
     }
 
     // IF verb 70 AND noun 268 THEN mess 278 WAIT ENDIF esamina porta
-    if(check_verb_noun(70,268)) {
+    if(cvn70(268)) {
         show_message(message278);
         return;
     }
@@ -3287,31 +3292,31 @@ void low_cond(void)
     }
 
     // IF verb 70 AND noun 273 THEN mess 106 WAIT ENDIF esamina verde
-    if(check_verb_noun(70,273)) {
+    if(cvn70(273)) {
         show_message(message106);
         return;
     }
 
     // IF verb 70 AND noun 265 THEN mess 388 WAIT ENDIF esamina salone
-    if(check_verb_noun(70,265)) {
+    if(cvn70(265)) {
         show_message(message388);
         return;
     }
 
     // IF verb 70 AND noun 266 THEN mess 389 WAIT ENDIF esamina soffitto
-    if(check_verb_noun(70,266)) {
+    if(cvn70(266)) {
         show_message(message389);
         return;
     }
 
     // IF verb 70 AND noun 267 THEN mess 390 WAIT ENDIF esamina struttura
-    if(check_verb_noun(70,267)) {
+    if(cvn70(267)) {
         show_message(message390);
         return;
     }
 
     // IF verb 70 AND noun 268 THEN mess 376 WAIT ENDIF esamina portone
-    if(check_verb_noun(70,268)) {
+    if(cvn70(268)) {
         show_message(message376);
         return;
     }
@@ -3323,43 +3328,43 @@ void low_cond(void)
     }
 
     // IF verb 70 AND noun 269 THEN mess 278 WAIT ENDIF esamina riproduzione/i
-    if(check_verb_noun(70,269)) {
+    if(cvn70(269)) {
         show_message(message278);
         return;
     }
 
     // IF verb 70 AND noun 270 THEN mess 377 WAIT ENDIF esamina parete/i
-    if(check_verb_noun(70,270)) {
+    if(cvn70(270)) {
         show_message(message377);
         return;
     }
 
     // IF verb 70 AND noun 271 THEN mess 106 WAIT ENDIF esamina bianco
-    if(check_verb_noun(70,271)) {
+    if(cvn70(271)) {
         show_message(message106);
         return;
     }
 
     // IF verb 70 AND noun 274 THEN mess 378 WAIT ENDIF esamina pavimento
-    if(check_verb_noun(70,274)) {
+    if(cvn70(274)) {
         show_message(message378);
         return;
     }
 
     // IF verb 70 AND noun 404 THEN mess 278 WAIT ENDIF esamina lampadario
-    if(check_verb_noun(70,404)) {
+    if(cvn70(404)) {
         show_message(message278);
         return;
     }
 
     // IF verb 70 AND noun 409 THEN mess 278 WAIT ENDIF esamina cristallo
-    if(check_verb_noun(70,409)) {
+    if(cvn70(409)) {
         show_message(message278);
         return;
     }
 
     // IF verb 70 AND noun 298 THEN mess 106 WAIT ENDIF esamina forma
-    if(check_verb_noun(70,298)) {
+    if(cvn70(298)) {
         show_message(message106);
         return;
     }
@@ -3377,19 +3382,19 @@ void low_cond(void)
     }
 
     // IF noun 23 OR noun 272 AND verb 70 THEN mess 253 WAIT ENDIF esamina sala/rosso
-    if(non1(23,272)) if(cv(70)) {
+    if(non1(23,272)) if(cv70()) {
         show_message(message253);
         return;
     }
 
     // IF verb 70 AND noun 297 THEN mess 379 WAIT ENDIF esamina anima
-    if(check_verb_noun(70,297)) {
+    if(cvn70(297)) {
         show_message(message379);
         return;
     }
 
     // IF verb 70 AND noun 260 THEN mess 278 WAIT ENDIF esamina accesso/i
-    if(check_verb_noun(70,260)) {
+    if(cvn70(260)) {
         show_message(message278);
         return;
     }
@@ -3401,37 +3406,37 @@ void low_cond(void)
     }
 
     // IF verb 70 AND noun 276 THEN mess 322 WAIT ENDIF esamina alchimista
-    if(check_verb_noun(70,276)) {
+    if(cvn70(276)) {
         show_message(message322);
         return;
     }
 
     // IF verb 70 AND noun 500 THEN mess 278 WAIT ENDIF esamina testi
-    if(check_verb_noun(70,500)) {
+    if(cvn70(500)) {
         show_message(message278);
         return;
     }
 
     // IF verb 70 AND noun 277 THEN mess 323 WAIT ENDIF esamina hanyke
-    if(check_verb_noun(70,277)) {
+    if(cvn70(277)) {
         show_message(message323);
         return;
     }
 
     // IF verb 70 AND noun 278 THEN mess 278 WAIT ENDIF esamina scena/e
-    if(check_verb_noun(70,278)) {
+    if(cvn70(278)) {
         show_message(message278);
         return;
     }
 
     // IF verb 70 AND noun 299 THEN mess 379 WAIT ENDIF esamina vita
-    if(check_verb_noun(70,299)) {
+    if(cvn70(299)) {
         show_message(message379);
         return;
     }
 
     // IF verb 70 AND noun 279 THEN mess 278 WAIT ENDIF esamina immagine/i trapasso
-    if(check_verb_noun(70,279)) {
+    if(cvn70(279)) {
         show_message(message278);
         return;
     }
@@ -3443,7 +3448,7 @@ void low_cond(void)
     }
 
     // IF verb 70 AND noun 408 THEN mess 278 WAIT ENDIF esamina piedi
-    if(check_verb_noun(70,408)) {
+    if(cvn70(408)) {
         show_message(message278);
         return;
     }
@@ -3455,31 +3460,31 @@ void low_cond(void)
     }
 
     // IF verb 70 AND noun 281 THEN mess 278 WAIT ENDIF esamina strumenti
-    if(check_verb_noun(70,281)) {
+    if(cvn70(281)) {
         show_message(message278);
         return;
     }
 
     // IF verb 50 AND noun 281 THEN mess 278 WAIT ENDIF prendi strumenti
-    if(check_verb_noun(50,281)) {
+    if(cvn50(281)) {
         show_message(message278);
         return;
     }
 
     // IF verb 70 AND noun 282 THEN mess 322 WAIT ENDIF esamina imbalsamatore
-    if(check_verb_noun(70,282)) {
+    if(cvn70(282)) {
         show_message(message322);
         return;
     }
 
     // IF noun 283 OR noun 284 AND verb 70 THEN mess 278 WAIT ENDIF esamina vaso/i canopi
-    if(non1(283,284)) if(cv(70)) {
+    if(non1(283,284)) if(cv70()) {
         show_message(message278);
         return;
     }
 
     // IF noun 285 OR noun 286 AND verb 70 THEN mess 278 WAIT ENDIF esamina tracce/muffa
-    if(non1(285,286)) if(cv(70)) {
+    if(non1(285,286)) if(cv70()) {
         show_message(message278);
         return;
     }
@@ -3491,7 +3496,7 @@ void low_cond(void)
     }
 
     // IF verb 70 AND noun 287 THEN mess 381 WAIT ENDIF esamina cappella
-    if(check_verb_noun(70,287)) {
+    if(cvn70(287)) {
         show_message(message381);
         return;
     }
@@ -3503,25 +3508,25 @@ void low_cond(void)
     }
 
     // IF verb 70 AND noun 288 THEN mess 322 WAIT ENDIF esamina nonno
-    if(check_verb_noun(70,288)) {
+    if(cvn70(288)) {
         show_message(message322);
         return;
     }
 
     // IF verb 70 AND noun 289 THEN mess 106 WAIT ENDIF esamina tunnel
-    if(check_verb_noun(70,289)) {
+    if(cvn70(289)) {
         show_message(message106);
         return;
     }
 
     // IF verb 70 AND noun 290 THEN mess 383 WAIT ENDIF esamina studio
-    if(check_verb_noun(70,290)) {
+    if(cvn70(290)) {
         show_message(message383);
         return;
     }
 
     // IF verb 70 AND noun 291 THEN mess 322 WAIT ENDIF esamina padre
-    if(check_verb_noun(70,291)) {
+    if(cvn70(291)) {
         show_message(message322);
         return;
     }
@@ -3539,43 +3544,43 @@ void low_cond(void)
     }
 
     // IF verb 70 AND noun 292 THEN mess 384 WAIT ENDIF esamina arredo
-    if(check_verb_noun(70,292)) {
+    if(cvn70(292)) {
         show_message(message384);
         return;
     }
 
     // IF verb 70 AND noun 293 THEN mess 385 WAIT ENDIF esamina legno/mogano
-    if(check_verb_noun(70,293)) {
+    if(cvn70(293)) {
         show_message(message385);
         return;
     }
 
     // IF verb 70 AND noun 301 THEN mess 386 WAIT ENDIF esamina locale
-    if(check_verb_noun(70,301)) {
+    if(cvn70(301)) {
         show_message(message386);
         return;
     }
 
     // IF verb 70 AND noun 270 THEN mess 387 WAIT ENDIF esamina parete/i
-    if(check_verb_noun(70,270)) {
+    if(cvn70(270)) {
         show_message(message387);
         return;
     }
 
     // IF noun 2 OR noun 161 AND verb 70 THEN mess 278 WAIT ENDIF esamina libro/i
-    if(non1(2,161)) if(cv(70)) {
+    if(non1(2,161)) if(cv70()) {
         show_message(message278);
         return;
     }
 
     // IF verb 70 AND noun 263 THEN mess 322 WAIT ENDIF esamina iankho
-    if(check_verb_noun(70,263)) {
+    if(cvn70(263)) {
         show_message(message322);
         return;
     }
 
     // IF verb 70 AND noun 295 THEN mess 278 WAIT ENDIF esamina rame
-    if(check_verb_noun(70,295)) {
+    if(cvn70(295)) {
         show_message(message278);
         return;
     }
@@ -3587,7 +3592,7 @@ void low_cond(void)
     }
 
     // IF verb 70 AND noun 302 THEN mess 278 WAIT ENDIF esamina parapetto
-    if(check_verb_noun(70,302)) {
+    if(cvn70(302)) {
         show_message(message278);
         return;
     }
@@ -3605,13 +3610,13 @@ void low_cond(void)
     }
 
     // IF verb 111 OR verb 220 AND noun 18 AND notat 10 THEN mess 172 WAIT ENDIF  STACCA  SLEGA  CARTELLO  
-    if(vovn(111,220,18)) if(current_position!=10) {
+    if(vovn(111,220,18)) if(10!=current_position) {
         show_message(message172);
         return;
     }
 
     // IF verb 111 OR verb 220 AND noun 18 AND notat 12 THEN mess 172 WAIT ENDIF  STACCA  SLEGA  CARTELLO
-    if(vovn(111,220,18)) if(current_position!=12) {
+    if(vovn(111,220,18)) if(12!=current_position) {
         show_message(message172);
         return;
     }
@@ -3720,7 +3725,7 @@ void local_cond(void)
     }
 
     // IF noun 255 OR noun 256 AND verb 70 THEN mess 316 WAIT ENDIF esamina serie/scalino/i
-    if(non1(255,256)) if(cv(70)) {
+    if(non1(255,256)) if(cv70()) {
         show_message(message316);
         return;
     }
@@ -3734,7 +3739,7 @@ void local_cond(void)
     }
 
     // IF noun 255 OR noun 256 AND verb 70 THEN mess 316 WAIT ENDIF esamina serie/scalino/i
-    if(non1(255,256)) if(cv(70)) {
+    if(non1(255,256)) if(cv70()) {
         show_message(message316);
         return;
     }
@@ -3748,7 +3753,7 @@ void local_cond(void)
     }
 
     // IF noun 255 OR noun 256 AND verb 70 THEN mess 316 WAIT ENDIF esamina serie/scalino/i
-    if(non1(255,256)) if(cv(70)) {
+    if(non1(255,256)) if(cv70()) {
         show_message(message316);
         return;
     }
@@ -3822,7 +3827,7 @@ void local_cond(void)
     }
 
     // IF verb 70 AND noun 257 THEN mess 317 WAIT ENDIF esamina atrio
-    if(check_verb_noun(70,257)) {
+    if(cvn70(257)) {
         show_message(message317);
         return;
     }
@@ -3842,7 +3847,7 @@ void local_cond(void)
     break;
     case 11:
     // IF verb 70 AND noun 257 THEN mess 317 WAIT ENDIF esamina atrio
-    if(check_verb_noun(70,257)) {
+    if(cvn70(257)) {
         show_message(message317);
         return;
     }
@@ -3868,7 +3873,7 @@ void local_cond(void)
     }
 
     // IF verb 70 AND noun 257 THEN mess 317 WAIT ENDIF esamina atrio
-    if(check_verb_noun(70,257)) {
+    if(cvn70(257)) {
         show_message(message317);
         return;
     }
@@ -3888,7 +3893,7 @@ void local_cond(void)
     break;
     case 13:
     // IF verb 70 AND noun 268 THEN mess 514 WAIT ENDIF  ESAMINA  PORTA
-    if(check_verb_noun(70,268)) {
+    if(cvn70(268)) {
         show_message(message514);
         return;
     }
@@ -3900,7 +3905,7 @@ void local_cond(void)
     }
 
     // IF VERB 101 OR VERB 102 OR VERB 103 AND NOUN 92 THEN MESS 516 hold 2 mess 517 set 5 cset 5 3 WAIT ENDIF   DIGITA  INSERISCI  INGRESSA  30091984#
-    if(vov(101,102)||check_verb_noun(103,92)) {
+    if(verb_or_verb(101,102)||check_verb_noun(103,92)) {
         show_message(message516);
         hold(2);
         show_message(message517);
@@ -3910,7 +3915,7 @@ void local_cond(void)
     }
 
     // IF verb 101 OR verb 102 OR verb 103 AND noun 91 THEN mess 519 WAIT ENDIF  DIGITA  INSERISCI  INGRESSA  COMBINAZIONE
-    if(vov(101,102)||check_verb_noun(103,91)) {
+    if(verb_or_verb(101,102)||check_verb_noun(103,91)) {
         show_message(message519);
         return;
     }
@@ -3928,13 +3933,13 @@ void local_cond(void)
     }
 
     // IF verb 100 OR verb 204 OR verb 303 OR vbnoeq 0 AND noun 82  AND set? 5 THEN goto 15 WAIT ENDIF  ENTRA  E
-    if(vov(100,204)||vovn(303,0,82)) if(marker[5]) {
+    if(verb_or_verb(100,204)||vovn(303,0,82)) if(marker[5]) {
         jump(15);
         return;
     }
 
     // IF verb 100 OR verb 204 OR verb 303 OR vbnoeq 0 AND noun 82  THEN MESS 137 WAIT ENDIF  ENTRA  E MA LA PORTA è CHIUSA
-    if(vov(100,204)||vovn(303,0,82)) {
+    if(verb_or_verb(100,204)||vovn(303,0,82)) {
         show_message(message137);
         return;
     }
@@ -3972,25 +3977,25 @@ void local_cond(void)
     break;
     case 14:
     // IF verb 70 AND noun 258 THEN mess 321 WAIT ENDIF esamina biglietteria
-    if(check_verb_noun(70,258)) {
+    if(cvn70(258)) {
         show_message(message321);
         return;
     }
 
     // IF  noun 259 OR noun 252 AND verb 70 THEN mess 318 WAIT ENDIF esamina varco/accesso/i
-    if(non1(259,252)) if(cv(70)) {
+    if(non1(259,252)) if(cv70()) {
         show_message(message318);
         return;
     }
 
     // IF verb 70 AND noun 261 THEN mess 319 WAIT ENDIF esamina sportello/i
-    if(check_verb_noun(70,261)) {
+    if(cvn70(261)) {
         show_message(message319);
         return;
     }
 
     // IF verb 70 AND noun 296 THEN mess 320 WAIT ENDIF esamina biglietto/i
-    if(check_verb_noun(70,296)) {
+    if(cvn70(296)) {
         show_message(message320);
         return;
     }
@@ -4005,32 +4010,32 @@ void local_cond(void)
     }
 
     // IF verb 100 OR verb 204 OR verb 303 OR vbnoeq 0 AND noun 83 THEN mess 520 goto 13 WAIT ENDIF Esci ovest
-    if(vov(100,204)||vovn(303,0,83)) {
+    if(verb_or_verb(100,204)||vovn(303,0,83)) {
         show_message(message520);
         jump(13);
         return;
     }
 
     // IF verb 70 AND noun 261 THEN mess 325 WAIT ENDIF esamina piramide
-    if(check_verb_noun(70,261)) {
+    if(cvn70(261)) {
         show_message(message325);
         return;
     }
 
     // IF verb 70 AND noun 263 THEN mess 322 WAIT ENDIF esamina iunnuh/faraone
-    if(check_verb_noun(70,263)) {
+    if(cvn70(263)) {
         show_message(message322);
         return;
     }
 
     // IF verb 70 AND noun 264 then mess 324 WAIT ENDIF esamina maniglione/antipanico
-    if(check_verb_noun(70,264)) {
+    if(cvn70(264)) {
         show_message(message324);
         return;
     }
 
     // IF verb 70 AND noun 268 THEN mess 326 WAIT ENDIF esamina porta
-    if(check_verb_noun(70,268)) {
+    if(cvn70(268)) {
         show_message(message326);
         return;
     }
@@ -4042,7 +4047,7 @@ void local_cond(void)
     }
 
     // IF verb 70 AND noun 273 THEN mess 253 WAIT ENDIF esamina verde
-    if(check_verb_noun(70,273)) {
+    if(cvn70(273)) {
         show_message(message253);
         return;
     }
@@ -4056,25 +4061,25 @@ void local_cond(void)
     }
 
     // IF verb 70 AND noun 265 THEN mess 327 WAIT ENDIF esamina salone
-    if(check_verb_noun(70,265)) {
+    if(cvn70(265)) {
         show_message(message327);
         return;
     }
 
     // IF verb 70 AND noun 266 THEN mess 253 WAIT ENDIF esamina soffitto
-    if(check_verb_noun(70,266)) {
+    if(cvn70(266)) {
         show_message(message253);
         return;
     }
 
     // IF verb 70 AND noun 267 THEN mess 328 WAIT ENDIF esamina struttura
-    if(check_verb_noun(70,267)) {
+    if(cvn70(267)) {
         show_message(message328);
         return;
     }
 
     // IF verb 70 AND noun 268 THEN mess 329 WAIT ENDIF esamina portone
-    if(check_verb_noun(70,268)) {
+    if(cvn70(268)) {
         show_message(message329);
         return;
     }
@@ -4088,13 +4093,13 @@ void local_cond(void)
     }
 
     // IF verb 70 AND noun 269 THEN mess 331 WAIT ENDIF esamina riproduzione/i
-    if(check_verb_noun(70,269)) {
+    if(cvn70(269)) {
         show_message(message331);
         return;
     }
 
     // IF verb 70 AND noun 270 THEN mess 253 WAIT ENDIF esamina parete/i
-    if(check_verb_noun(70,270)) {
+    if(cvn70(270)) {
         show_message(message253);
         return;
     }
@@ -4102,7 +4107,7 @@ void local_cond(void)
     break;
     case 18:
     // IF verb 70 AND noun 271 THEN mess 253 WAIT ENDIF esamina bianco
-    if(check_verb_noun(70,271)) {
+    if(cvn70(271)) {
         show_message(message253);
         return;
     }
@@ -4110,25 +4115,25 @@ void local_cond(void)
     break;
     case 19:
     // IF verb 70 AND noun 265 THEN mess 327 WAIT ENDIF esamina salone
-    if(check_verb_noun(70,265)) {
+    if(cvn70(265)) {
         show_message(message327);
         return;
     }
 
     // IF verb 70 AND noun 274 THEN mess 332 WAIT ENDIF esamina pavimento
-    if(check_verb_noun(70,274)) {
+    if(cvn70(274)) {
         show_message(message332);
         return;
     }
 
     // IF verb 70 AND noun 404 THEN mess 333 WAIT ENDIF esamina lampadario
-    if(check_verb_noun(70,404)) {
+    if(cvn70(404)) {
         show_message(message333);
         return;
     }
 
     // IF verb 70 AND noun 409 THEN mess 334 WAIT ENDIF esamina cristallo
-    if(check_verb_noun(70,409)) {
+    if(cvn70(409)) {
         show_message(message334);
         return;
     }
@@ -4136,25 +4141,25 @@ void local_cond(void)
     break;
     case 20:
     // IF verb 70 AND noun 410 AND res? 33 THEN mess 239 WAIT ENDIF  ESAMINA  TECA  ed è integra
-    if(check_verb_noun(70,410)) if(marker[33]==false) {
+    if(cvn70(410)) if(marker[33]==false) {
         show_message(message239);
         return;
     }
 
     // IF verb 70 AND noun 410 AND set? 33 THEN mess 240 WAIT ENDIF  ESAMINA  TECA  ed è rotta
-    if(check_verb_noun(70,410)) if(marker[33]) {
+    if(cvn70(410)) if(marker[33]) {
         show_message(message240);
         return;
     }
 
     // IF verb 50 AND noun 29 AND res? 33 THEN mess 241 WAIT ENDIF  PRENDI  TORCIA  teca integra
-    if(check_verb_noun(50,29)) if(marker[33]==false) {
+    if(cvn50(29)) if(marker[33]==false) {
         show_message(message241);
         return;
     }
 
     // IF VERB 50 AND NOUN 29 AND SET? 33 AND AVAI 100 THEN GET 100 OKAY ENDIF   PRENDI  TORCIA  TECA ROTTA
-    if(check_verb_noun(50,29)) if(marker[33]) if(object_is_available(100)) {
+    if(cvn50(29)) if(marker[33]) if(object_is_available(100)) {
         if(get(100)) return;
         ok();
         return;
@@ -4181,7 +4186,7 @@ void local_cond(void)
     }
 
     // IF verb 70 AND noun 298 THEN mess 335 WAIT ENDIF esamina forma
-    if(check_verb_noun(70,298)) {
+    if(cvn70(298)) {
         show_message(message335);
         return;
     }
@@ -4199,7 +4204,7 @@ void local_cond(void)
     }
 
     // IF verb 100 OR verb 204 OR verb 303 OR vbnoeq 0 AND noun 84 THEN mess 228 goto 41 WAIT ENDIF  VAI  ALTO
-    if(vov(100,204)||vovn(303,0,84)) {
+    if(verb_or_verb(100,204)||vovn(303,0,84)) {
         show_message(message228);
         jump(41);
         return;
@@ -4215,13 +4220,13 @@ void local_cond(void)
     break;
     case 21:
     // IF noun 23 OR noun 272 AND verb 70 THEN mess 253 WAIT ENDIF esamina sala/rosso
-    if(non1(23,272)) if(cv(70)) {
+    if(non1(23,272)) if(cv70()) {
         show_message(message253);
         return;
     }
 
     // IF verb 70 AND noun 297 THEN mess 330 WAIT ENDIF esamina anima
-    if(check_verb_noun(70,297)) {
+    if(cvn70(297)) {
         show_message(message330);
         return;
     }
@@ -4229,13 +4234,13 @@ void local_cond(void)
     break;
     case 22:
     // IF verb 70 AND noun 265 THEN mess 327 WAIT ENDIF esamina salone
-    if(check_verb_noun(70,265)) {
+    if(cvn70(265)) {
         show_message(message327);
         return;
     }
 
     // IF verb 70 AND noun 260 THEN mess 338 WAIT ENDIF esamina accesso/i
-    if(check_verb_noun(70,260)) {
+    if(cvn70(260)) {
         show_message(message338);
         return;
     }
@@ -4247,13 +4252,13 @@ void local_cond(void)
     }
 
     // IF verb 70 AND noun 266 THEN mess 253 WAIT ENDIF esamina soffitto
-    if(check_verb_noun(70,266)) {
+    if(cvn70(266)) {
         show_message(message253);
         return;
     }
 
     // IF verb 70 AND noun 274 THEN mess 332 WAIT ENDIF esamina pavimento
-    if(check_verb_noun(70,274)) {
+    if(cvn70(274)) {
         show_message(message332);
         return;
     }
@@ -4267,19 +4272,19 @@ void local_cond(void)
     }
 
     // IF verb 70 AND noun 276 THEN mess 340 WAIT ENDIF esamina alchimista
-    if(check_verb_noun(70,276)) {
+    if(cvn70(276)) {
         show_message(message340);
         return;
     }
 
     // IF verb 70 AND noun 500 THEN mess 339 WAIT ENDIF esamina testi
-    if(check_verb_noun(70,500)) {
+    if(cvn70(500)) {
         show_message(message339);
         return;
     }
 
     // IF verb 50 AND noun 98 THEN mess 535 WAIT ENDIF  PRENDI  TAVOLA
-    if(check_verb_noun(50,98)) {
+    if(cvn50(98)) {
         show_message(message535);
         return;
     }
@@ -4287,31 +4292,31 @@ void local_cond(void)
     break;
     case 24:
     // IF verb 70 AND noun 277 THEN mess 323 WAIT ENDIF esamina hanyke
-    if(check_verb_noun(70,277)) {
+    if(cvn70(277)) {
         show_message(message323);
         return;
     }
 
     // IF verb 70 AND noun 270 THEN mess 253 WAIT ENDIF esamina parete/i
-    if(check_verb_noun(70,270)) {
+    if(cvn70(270)) {
         show_message(message253);
         return;
     }
 
     // IF verb 70 AND noun 278 THEN mess 253 WAIT ENDIF esamina scena/e
-    if(check_verb_noun(70,278)) {
+    if(cvn70(278)) {
         show_message(message253);
         return;
     }
 
     // IF verb 70 AND noun 299 THEN mess 253 WAIT ENDIF esamina vita
-    if(check_verb_noun(70,299)) {
+    if(cvn70(299)) {
         show_message(message253);
         return;
     }
 
     // IF verb 70 AND noun 279 THEN mess 341 WAIT ENDIF esamina immagine/i trapasso
-    if(check_verb_noun(70,279)) {
+    if(cvn70(279)) {
         show_message(message341);
         return;
     }
@@ -4445,7 +4450,7 @@ void local_cond(void)
     }
 
     // IF verb 100 OR verb 204 OR verb 303 OR vbnoeq 0 AND noun 85 THEN mess 227 WAIT ENDIF  VAI  BASSO
-    if(vov(100,204)||vovn(303,0,85)) {
+    if(verb_or_verb(100,204)||vovn(303,0,85)) {
         show_message(message227);
         return;
     }
@@ -4463,31 +4468,31 @@ void local_cond(void)
     }
 
     // IF verb 70 AND noun 263 THEN mess 322 WAIT ENDIF esamina iunnuh/faraone
-    if(check_verb_noun(70,263)) {
+    if(cvn70(263)) {
         show_message(message322);
         return;
     }
 
     // IF verb 70 AND noun 278 THEN mess 253 WAIT ENDIF esamina scena/e
-    if(check_verb_noun(70,278)) {
+    if(cvn70(278)) {
         show_message(message253);
         return;
     }
 
     // IF verb 70 AND noun 299 THEN mess 346 WAIT ENDIF esamina vita
-    if(check_verb_noun(70,299)) {
+    if(cvn70(299)) {
         show_message(message346);
         return;
     }
 
     // IF verb 70 AND noun 408 THEN mess 345 WAIT ENDIF esamina piedi
-    if(check_verb_noun(70,408)) {
+    if(cvn70(408)) {
         show_message(message345);
         return;
     }
 
     // IF verb 70 AND noun 274 THEN mess 332 WAIT ENDIF esamina pavimento
-    if(check_verb_noun(70,274)) {
+    if(cvn70(274)) {
         show_message(message332);
         return;
     }
@@ -4501,37 +4506,37 @@ void local_cond(void)
     break;
     case 26:
     // IF verb 70 AND noun 281 THEN mess 350 WAIT ENDIF esamina strumenti
-    if(check_verb_noun(70,281)) {
+    if(cvn70(281)) {
         show_message(message350);
         return;
     }
 
     // IF verb 50 AND noun 281 THEN mess 351 WAIT ENDIF prendi strumenti
-    if(check_verb_noun(50,281)) {
+    if(cvn50(281)) {
         show_message(message351);
         return;
     }
 
     // IF verb 70 AND noun 282 THEN mess 322 WAIT ENDIF esamina imbalsamatore
-    if(check_verb_noun(70,282)) {
+    if(cvn70(282)) {
         show_message(message322);
         return;
     }
 
     // IF noun 283 OR noun 284 AND verb 70 THEN mess 352 WAIT ENDIF esamina vaso/i canopi
-    if(non1(283,284)) if(cv(70)) {
+    if(non1(283,284)) if(cv70()) {
         show_message(message352);
         return;
     }
 
     // IF noun 283 OR noun 284 AND verb 50 THEN mess 351 WAIT ENDIF prendi vaso/i canopi
-    if(non1(283,284)) if(cv(50)) {
+    if(non1(283,284)) if(cv50()) {
         show_message(message351);
         return;
     }
 
     // IF verb 31 OR verb 201 OR verb 206 AND noun 19 THEN mess 301 wait endif
-    if(vov(31,201)||check_verb_noun(206,19)) {
+    if(verb_or_verb(31,201)||check_verb_noun(206,19)) {
         show_message(message301);
         return;
     }
@@ -4547,7 +4552,7 @@ void local_cond(void)
     }
 
     // IF verb 100 OR verb 204 OR verb 303 OR vbnoeq 0 AND noun 84 THEN mess 226 set 121 goto 25 WAIT ENDIF  VAI  ALTO
-    if(vov(100,204)||vovn(303,0,84)) {
+    if(verb_or_verb(100,204)||vovn(303,0,84)) {
         show_message(message226);
         marker[121]=true;
         jump(25);
@@ -4563,7 +4568,7 @@ void local_cond(void)
     }
 
     // IF verb 100 OR verb 204 OR verb 303 OR vbnoeq 0 AND noun 83 AND set? 51 THEN goto 29 WAIT ENDIF  VAI  OVEST
-    if(vov(100,204)||vovn(303,0,83)) if(marker[51]) {
+    if(verb_or_verb(100,204)||vovn(303,0,83)) if(marker[51]) {
         jump(29);
         return;
     }
@@ -4609,13 +4614,13 @@ void local_cond(void)
     }
 
     // IF noun 285 OR noun 286 AND verb 70 THEN mess 348 WAIT ENDIF esamina tracce/muffa
-    if(non1(285,286)) if(cv(70)) {
+    if(non1(285,286)) if(cv70()) {
         show_message(message348);
         return;
     }
 
     // IF noun 285 OR noun 286 AND verb 50 THEN mess 349 WAIT ENDIF prendi tracce/muffa
-    if(non1(285,286)) if(cv(50)) {
+    if(non1(285,286)) if(cv50()) {
         show_message(message349);
         return;
     }
@@ -4685,7 +4690,7 @@ void local_cond(void)
     }
 
     // IF verb 70 AND noun 287 THEN mess 353 WAIT ENDIF esamina cappella
-    if(check_verb_noun(70,287)) {
+    if(cvn70(287)) {
         show_message(message353);
         return;
     }
@@ -4697,13 +4702,13 @@ void local_cond(void)
     }
 
     // IF verb 70 AND noun 291 THEN mess 322 WAIT ENDIF esamina padre
-    if(check_verb_noun(70,291)) {
+    if(cvn70(291)) {
         show_message(message322);
         return;
     }
 
     // IF verb 70 AND noun 275 THEN mess 355 WAIT ENDIF esamina marmo/pentelico/imetto
-    if(check_verb_noun(70,275)) {
+    if(cvn70(275)) {
         show_message(message355);
         return;
     }
@@ -4731,7 +4736,7 @@ void local_cond(void)
     break;
     case 29:
     // IF verb 70 AND noun 289 THEN mess 342 WAIT ENDIF esamina tunnel
-    if(check_verb_noun(70,289)) {
+    if(cvn70(289)) {
         show_message(message342);
         return;
     }
@@ -4759,19 +4764,19 @@ void local_cond(void)
     }
 
     // IF noun 163 OR noun 161 AND verb 70 THEN mess 392 WAIT ENDIF  BIBLIOTECA  LIBRI  ESAMINA
-    if(non1(163,161)) if(cv(70)) {
+    if(non1(163,161)) if(cv70()) {
         show_message(message392);
         return;
     }
 
     // IF verb 70 AND noun 290 THEN mess 356 WAIT ENDIF esamina studio
-    if(check_verb_noun(70,290)) {
+    if(cvn70(290)) {
         show_message(message356);
         return;
     }
 
     // IF verb 70 AND noun 291 THEN mess 322 WAIT ENDIF esamina padre
-    if(check_verb_noun(70,291)) {
+    if(cvn70(291)) {
         show_message(message322);
         return;
     }
@@ -4783,13 +4788,13 @@ void local_cond(void)
     }
 
     // IF verb 70 AND noun 292 THEN mess 359 WAIT ENDIF esamina arredo/i
-    if(check_verb_noun(70,292)) {
+    if(cvn70(292)) {
         show_message(message359);
         return;
     }
 
     // IF verb 70 AND noun 293 THEN mess 358 WAIT ENDIF esamina legno/mogano
-    if(check_verb_noun(70,293)) {
+    if(cvn70(293)) {
         show_message(message358);
         return;
     }
@@ -4797,7 +4802,7 @@ void local_cond(void)
     break;
     case 31:
     // IF verb 70 AND noun 289 THEN mess 342 WAIT ENDIF esamina tunnel
-    if(check_verb_noun(70,289)) {
+    if(cvn70(289)) {
         show_message(message342);
         return;
     }
@@ -4805,7 +4810,7 @@ void local_cond(void)
     break;
     case 32:
     // IF verb 70 AND noun 289 THEN mess 342 WAIT ENDIF esamina tunnel
-    if(check_verb_noun(70,289)) {
+    if(cvn70(289)) {
         show_message(message342);
         return;
     }
@@ -4819,7 +4824,7 @@ void local_cond(void)
     }
 
     // IF verb 50 OR verb 111 OR verb 204 AND noun 108 AND no2eq 114 AND res? 55 THEN set 55 mess 256 brin 108 WAIT ENDIF  PRENDI  RITRATTO  MURO
-    if(vov(50,111)||check_verb_noun(204,108)) if(noun2==114) if(marker[55]==false) {
+    if(verb_or_verb(50,111)||check_verb_noun(204,108)) if(noun2==114) if(marker[55]==false) {
         marker[55]=true;
         show_message(message256);
         bring_object_here(108);
@@ -4827,31 +4832,31 @@ void local_cond(void)
     }
 
     // IF verb 50 OR verb 111 OR verb 204 AND noun 108 AND set? 55 THEN mess 257 WAIT ENDIF  PRENDI  RITRATTO
-    if(vov(50,111)||check_verb_noun(204,108)) if(marker[55]) {
+    if(verb_or_verb(50,111)||check_verb_noun(204,108)) if(marker[55]) {
         show_message(message257);
         return;
     }
 
     // IF verb 100 OR verb 204 OR verb 303 OR vbnoeq 0 AND noun 82 AND SET? 55 THEN GOTO 30 WAIT ENDIF vai a est
-    if(vov(100,204)||vovn(303,0,82)) if(marker[55]) {
+    if(verb_or_verb(100,204)||vovn(303,0,82)) if(marker[55]) {
         jump(30);
         return;
     }
 
     // IF verb 70 AND noun 301 THEN mess 360 WAIT ENDIF esamina locale
-    if(check_verb_noun(70,301)) {
+    if(cvn70(301)) {
         show_message(message360);
         return;
     }
 
     // IF verb 70 AND noun 270 THEN mess 253 WAIT ENDIF esamina parete/i
-    if(check_verb_noun(70,270)) {
+    if(cvn70(270)) {
         show_message(message253);
         return;
     }
 
     // IF noun 2 OR noun 161 AND verb 70 THEN mess 361 WAIT ENDIF esamina libro/i
-    if(non1(2,161)) if(cv(70)) {
+    if(non1(2,161)) if(cv70()) {
         show_message(message361);
         return;
     }
@@ -4863,13 +4868,13 @@ void local_cond(void)
     }
 
     // IF verb 70 AND noun 266 THEN mess 253 WAIT ENDIF esamina soffitto
-    if(check_verb_noun(70,266)) {
+    if(cvn70(266)) {
         show_message(message253);
         return;
     }
 
     // IF verb 70 AND noun 274 THEN mess 253 WAIT ENDIF esamina pavimento
-    if(check_verb_noun(70,274)) {
+    if(cvn70(274)) {
         show_message(message253);
         return;
     }
@@ -4917,7 +4922,7 @@ void local_cond(void)
     }
 
     // IF verb 70 AND noun 289 THEN mess 342 WAIT ENDIF esamina tunnel
-    if(check_verb_noun(70,289)) {
+    if(cvn70(289)) {
         show_message(message342);
         return;
     }
@@ -4925,7 +4930,7 @@ void local_cond(void)
     break;
     case 35:
     // IF verb 70 AND noun 289 THEN mess 342 WAIT ENDIF esamina tunnel
-    if(check_verb_noun(70,289)) {
+    if(cvn70(289)) {
         show_message(message342);
         return;
     }
@@ -4933,7 +4938,7 @@ void local_cond(void)
     break;
     case 36:
     // IF verb 70 AND noun 263 THEN mess 322 WAIT ENDIF esamina iankho
-    if(check_verb_noun(70,263)) {
+    if(cvn70(263)) {
         show_message(message322);
         return;
     }
@@ -4953,7 +4958,7 @@ void local_cond(void)
     break;
     case 40:
     // IF verb 70 AND noun 404 THEN set 30 mess 236 WAIT ENDIF  ESAMINA  LAMPADARIO
-    if(check_verb_noun(70,404)) {
+    if(cvn70(404)) {
         marker[30]=true;
         show_message(message236);
         return;
@@ -4992,20 +4997,20 @@ void local_cond(void)
     }
 
     // IF verb 70 AND noun 409 THEN set 30 mess 252 WAIT ENDIF  ESAMINA  CRISTALLO
-    if(check_verb_noun(70,409)) {
+    if(cvn70(409)) {
         marker[30]=true;
         show_message(message252);
         return;
     }
 
     // IF verb 70 AND noun 295 THEN mess 362 WAIT ENDIF esamina rame
-    if(check_verb_noun(70,295)) {
+    if(cvn70(295)) {
         show_message(message362);
         return;
     }
 
     // IF verb 70 AND noun 265 THEN mess 327 WAIT ENDIF esamina salone
-    if(check_verb_noun(70,265)) {
+    if(cvn70(265)) {
         show_message(message327);
         return;
     }
@@ -5019,7 +5024,7 @@ void local_cond(void)
     break;
     case 41:
     // IF verb 100 OR verb 204 OR verb 303 OR vbnoeq 0 AND noun 85 THEN mess 229 goto 20 WAIT ENDIF  VAI  BASSO
-    if(vov(100,204)||vovn(303,0,85)) {
+    if(verb_or_verb(100,204)||vovn(303,0,85)) {
         show_message(message229);
         jump(20);
         return;
@@ -5053,7 +5058,7 @@ void local_cond(void)
     }
 
     // IF verb 233 OR verb 204 OR verb 234 OR verb 235 AND noun 117 THEN mess 300 WAIT ENDIF
-    if(vov(233,204)||vovn(234,235,117)) {
+    if(verb_or_verb(233,204)||vovn(234,235,117)) {
         show_message(message300);
         return;
     }
@@ -5077,25 +5082,25 @@ void local_cond(void)
     }
 
     // IF verb 70 AND noun 302 THEN mess 364 WAIT ENDIF esamina parapetto
-    if(check_verb_noun(70,302)) {
+    if(cvn70(302)) {
         show_message(message364);
         return;
     }
 
     // IF verb 70 AND noun 270 THEN mess 253 WAIT ENDIF esamina parete/i
-    if(check_verb_noun(70,270)) {
+    if(cvn70(270)) {
         show_message(message253);
         return;
     }
 
     // IF verb 70 AND noun 265 THEN mess 327 WAIT ENDIF esamina salone
-    if(check_verb_noun(70,265)) {
+    if(cvn70(265)) {
         show_message(message327);
         return;
     }
 
     // IF verb 70 AND noun 404 THEN mess 365 WAIT ENDIF esamina lampadario
-    if(check_verb_noun(70,404)) {
+    if(cvn70(404)) {
         show_message(message365);
         return;
     }
@@ -5107,7 +5112,7 @@ void local_cond(void)
     }
 
     // IF verb 70 AND noun 409 THEN mess 367 WAIT ENDIF esamina cristallo
-    if(check_verb_noun(70,409)) {
+    if(cvn70(409)) {
         show_message(message367);
         return;
     }
@@ -5195,13 +5200,25 @@ boolean cv(unsigned char v) FASTCALL
     return verb==v;
 }
 #endif
-boolean vov(unsigned int v1, unsigned int v2)
+#ifdef CV_IS_A_FUNCTION
+boolean cv70(void) FASTCALL
+{
+    return verb==70;
+}
+#endif
+#ifdef CV_IS_A_FUNCTION
+boolean cv50(void) FASTCALL
+{
+    return verb==50;
+}
+#endif
+boolean verb_or_verb(unsigned int v1, unsigned int v2)
 {
     return verb==v1||verb==v2;
 }
 boolean vovn(unsigned int v1, unsigned int v2, unsigned int n)
 {
-    return vov(v1,v2)&&noun1==n;
+    return verb_or_verb(v1,v2)&&noun1==n;
 }
 boolean vovn100_0(EFFSHORTINDEX n) FASTCALL
 {
@@ -5219,9 +5236,13 @@ boolean check_verb_noun(unsigned int v, unsigned int n)
 {
     return verb==v&&noun1==n;
 }
-boolean cvn70(EFFSHORTINDEX n) FASTCALL
+boolean cvn70(unsigned int n) FASTCALL
 {
     return check_verb_noun(70,n);
+}
+boolean cvn50(unsigned int n) FASTCALL
+{
+    return check_verb_noun(50,n);
 }
 boolean cvna(unsigned int v, unsigned int n, unsigned int o)
 {

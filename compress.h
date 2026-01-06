@@ -25,7 +25,7 @@ void explore_tree(node *n);
 node *create_tree(void);
 void init_analysis(void);
 void output_decoder(FILE *f);
-int compress(FILE *fout, char *txt);
+int compress(FILE *fout, char *txt, const int);
 int get_max_len(void);
 
 

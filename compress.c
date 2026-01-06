@@ -276,8 +276,10 @@ void output_decoder(FILE *fout)
     fprintf(fout,"}\n");
 }
 
-/* Write the compressed version of the given text on the file fout. */
-int compress(FILE *fout, char *txt)
+/* Write the compressed version of the given text on the file fout. 
+   Split the lines if they are too long if splitlines!=0
+*/
+int compress(FILE *fout, char *txt, const int splitlines)
 {
     unsigned char c;
     int i=0,j;
@@ -301,7 +303,7 @@ int compress(FILE *fout, char *txt)
             }
         }
         ++i;
-        if(i%40==0) // Avoid creating lines that are too long.
+        if(splitlines && i%40==0) // Avoid creating lines that are too long.
             fprintf(fout,"\n");
     } while(c!='\0');
     if(shift!=0) fprintf(fout,"0x%X", (unsigned char)coded_v);

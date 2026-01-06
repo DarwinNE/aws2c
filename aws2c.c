@@ -37,7 +37,7 @@ old Commodore machines.
 #include "aws_c.h"
 #include "compress.h"
 
-#define VERSION "1.9.6, September 2018 - April 2021"
+#define VERSION "1.9.7, September 2018 - January 2026"
 #define AREYOUSURE "Are you sure? Type 'Y' and return if yes."
 #define EXITRESTART "'E' and return to exit, anything else to restart."
 
@@ -50,9 +50,10 @@ old Commodore machines.
 */
 
 #define BUFFERSIZE 16000
+
 char buffer[BUFFERSIZE];
 char function_res[BUFFERSIZE];
-char *config_file=NULL;
+char *config_file;
 #define TAB "    "
 
 room* world;
@@ -97,6 +98,9 @@ boolean checked_noun1_greater_zero=false;
 boolean dont_issue_message=false;
 boolean no_header_description=false;
 
+boolean output_messages_as_resource_file=false;
+char *resource_file_name;
+
 
 /* Some functions are included in the code only if necessary. Those flags
    take care of them so they can be included in the code if they have been
@@ -110,6 +114,7 @@ boolean need_cvn=false;
 boolean need_check_verb_actor=false;
 boolean need_cv=false;
 boolean need_cv70=false;
+boolean need_cv50=false;
 boolean need_hold=false;
 boolean need_cvna=false;
 boolean need_sendallroom=false;
@@ -972,7 +977,7 @@ unsigned int decision_at(FILE *f, char *line, unsigned int scanpos)
             fprintf(f, "cpi(%s)", arg1);
             need_cpi=true;
         } else {*/
-        fprintf(f, "current_position==%s", arg1);
+        fprintf(f, "%s==current_position", arg1);
         //}
     }
     if(arg1!=NULL)
@@ -986,7 +991,7 @@ unsigned int decision_notat(FILE *f, char *line, unsigned int scanpos)
 {
     start_function();
     scanpos=process_functions(line, scanpos);
-    fprintf(f, "current_position!=%s", function_res);
+    fprintf(f, "%s!=current_position", function_res);
     return scanpos;
 }
 
@@ -1238,6 +1243,9 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
                     if(val1==70) {
                         fprintf(f, "cv70()");
                         need_cv70=true;
+                    } else if(val1==50) {
+                        fprintf(f, "cv50()");
+                        need_cv50=true;
                     } else {
                         fprintf(f, "cv(%s)", function_res);
                         need_cv=true;
@@ -1248,24 +1256,20 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
 
                 scanpos=tt;
                 proc=true;
-            } else if(strcmp(next,"THEN")==0) {
-                int lp=sp-5;        // beurk!
-
+            } else if(strcmp(next,"THEN")==0)
+            {
                 sp=peek_token(line, sp);
             }
             if(proc==false) {
-
                 if(strcmp(arg1,"70")==0 &&
-                    sscanf(arg2, "%d",&val2)==1 && val2<256)
+                    sscanf(arg2, "%d",&val2)==1)
                 {
-                    /* 70 (EXAMINE) is by far the most frequent verb.
-                   this is done only if the noun has a code <256. */
+                    /* 70 (EXAMINE) is by far the most frequent verb. */
                     fprintf(f, "cvn70(%s)", arg2);
                 } else if(strcmp(arg1,"50")==0 &&  
-                    sscanf(arg2, "%d",&val2)==1 && val2<256)
+                    sscanf(arg2, "%d",&val2)==1)
                 {
-                    /* 50 (GET) is also common.
-                   this is done only if the noun has a code <256. */
+                    /* 50 (GET) is also common. */
                     fprintf(f, "cvn50(%s)", arg2);
                 } else {
                     fprintf(f, "check_verb_noun(%s,%s)", arg1,arg2);
@@ -1280,6 +1284,9 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
                 if(val1==70) {
                     fprintf(f, "cv70()");
                     need_cv70=true;
+                } else if(val1==50) {
+                    fprintf(f, "cv50()");
+                    need_cv50=true;
                 } else {
                     fprintf(f, "cv(%s)", function_res);
                     need_cv=true;
@@ -1335,7 +1342,7 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
                 if(strcmp(next,"OR")==0) {
                     proc=false;
                 } else {
-                    fprintf(f,"vov(%s,%s)", arg1, arg2);
+                    fprintf(f,"verb_or_verb(%s,%s)", arg1, arg2);
                     need_vov=true;
                 }
             }
@@ -1345,9 +1352,15 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
     } else {
         if(shortcuts==true &&sscanf(function_res, "%d",&val1)==1 && val1<256) {
             if(val1==70) {
+                sp=peek_token(line, sp);
+                boolean proc=false;
+                
                 fprintf(f, "cv70()");
                 need_cv70=true;
-            } else {
+            } else if(val1==50) {
+                fprintf(f, "cv50()");
+                need_cv50=true;
+            }  else {
                 fprintf(f, "cv(%s)", function_res);
                 need_cv=true;
             }
@@ -2686,7 +2699,6 @@ void output_header(FILE *of, int maxroomcode, int maxobjcode,
     int dsize, int rsize, int osize, char *name)
 {
     fprintf(of,"/* File generated by aws2c */\n\n");
-    //fprintf(of,"#include<stdio.h>\n");
     fprintf(of,"#include<stdlib.h>\n");
 
     FILE *hf=fopen(config_file?config_file:"config.h","w");
@@ -2818,10 +2830,19 @@ void output_optional_func(FILE *of, int max_room_code)
         fprintf(of, "}\n");
         fprintf(of, "#endif\n");
     }
+    if(need_cv50) {
+        /* Check for a verb */
+        fprintf(of, "#ifdef CV_IS_A_FUNCTION\n");
+        fprintf(of, "boolean cv50(void) FASTCALL\n");
+        fprintf(of, "{\n");
+        fprintf(of, "    return verb==50;\n");
+        fprintf(of, "}\n");
+        fprintf(of, "#endif\n");
+    }
     if(need_vov) {
         /* Check among two verbs */
 
-        fprintf(of, "boolean vov(unsigned int v1, unsigned int v2)\n");
+        fprintf(of, "boolean verb_or_verb(unsigned int v1, unsigned int v2)\n");
         fprintf(of, "{\n");
         fprintf(of, "    return verb==v1||verb==v2;\n");
         fprintf(of, "}\n");
@@ -2832,7 +2853,7 @@ void output_optional_func(FILE *of, int max_room_code)
             "boolean vovn(unsigned int v1, unsigned int v2, unsigned int n)\n");
         fprintf(of, "{\n");
         if(need_vov)
-            fprintf(of, "    return vov(v1,v2)&&noun1==n;\n");
+            fprintf(of, "    return verb_or_verb(v1,v2)&&noun1==n;\n");
         else
             fprintf(of, "    return (verb==v1||verb==v2)&&noun1==n;\n");
         fprintf(of, "}\n");
@@ -2871,11 +2892,11 @@ void output_optional_func(FILE *of, int max_room_code)
 
         fprintf(of, "    return verb==v&&noun1==n;\n");
         fprintf(of, "}\n");
-        fprintf(of, "boolean cvn70(EFFSHORTINDEX n) FASTCALL\n");
+        fprintf(of, "boolean cvn70(unsigned int n) FASTCALL\n");
         fprintf(of, "{\n");
         fprintf(of, "    return check_verb_noun(70,n);\n");
         fprintf(of, "}\n");
-        fprintf(of, "boolean cvn50(EFFSHORTINDEX n) FASTCALL\n");
+        fprintf(of, "boolean cvn50(unsigned int n) FASTCALL\n");
         fprintf(of, "{\n");
         fprintf(of, "    return check_verb_noun(50,n);\n");
         fprintf(of, "}\n");
@@ -3301,7 +3322,7 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     fprintf(of, "}\n");
 
     /* Check among two verbs */
-    fprintf(of, "boolean vov(unsigned int v1, unsigned int v2);\n");
+    fprintf(of, "boolean verb_or_verb(unsigned int v1, unsigned int v2);\n");
 
     /* Check among two verbs AND a name */
     fprintf(of,
@@ -3318,8 +3339,8 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
 
     /* Check for a verb and noun */
     fprintf(of, "boolean check_verb_noun(unsigned int v, unsigned int n);\n");
-    fprintf(of, "boolean cvn70(EFFSHORTINDEX n) FASTCALL;\n");
-    fprintf(of, "boolean cvn50(EFFSHORTINDEX n) FASTCALL;\n");
+    fprintf(of, "boolean cvn70(unsigned int n) FASTCALL;\n");
+    fprintf(of, "boolean cvn50(unsigned int n) FASTCALL;\n");
 
     /* Check for a name and an actor */
     fprintf(of, "boolean check_verb_actor(unsigned int v, ACTORTYPE n);\n");
@@ -3329,9 +3350,6 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     fprintf(of, "boolean check_verb70_actor(EFFSHORTINDEX n) FASTCALL;\n");
     fprintf(of, "boolean check_verb70_actor_available(EFFSHORTINDEX n) "
         "FASTCALL;\n");
-
-
-
     if(hardcoded_messages==false) {
         fprintf(of,"unsigned char ams(unsigned char  v, unsigned char n, "
             "unsigned int m);\n");
@@ -3345,9 +3363,11 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
     fprintf(of, "#ifdef CV_IS_A_FUNCTION\n");
     fprintf(of, "    boolean cv(unsigned char v) FASTCALL;\n");
     fprintf(of, "    boolean cv70(void) FASTCALL;\n");
+    fprintf(of, "    boolean cv50(void) FASTCALL;\n");
     fprintf(of, "#else\n");
     fprintf(of, "    #define cv(v) verb==(v)\n");
     fprintf(of, "    #define cv70() verb==70\n");
+    fprintf(of, "    #define cv50() verb==50\n");
     fprintf(of, "#endif\n");
 
     /* Send all objects to a room in particular */
@@ -3672,10 +3692,10 @@ unsigned int output_rooms(FILE *of, room* world, unsigned int rsize)
     if(compress_messages==true) {
         for(i=0; i<rsize;++i) {
             fprintf(of, "const char long_d%d[]={",world[i].code);
-            totalsize+=compress(of, encodechar(world[i].long_d));
+            totalsize+=compress(of, encodechar(world[i].long_d),1);
             fprintf(of, "};\n");
             fprintf(of, "const char short_d%d[]={",world[i].code);
-            totalsize+=compress(of, encodechar(world[i].short_d));
+            totalsize+=compress(of, encodechar(world[i].short_d),1);
             fprintf(of, "};\n");
         }
     }
@@ -3732,10 +3752,10 @@ unsigned int output_rooms(FILE *of, room* world, unsigned int rsize)
     return totalsize;
 }
 
-/** Create the code for the messages in the output file.
-    Return the total size in byte occupied by the messages.
+/** Create the code for the header in the output file.
+    Return the total size in byte occupied by the header.
 */
-unsigned int output_messages(FILE *of, message* msg, unsigned int msize,
+unsigned int output_game_info(FILE *of, message* msg, unsigned int msize,
     info *header)
 {
     unsigned int i,j;
@@ -3744,10 +3764,10 @@ unsigned int output_messages(FILE *of, message* msg, unsigned int msize,
     char awsversion[128];
     if(compress_messages==true) {
         fprintf(of, "const char areyousure[]={");
-        totalsize+=compress(of, encodechar(AREYOUSURE));
+        totalsize+=compress(of, encodechar(AREYOUSURE),1);
         fprintf(of, "};\n");
         fprintf(of, "const char exitrestart[]={");
-        totalsize+=compress(of, encodechar(EXITRESTART));
+        totalsize+=compress(of, encodechar(EXITRESTART),1);
         fprintf(of, "};\n");
         if(!no_header) {
             buffer[0]='\0';
@@ -3759,17 +3779,30 @@ unsigned int output_messages(FILE *of, message* msg, unsigned int msize,
             sprintf(awsversion, "\nAWS %s",header->version);
             strcat(buffer,awsversion);
             fprintf(of, "const char header[]={");
-            totalsize+=compress(of, encodechar(buffer));
+            totalsize+=compress(of, encodechar(buffer),1);
             fprintf(of, "};\n");
             if(strcmp(header->description,"")!=0) {
                 fprintf(of, "const char headerdescription[]={");
-                totalsize+=compress(of, encodechar(header->description));
+                totalsize+=compress(of, encodechar(header->description),1);
                 fprintf(of, "};\n");
             } else {
                 no_header_description=true;
             }
         }
     }
+    return totalsize;
+}
+
+/** Create the code for the messages in the output file.
+    Return the total size in byte occupied by the messages.
+*/
+unsigned int output_messages(FILE *of, message* msg, unsigned int msize,
+    info *header)
+{
+    unsigned int i,j;
+    unsigned int size_d=0;
+    unsigned int totalsize=0;
+    char awsversion[128];
 
     if(compress_messages==true||hardcoded_messages==true) {
         for(i=0; i<msize;++i) {
@@ -3777,7 +3810,7 @@ unsigned int output_messages(FILE *of, message* msg, unsigned int msize,
                 fprintf(of, "const char message%d[]=",msg[i].code);
                 if(compress_messages==true) {
                     fprintf(of,"{");
-                    totalsize+=compress(of, encodechar(msg[i].txt));
+                    totalsize+=compress(of, encodechar(msg[i].txt),1);
                     fprintf(of,"}");
                 } else {
                     fprintf(of,"\"%s\"",encodechar(msg[i].txt));
@@ -3822,6 +3855,41 @@ unsigned int output_messages(FILE *of, message* msg, unsigned int msize,
     return totalsize;
 }
 
+/** Write the messages in a resource file.
+    Return the total size in byte occupied by the messages.
+*/
+unsigned int output_messages_as_resources(FILE *of, message* msg, 
+    unsigned int msize,
+    info *header)
+{
+    unsigned int i,j;
+    unsigned int size_d=0;
+    unsigned int totalsize=0;
+    char awsversion[128];
+    if(compress_messages==true) {
+        for(i=0; i<msize;++i) {
+            if(!strip_empty_messages || strcmp(msg[i].txt,"")!=0) {
+                fprintf(of, "message%d ",msg[i].code);
+                if(compress_messages==true) {
+                    totalsize+=compress(of, encodechar(msg[i].txt),0);
+                } else {
+                    fprintf(of,"\"%s\"",encodechar(msg[i].txt));
+                    totalsize+=strlen(buffer)+1;
+                }
+                fprintf(of, "\n");
+            }
+        }
+    } else {
+        for(i=0; i<msize;++i) {
+            fprintf(of, "message%d %s", msg[i].code,
+                    encodechar(msg[i].txt));
+            totalsize+=strlen(buffer)+1;
+        }
+        fprintf(of,"\n");
+    }
+    return totalsize;
+}
+
 /** Create the code for the objects in the output file. */
 void output_objects(FILE *of, object* obj, unsigned int osize)
 {
@@ -3830,7 +3898,7 @@ void output_objects(FILE *of, object* obj, unsigned int osize)
         for(i=0; i<osize;++i) {
             fprintf(of, "const char desc_l%d[]=",obj[i].code);
             fprintf(of,"{");
-            compress(of, encodechar(obj[i].desc));
+            compress(of, encodechar(obj[i].desc),1);
             fprintf(of,"}");
             fprintf(of, ";\n");
 
@@ -4158,6 +4226,8 @@ void print_help(char *name)
            "     with the macro CONFIG_FILENAME defined to the configuration\n"
            "     file name, within \". For example, for gcc\n"
            "     gcc -DCONFIG_FILENAME=\\\"test.h\\\" ...\n"
+           " -R  <filename> write all messages and description in a separate\n"
+           "     resource file.\n"
            " --verbose write plenty of things.\n");
 
     printf("\n");
@@ -4177,6 +4247,19 @@ unsigned int process_options(char *arg, char *name)
         config_file=calloc(strlen(arg)+1, sizeof(char));
         strcpy(config_file, arg);
         require_config_file=false;
+        return 1;
+    }
+
+    static boolean require_resource_file;;
+
+    /* This condition is true if the previous execution of process_option
+       has required a name for the message resource file.
+    */
+    if(require_resource_file) {
+        resource_file_name=calloc(strlen(arg)+1, sizeof(char));
+        strcpy(resource_file_name, arg);
+        require_resource_file=false;
+        output_messages_as_resource_file=true;
         return 1;
     }
 
@@ -4244,6 +4327,9 @@ unsigned int process_options(char *arg, char *name)
         return 1;
     } else if (strcmp(arg, "-f")==0) {
         require_config_file=true;
+        return 1;
+    } else if (strcmp(arg, "-R")==0) {
+        require_resource_file=true;
         return 1;
     } else if (strcmp(arg, "--verbose")==0) {
         verbose=true;
@@ -4457,7 +4543,20 @@ int main(int argc, char **argv)
     }
     output_dictionary(of, dictionary, dsize);
     rsize_bytes=output_rooms(of, world, rsize);
-    msize_bytes=output_messages(of, msg, msize, header);
+    msize_bytes=output_game_info(of, msg, msize, header);
+    
+    if(output_messages_as_resource_file) {
+        FILE *rf=fopen(resource_file_name,"w");
+        if (rf==NULL) {
+            printf("Can not open the resource file: %s\n",resource_file_name);
+            exit(1);
+        }
+        msize+=output_messages_as_resources(rf, msg, msize, header);
+        fclose(rf);
+    } else {
+        msize+=output_messages(of, msg, msize, header);
+    }
+    
     output_objects(of, objects, osize);
     output_utility_func(of,header,rsize, osize,max_room_code);
 
