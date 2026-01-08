@@ -15,6 +15,12 @@ typedef unsigned char word_type;
 #define ADJECTIVE 5
 
 
+#ifdef MESSAGESASRESOURCES
+typedef unsigned int message_type;
+#else
+typedef char * message_type;
+#endif
+
 typedef struct info_d {
     char *version;
     unsigned int textcolor;
@@ -53,11 +59,11 @@ typedef struct word_d {
 
 typedef struct room_d {
     room_code code;
-    const char *long_d;
+    message_type long_d;
     #ifndef AVOID_SDESC
-    const char *s;
+    message_type s;
     #endif
-    const char *short_d;
+    message_type short_d;
 
     #ifndef DIR_REDUCED
         #define NDIR 10
@@ -88,9 +94,9 @@ typedef struct message_d {
 typedef struct object_d {
     obj_code code;
     #ifndef NOLONGDESC
-        char *s;
+        message_type s;
     #endif
-    const char *desc;
+    message_type desc;
     #ifndef NOSIZEWEIGHT    // Don't consider size and weight.
         unsigned int weight;
         unsigned int size;

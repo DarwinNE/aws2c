@@ -97,9 +97,11 @@ boolean complete_shortcut=false;
 boolean checked_noun1_greater_zero=false;
 boolean dont_issue_message=false;
 boolean no_header_description=false;
+boolean all_command_line_inputs_provided=true;
 
 boolean output_messages_as_resource_file=false;
 char *resource_file_name;
+char *map_file_name;
 
 
 /* Some functions are included in the code only if necessary. Those flags
@@ -2711,6 +2713,8 @@ void output_header(FILE *of, int maxroomcode, int maxobjcode,
     fprintf(hf, "#define OSIZE %d\n",osize);
     fprintf(hf, "#define GAMEN \"%s\"\n",name);
 
+    if(output_messages_as_resource_file)
+        fprintf(hf,"#define MESSAGESASRESOURCES\n");
     if(compress5bit_dict)
         fprintf(hf,"#define DICT5BIT\n");
     if(compress_hash_dict)
@@ -2773,7 +2777,7 @@ void output_header(FILE *of, int maxroomcode, int maxobjcode,
     fprintf(of,"#include \"systemd.h\"\n\n");
     if(output_messages_as_resource_file) {
         fprintf(of,"#include \"resource.h\"\n"
-                   "#include \"mapfile.h\"\n\n");
+                   "#include \"%s\"\n\n", map_file_name);
     }
     fprintf(of,"extern unsigned int verb;\nextern unsigned int noun1;\nextern unsigned int noun2;\n"
         "extern ADVERBTYPE adve;\nextern ACTORTYPE actor;\nextern ADJECTIVETYPE adjective;\n");
@@ -4356,8 +4360,9 @@ void print_help(char *name)
            "     with the macro CONFIG_FILENAME defined to the configuration\n"
            "     file name, within \". For example, for gcc\n"
            "     gcc -DCONFIG_FILENAME=\\\"test.h\\\" ...\n"
-           " -R  <filename> write all messages and description in a separate\n"
-           "     resource file. This requires -m and -c.\n"
+           " -R  <res_file> <map_file> write all messages and description in\n"
+           "     a separate resource file, along with a map file. This option\n"
+           "     requires -m and -c.\n"
            " --verbose write plenty of things.\n");
 
     printf("\n");
@@ -4369,7 +4374,7 @@ void print_help(char *name)
 unsigned int process_options(char *arg, char *name)
 {
     static boolean require_config_file;
-
+    all_command_line_inputs_provided=false;
     /* This condition is true if the previous execution of process_option
        has required a name for the configuration file.
     */
@@ -4380,7 +4385,8 @@ unsigned int process_options(char *arg, char *name)
         return 1;
     }
 
-    static boolean require_resource_file;;
+    static boolean require_resource_file;
+    static boolean require_map_file;
 
     /* This condition is true if the previous execution of process_option
        has required a name for the message resource file.
@@ -4389,9 +4395,22 @@ unsigned int process_options(char *arg, char *name)
         resource_file_name=calloc(strlen(arg)+1, sizeof(char));
         strcpy(resource_file_name, arg);
         require_resource_file=false;
+        require_map_file=true;
         output_messages_as_resource_file=true;
         return 1;
     }
+
+
+    /* This condition is true if the previous execution of process_option
+       has required a name for the message resource file.
+    */
+    if(require_map_file) {
+        map_file_name=calloc(strlen(arg)+1, sizeof(char));
+        strcpy(map_file_name, arg);
+        require_map_file=false;
+        return 1;
+    }
+    all_command_line_inputs_provided=true;
 
     /* Process normal options. */
     if(strcmp(arg, "-h")==0) {
@@ -4543,6 +4562,32 @@ void set_up_optimization(void)
 
 }
 
+void create_map_file(const char *map_file, const char *res_file)
+{
+    FILE *rf=fopen(res_file, "r");
+    FILE *mf=fopen(map_file, "w");
+    int counter=0;
+    char buffer[BUFFERSIZE];
+        
+    if(rf==NULL || mf==NULL) {
+        fprintf(stderr, "Can not open map or resource file.");
+        exit(1);
+    }
+    
+    fprintf(mf, "#ifndef _MAPFILE_HEADER_\n"
+                "#define _MAPFILE_HEADER_\n\n");
+
+    while (fgets(buffer, BUFFERSIZE-1, rf)) {
+        unsigned int i;
+        for(i=0; buffer[i]!='\0'&&buffer[i]!=' '; ++i)
+            ;
+        buffer[i]='\0';
+        fprintf(mf, "#define %s %d\n", buffer, counter++);
+    }
+     fprintf(mf, "#endif\n");
+
+}
+
 /* Entry point of the program. */
 int main(int argc, char **argv)
 {
@@ -4572,7 +4617,7 @@ int main(int argc, char **argv)
     while (argumentr<argc && process_options(argv[argumentr], argv[0])) {
         ++argumentr;
     }
-    if (argumentr+1!=argc-1) {
+    if (argumentr+1!=argc-1 || !all_command_line_inputs_provided) {
         fprintf(stderr,"Not enough arguments on the command line.\n");
         return 1;
     }
@@ -4691,7 +4736,7 @@ int main(int argc, char **argv)
         msize_bytes+=output_messages(of, msg, msize, header);
         output_objects_d(of, objects, osize);
     }
-    
+
     output_objects_s(of, objects, osize);
     output_utility_func(of,header,rsize, osize,max_room_code);
 
@@ -4703,6 +4748,9 @@ int main(int argc, char **argv)
     create_main(of,header);
     output_optional_func(of,max_room_code);
     fclose(of);
+    if(output_messages_as_resource_file)
+        create_map_file(map_file_name, resource_file_name);
+
     printf("File %s created\n",argv[argumentr+1]);
     printf("Size occupied by room descriptions: %d bytes\n", rsize_bytes);
     printf("Size occupied by messages: %d bytes\n", msize_bytes);
