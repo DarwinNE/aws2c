@@ -212,6 +212,19 @@ char *eatcr(char *s) FASTCALL
         }
     return os;
 }
+/* Manually takes care of backspace/delete/back inputs in the string
+*/
+void sanitize_player_input(char *s) {
+	// Traverse the string, keeping a read and write idx in sync, and in case a backspace/delete is found, move the write idx back
+	unsigned int rd_idx, wr_idx;
+	
+	wr_idx = 0;
+	for(rd_idx = 0; s[rd_idx] != '\0'; rd_idx++) {
+		if(s[rd_idx] == '\b' || s[rd_idx] == 0x7F) { if(wr_idx) wr_idx--; } // Move write head back in case of a backspace or delete
+		else s[wr_idx++] = s[rd_idx];
+	}
+	s[wr_idx++] = '\0'; // Terminate the string
+}
 
 /** Read a line of text and return the length of the line (remove the \n char).
 */
@@ -222,6 +235,8 @@ unsigned int readln(void)
     GETS(playerInput,BUFFERSIZE);
     end_inputtxt();
     normaltxt();
+	// Handle the backspaces
+	sanitize_player_input(playerInput); 
     // remove the '\n'
     eatcr(playerInput);
 
