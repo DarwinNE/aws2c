@@ -1036,6 +1036,7 @@
                          support Apple 2 enhanced, it supports 80 columns */
 
     #include<stdio.h>
+    #include<unistd.h>
     #include<apple2enh.h>
 
     #define BUFFERSIZE 128
@@ -1052,17 +1053,20 @@
         #define NROW 24
     #endif
 
+    #define init_resources() { if(!initialize_resource("TEXT.DAT")) return 0; }
+    #define cleanup_resources() { cleanup_resource(); }
+
     #define waitkey() getchar(); rowc=0
     #define inputtxt()
-    #define evidence1()
+    #define evidence1() fputc(0x8F, stdout); // Inverted text
+    #define end_evidence1() fputc(0x8E, stdout);
     #define evidence2()
     #define evidence3()
     #define cls()
 
     #define normaltxt()
     #define tab() fputs("\t", stdout)
-    #define wait1s()    {unsigned int retTime = time(0) + 1;while (time(0) < \
-        retTime);}
+    #define wait1s()  sleep(1)
 
     #define init_term() {videomode(VIDEOMODE_80COL);}
     #define leave()
@@ -1267,6 +1271,14 @@
 
 #ifndef FASTCALL
     #define FASTCALL
+#endif
+
+#ifndef init_resources
+    #define init_resources()
+#endif
+
+#ifndef cleanup_resources
+    #define cleanup_resources()
 #endif
 
 #endif

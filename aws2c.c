@@ -70,6 +70,7 @@ typedef struct localc_t {
 unsigned int no_of_errors;
 boolean verbose=false;
 boolean convert_utf8=false;
+boolean clear_inconvertible_chars=false; 
 boolean convert_accents=false;
 boolean convert_accent_alt=false;
 boolean compress_messages=false;
@@ -268,6 +269,8 @@ char *encodechar(char *input)
                         notshown, (unsigned int) c, (unsigned int) input[i+1],
                         input);
                 }
+				
+				if(clear_inconvertible_chars) c = input[i + 1] = ' ';
             }
         }
         buffer[k++]=c;
@@ -3026,7 +3029,12 @@ void output_optional_func(FILE *of, int max_room_code)
                 fprintf(of,"unsigned int");
             else
                 fprintf(of,"EFFSHORTINDEX");
-            fprintf(of," p, EFFSHORTINDEX c, boolean v, const char *m)\n");
+            fprintf(of," p, EFFSHORTINDEX c, boolean v,");
+	    if(output_messages_as_resource_file)
+		fprintf(of," const uint16_t m)\n");
+	    else
+		fprintf(of, " const char *m)\n");
+		
         }
 
         fprintf(of, "{\n");
@@ -3470,7 +3478,11 @@ void output_utility_func(FILE *of, info *header, int rsize, int osize,
             fprintf(of,"unsigned int");
         else
             fprintf(of,"EFFSHORTINDEX");
-        fprintf(of," p, EFFSHORTINDEX c, boolean v, const char *m);\n");
+        fprintf(of," p, EFFSHORTINDEX c, boolean v,");
+	if(output_messages_as_resource_file)
+	    fprintf(of, " const uint16_t m);\n");
+	else
+	    fprintf(of, " const char *m);\n");
     }
 
     /* If a name and a noun and avai conditions are given */
@@ -3973,10 +3985,11 @@ unsigned int output_messages(FILE *of, message* msg, unsigned int msize,
 /** Write the messages in a resource file.
     Return the total size in byte occupied by the messages.
 */
-unsigned int output_messages_as_resources(FILE *of, message* msg, 
+unsigned int output_messages_as_resources(FILE *rf, FILE *of, message* msg, 
     unsigned int msize,
     info *header)
 {
+    unsigned int i, j;
     unsigned int totalsize=0;
     if(compress_messages==false || hardcoded_messages==false) {
         fprintf(stderr,"The -R option requires -m and -c.\n");
@@ -3985,16 +3998,30 @@ unsigned int output_messages_as_resources(FILE *of, message* msg,
 
     for(unsigned int i=0; i<msize;++i) {
         if(!strip_empty_messages || strcmp(msg[i].txt,"")!=0) {
-            fprintf(of, "message%d ",msg[i].code);
+            fprintf(rf, "message%d ",msg[i].code);
             if(compress_messages==true) {
-                totalsize+=compress(of, encodechar(msg[i].txt),0);
+                totalsize+=compress(rf, encodechar(msg[i].txt),0);
             } else {
-                fprintf(of,"\"%s\"",encodechar(msg[i].txt));
+                fprintf(rf,"\"%s\"",encodechar(msg[i].txt));
                 totalsize+=strlen(buffer)+1;
             }
-            fprintf(of, "\n");
+            fprintf(rf, "\n");
         }
     }
+        
+    if(use_6_directions) {
+        fprintf(of, "const uint16_t dir[6]={\n");
+        j=6;
+    } else {
+        fprintf(of, "const uint16_t dir[10]={\n");
+        j=10;
+    }
+    
+    for(i=0;i<j;++i) {
+        fprintf(of, TAB "message%d",1021+i);
+        if(i<j-1) fprintf(of, ",\n");
+    }
+    fprintf(of, "};\n\n");
 
     return totalsize;
 }
@@ -4314,6 +4341,7 @@ void print_header(FILE *f, info *header)
 void create_main(FILE *f,info *header)
 {
     fprintf(f, "\nint main(void)\n{\n");
+    fprintf(f, TAB "init_resources();\n");
     fprintf(f, TAB "restart();\n");
     fprintf(f, TAB "init_term();\n");
 
@@ -4321,6 +4349,7 @@ void create_main(FILE *f,info *header)
         print_header(f, header);
 
     fprintf(f, TAB "game_cycle();\n");
+    fprintf(f, TAB "cleanup_resources();\n");
     fprintf(f, TAB "return 0;\n");
     fprintf(f, "}\n");
 }
@@ -4342,6 +4371,7 @@ void print_help(char *name)
            "        è -> e'  è -> e`\n"
            " -s  same as -u, but only employs the single accent '.\n"
            "        é -> e'  è -> e'\n"
+           " -p  UTF-8 conversion replaces chars that cannot be converted with spaces.\n"		   
            " -c  compress text with Huffman algorithm.\n"
            " -d  employ 6 directions instead of 10.\n"
            " -m  employ hardcoded messages instead of an array.\n"
@@ -4429,6 +4459,9 @@ unsigned int process_options(char *arg, char *name)
         convert_accents=true;
         convert_accent_alt=true;
         return 1;
+	} else if (strcmp(arg, "-p")==0) {
+		clear_inconvertible_chars=true;
+		return 1;
     } else if (strcmp(arg, "-d")==0) {
         use_6_directions=true;
         return 1;
@@ -4727,7 +4760,7 @@ int main(int argc, char **argv)
         }
         rsize_bytes+=output_rooms_d_as_resources(rf, world, rsize);
         msize_bytes=output_game_info_as_resources(rf, msg, msize, header);
-        msize_bytes+=output_messages_as_resources(rf, msg, msize, header);
+        msize_bytes+=output_messages_as_resources(rf, of, msg, msize, header);
         output_objects_d_as_resources(rf, objects, osize);
         fclose(rf);
     } else {
