@@ -18,7 +18,7 @@ typedef unsigned char word_type;
 #ifdef MESSAGESASRESOURCES
 typedef unsigned int message_type;
 #else
-typedef char * message_type;
+typedef const char * message_type;
 #endif
 
 typedef struct info_d {

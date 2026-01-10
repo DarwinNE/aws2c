@@ -4750,7 +4750,6 @@ int main(int argc, char **argv)
         output_decoder(of);
     }
     output_dictionary(of, dictionary, dsize);
-    rsize_bytes=output_rooms_s(of, world, rsize);
 
     if(output_messages_as_resource_file) {
         FILE *rf=fopen(resource_file_name,"w");
@@ -4758,15 +4757,19 @@ int main(int argc, char **argv)
             printf("Can not open the resource file: %s\n",resource_file_name);
             exit(1);
         }
+        rsize_bytes=output_rooms_s(of, world, rsize);
         rsize_bytes+=output_rooms_d_as_resources(rf, world, rsize);
         msize_bytes=output_game_info_as_resources(rf, msg, msize, header);
         msize_bytes+=output_messages_as_resources(rf, of, msg, msize, header);
         output_objects_d_as_resources(rf, objects, osize);
         fclose(rf);
     } else {
-        rsize_bytes=output_rooms_d(of, world, rsize);
+        // The order here is important as some messages are used in the room
+        // descriptions and for the objects.
         msize_bytes=output_game_info(of, msg, msize, header);
         msize_bytes+=output_messages(of, msg, msize, header);
+        rsize_bytes=output_rooms_d(of, world, rsize);
+        rsize_bytes=output_rooms_s(of, world, rsize);
         output_objects_d(of, objects, osize);
     }
 
