@@ -2,7 +2,7 @@ cc65_options = -O -C apple2enh-system.cfg -t apple2enh -D APPLE2E -D NCOL=80 -D 
 output_dir = Apple2e_Iunnuh
 aws_options  = -m -c -s -d -n -w -3 -kk -p
 
-ACMD=/mnt/d/Users/hkzla/software/applecommander/AppleCommander-ac-1.11.0.jar
+ACMD=/Users/davidebucci/Documents/Synchronized/Vintage/Computing/Apple/AppleII/AppleCommander-ac-13.0.jar 
 
 all: Apple2e
 
@@ -24,19 +24,8 @@ iunnuh2e_it.bin: inout.c iunnuh2_no_utf8.c resource.c text_it.dat
 iunnuh2e_en.bin: inout.c iunnuh2_no_utf8_en.c resource.c text_en.dat
 	cl65  -DCONFIG_FILENAME=\"config_en_nu.h\" --mapfile iunnuh2e_en.map $(cc65_options) iunnuh2_no_utf8_en.c inout.c loadsave.c resource.c -o iunnuh2e_en.bin
 	
-iunnuh2e_it.po: iunnuh2e_it.bin
-	(cp dsk/prodos.po ./$@; \
-	java -jar $(ACMD) -as ./$@ IUNNUH2.SYSTEM < $<; \
-	java -jar $(ACMD) -p ./$@ EM.DRV 0 < dsk/a2e.auxmem.emd; \
-	java -jar $(ACMD) -p ./$@ TEXT.DAT 0 < text_it.dat; ) 
-	
-iunnuh2e_en.po: iunnuh2e_en.bin
-	(cp dsk/prodos.po ./$@; \
-	java -jar $(ACMD) -as ./$@ IUNNUH2.SYSTEM < $<; \
-	java -jar $(ACMD) -p ./$@ EM.DRV 0 < dsk/a2e.auxmem.emd; \
-	java -jar $(ACMD) -p ./$@ TEXT.DAT 0 < text_en.dat; ) 
-	
-Apple2e: iunnuh2e_it.po iunnuh2e_en.po
+
+Apple2e: iunnuh2e_it.bin iunnuh2e_en.bin
 
 clean:
 	rm iunnuh2.c iunnuh2_it iunnuh2_no_utf8.c iunnuh2_en.c iunnuh2_en iunnuh2_it iunnuh2_no_utf8_en.c iunnuh2_it_a iunnuh2_en_a config_it_nu.h config_en_nu.h iunnuh2e iunnuh2i *.o *.dat *.po *.map *.bin mapfile_*.h *.lst
