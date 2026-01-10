@@ -1,0 +1,71 @@
+s
+e
+esamina il gatto
+esamina la targhetta
+leggi la targhetta
+e
+e
+n
+n
+leggi il cartello
+slega il cartello
+prendi la corda
+prendi il cartello
+e
+digita 30091984
+entra
+s
+prendi il volantino
+prendi la spada
+s
+prendi la maschera
+e
+rompi la teca
+prendi la torcia
+sopra
+
+prendi il cacciavite
+prendi il nastro
+prendi le batterie
+prendi le forbici
+salta sul lampadario
+esamina il cristallo
+leggi il cristallo
+salta sulla balconata
+sotto
+n
+e
+e
+sposta il sarcofago
+lega la corda al sarcofago
+getta la corda nel buco
+scendi nel buco
+metti le batterie nella torcia
+copri lo specchio con il nastro
+rompi lo specchio
+o
+o
+o
+s
+e
+prendi il ritratto sul muro
+e
+esamina lo scrittoio
+prendi il taccuino
+esamina il taccuino
+leggi il taccuino
+o
+o
+n
+n
+apri le casse con il cacciavite
+posa il cacciavite
+posa la spada
+prendi il libro
+prendi i paramenti
+indossa i paramenti
+prendi il candelabro
+e
+e
+posa il candelabro sul tavolo
+recita rito
