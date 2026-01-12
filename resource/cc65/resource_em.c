@@ -15,6 +15,13 @@
 void *resource_buffer;
 static FILE *res_file;
 
+
+#if defined(C64) || defined(C128)
+	#define EM_DRIVER "em.drv"
+#else
+	#define EM_DRIVER "EM.DRV"
+#endif
+
 int8_t initialize_resource(const char *fname) {
 	struct em_copy copy_params;
 	size_t read_count;
@@ -25,10 +32,10 @@ int8_t initialize_resource(const char *fname) {
 	_heapadd ((void *) 0x0800, 0x1800);
 #endif
 
-	if(em_load_driver("EM.DRV") != EM_ERR_OK) return 0;
+	if(em_load_driver(EM_DRIVER) != EM_ERR_OK) return 0;
 	if(!(resource_buffer = malloc(0x400))) return 0; 
 	if(!(res_file = fopen(fname, "rb"))) return 0;
-	
+
 	while ((read_count = fread(resource_buffer, 1, EM_PAGE_SIZE, res_file)) > 0) {
         copy_params.buf	= resource_buffer;
         copy_params.offs = 0; 
