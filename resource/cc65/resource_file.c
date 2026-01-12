@@ -17,7 +17,7 @@ int8_t initialize_resource(const char *fname) {
 	if(!res_file) return 0;
 
 	// Maybe the size is a bit overkill, but I'll go with this, for now
-	if(!(resource_buffer = malloc(0x400)) return 0; 
+	if(!(resource_buffer = malloc(0x400))) return 0; 
 
 	return 1;
 }

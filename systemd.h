@@ -76,6 +76,11 @@
 
     #define switch80col "\x1Bx\x0E"
 
+#if defined(C128_EXT_RESOURCES)
+    #define init_resources() { if(!initialize_resource("text.dat")) return 0; }
+    #define cleanup_resources() { cleanup_resource(); }
+#endif
+
     /* Macro to wait for a key */
     #define waitkey() cgetc()
 
