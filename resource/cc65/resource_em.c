@@ -37,12 +37,12 @@ int8_t initialize_resource(const char *fname) {
 	if(!(res_file = fopen(fname, "rb"))) return 0;
 
 	while ((read_count = fread(resource_buffer, 1, EM_PAGE_SIZE, res_file)) > 0) {
-        copy_params.buf	= resource_buffer;
-        copy_params.offs = 0; 
-        copy_params.page = current_page++;
-        copy_params.count = read_count;
+        	copy_params.buf	= resource_buffer;
+        	copy_params.offs = 0; 
+        	copy_params.page = current_page++;
+        	copy_params.count = read_count;
         
-        em_copyto(&copy_params);
+        	em_copyto(&copy_params);
 	}
 	
 	fclose(res_file);
