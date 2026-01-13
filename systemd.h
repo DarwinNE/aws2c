@@ -1045,7 +1045,9 @@
     #include<apple2enh.h>
     #include<conio.h>
 
-    #define BUFFERSIZE 128
+    #include "resource.h"
+
+    #define BUFFERSIZE 80
     #define B_SIZE 120
 
     #define waitscreen()
