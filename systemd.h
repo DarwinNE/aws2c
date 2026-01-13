@@ -1045,6 +1045,8 @@
     #include<apple2enh.h>
     #include<conio.h>
 
+    #include "resource.h"
+
     #define BUFFERSIZE 80
     #define B_SIZE 120
 
