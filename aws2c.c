@@ -1252,7 +1252,7 @@ unsigned int decision_verb(FILE *f, char *line, unsigned int scanpos)
                         fprintf(f, "cv50()");
                         need_cv50=true;
                     } else {
-                        fprintf(f, "cv(%s)", function_res);
+                        fprintf(f, "cv(%s)", arg1);
                         need_cv=true;
                     }
                 } else {
