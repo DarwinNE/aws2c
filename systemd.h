@@ -76,6 +76,11 @@
 
     #define switch80col "\x1Bx\x0E"
 
+#if defined(C128_EXT_RESOURCES)
+    #define init_resources() { if(!initialize_resource("text.dat")) return 0; }
+    #define cleanup_resources() { cleanup_resource(); }
+#endif
+
     /* Macro to wait for a key */
     #define waitkey() cgetc()
 
@@ -1038,8 +1043,11 @@
     #include<stdio.h>
     #include<unistd.h>
     #include<apple2enh.h>
+    #include<conio.h>
 
-    #define BUFFERSIZE 128
+    #include "resource.h"
+
+    #define BUFFERSIZE 80
     #define B_SIZE 120
 
     #define waitscreen()
@@ -1056,7 +1064,7 @@
     #define init_resources() { if(!initialize_resource("TEXT.DAT")) return 0; }
     #define cleanup_resources() { cleanup_resource(); }
 
-    #define waitkey() getchar(); rowc=0
+    #define waitkey() cgetc(); rowc=0
     #define inputtxt()
     #define evidence1() fputc(0x8F, stdout); // Inverted text
     #define end_evidence1() fputc(0x8E, stdout);
@@ -1070,6 +1078,12 @@
 
     #define init_term() {videomode(VIDEOMODE_80COL);}
     #define leave()
+
+    #define scroll() {asm("bit $C082"); asm("jsr $FC70"); asm("bit $C080");}
+
+    // Leverage the automatic scrolling routine at $FC70
+    // https://github.com/cc65/cc65/discussions/1982
+    #define GETS(buffer, size) { unsigned char cur_y = wherey(); cgets((buffer),(size)); if(cur_y >= 23) {scroll(); gotoy(23);} };
 
 #elif defined(MSDOS) /* Definitions for MS-DOS terminals*/
     #include<stdio.h>

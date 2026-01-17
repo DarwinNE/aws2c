@@ -1,10 +1,10 @@
 all: modern
 
-innuh.c: Innuh.AWS
-	../aws2c Innuh.AWS innuh.c
+innuh.c: ../../aws_sources/Innuh.AWS
+	../../../aws2c $< $@
 
-innuh_no_utf8.c: Innuh.AWS
-	../aws2c -c -d -s -m Innuh.AWS innuh_no_utf8.c
+innuh_no_utf8.c: ../../aws_sources/Innuh.AWS
+	../../../aws2c -c -d -s -m $< $@
 
 modern: innuh.c inout.c loadsave.c
 	gcc innuh.c inout.c loadsave.c -o iunnuh
